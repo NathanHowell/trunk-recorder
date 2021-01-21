@@ -1,0 +1,13 @@
+[package]
+name = "trunk-recorder-sync"
+version = "0.1.0"
+authors = ["Nathan Howell <nathan.d.howell@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+inotify = { version = "0.9.1", default-features = false }
+pathdiff = "0.2.0"
+serde = { version = "1.0.119", features = ["derive"] }
+serde_json = "1.0.61"
+tracing = "0.1.22"
+tracing-subscriber = "0.2.15"

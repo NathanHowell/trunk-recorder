@@ -1,0 +1,45 @@
+version: '3.2'
+services:
+  recorder:
+    image: nathanhowell/trunk-recorder:v3.1.4
+    build:
+      context: recorder
+    container_name: trunk-recorder
+    restart: always
+    user: 0:0
+    read_only: true
+    working_dir: /app
+    devices:
+      - /dev/bus/usb:/dev/bus/usb
+    volumes:
+      - /opt/trunk-recorder:/app:ro
+      - /opt/trunk-recorder/media:/media:rw 
+      - /opt/trunk-recorder/home:/root:rw
+      - type: tmpfs
+        target: /tmp
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+  sync:
+    image: nathanhowell/trunk-recorder-sync:latest
+    build:
+      context: sync
+    container_name: trunk-recorder-sync
+    restart: always
+    user: 0:0
+    read_only: true
+    working_dir: /app
+    environment:
+      - RUST_LOG=DEBUG
+    volumes:
+      - /opt/trunk-recorder:/app:ro
+      - /opt/trunk-recorder/media:/media:rw 
+      - /opt/trunk-recorder/home:/root:rw
+      - /home/ubuntu/.ssh:/root/.ssh:rw
+      - type: tmpfs
+        target: /tmp
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
