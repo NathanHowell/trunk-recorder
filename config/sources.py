@@ -1,7 +1,8 @@
 import csv
 import itertools
+import json
 from dataclasses import dataclass
-from typing import Dict, Iterator, Iterable, List, Union
+from typing import Dict, Iterator, Iterable, List, Union, Tuple, Set
 
 import z3
 
@@ -24,7 +25,7 @@ def strip(x):
         raise ValueError()
 
 
-def digital() -> Iterator[Dict[str, object]]:
+def _digital() -> Iterator[Dict[str, object]]:
     with open("digital.tsv", "rt") as h:
         header = [x for x in h.readline().strip().split("\t") if x not in {" ", "Freqs"}]
         reader = csv.DictReader(h, fieldnames=header, delimiter="\t", restkey="Freqs")
@@ -43,7 +44,7 @@ def digital() -> Iterator[Dict[str, object]]:
         yield last
 
 
-def analog() -> Iterator[Dict[str, object]]:
+def _analog() -> Iterator[Dict[str, object]]:
     with open("analog.tsv", "rt") as h:
         reader = csv.DictReader(h, delimiter="\t")
         # Frequency 	License 	Type 	Tone 	Alpha Tag 	Description 	Mode 	Tag
@@ -62,6 +63,14 @@ class Problem:
     ranges: List[z3.ExprRef]
     lower_freq: List[z3.ArithRef]
     upper_freq: List[z3.ArithRef]
+
+
+@dataclass
+class Source:
+    center: int
+    rate: int
+    analog_recorders: int
+    digital_recorders: int
 
 
 def _problem(solver: Union[z3.Optimize, z3.Solver], freqs: Iterable[int]) -> Problem:
@@ -106,11 +115,15 @@ def _problem(solver: Union[z3.Optimize, z3.Solver], freqs: Iterable[int]) -> Pro
 
 
 def _main():
-    freqs = set()
-    for row in itertools.chain(analog(), digital()):
-        freqs.update(_hz(x) for x in row.get("Freqs", []))
-        if "Frequency" in row:
-            freqs.add(_hz(row["Frequency"]))
+    digital: Set[int] = set()
+    control_channels: List[Set[int]] = []
+    for i, row in enumerate(_digital()):
+        digital.update(_hz(x) for x in row.get("Freqs", []))
+        control_channels.append({_hz(x) for x in row.get("Freqs", []) if "c" in x or "a" in x})
+
+    analog: Set[int] = {_hz(row["Frequency"]) for row in _analog() if "Frequency" in row}
+
+    freqs = digital | analog
 
     solver = z3.Optimize()
     problem = _problem(solver, freqs)
@@ -131,11 +144,33 @@ def _main():
     assert solver.check() == z3.sat
 
     model = solver.model()
+    sources: List[Source] = []
     for lower, upper in zip(problem.lower_freq, problem.upper_freq):
         lower = model.eval(lower).as_long()
         upper = model.eval(upper).as_long()
+        analog_recorders = sum(lower <= x <= upper for x in analog)
+        digital_recorders = sum(lower <= x <= upper for x in digital - set(*control_channels))
         if lower != upper:
-            print(lower, upper, upper - lower, (upper + lower) // 2)
+            sources.append(
+                Source(
+                    center=(upper + lower) // 2,
+                    rate=upper - lower,
+                    analog_recorders=analog_recorders,
+                    digital_recorders=digital_recorders,
+                )
+            )
+
+    with open("config.json", "rb") as h:
+        config = json.load(h)
+
+    for i, x in enumerate(sources):
+        source = config["sources"][i]
+        source["center"] = x.center
+        source["rate"] = x.rate
+        source["digitalRecorders"] = x.digital_recorders
+        source["analogRecorders"] = x.analog_recorders
+
+    print(json.dumps(config, indent=4))
 
 
 if __name__ == '__main__':
