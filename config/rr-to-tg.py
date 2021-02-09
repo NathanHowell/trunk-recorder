@@ -30,7 +30,6 @@ with open("svrcs-rr.tsv", "rt", newline="") as h:
         else:
             priority *= 30
 
-
         table.append(rw[:7] + [priority])
 
 priorities = {row[7] for row in table}
@@ -44,5 +43,5 @@ with open("svrcs-talkgroups.csv", "wt") as h:
         w.writerow(row)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pass
