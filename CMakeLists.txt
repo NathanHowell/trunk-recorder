@@ -178,6 +178,7 @@ set(Boost_ADDITIONAL_VERSIONS
     "1.70.0" "1.70" "1.71.0" "1.71" "1.72.0" "1.72" "1.73.0" "1.73" "1.74.0" "1.74"
 )
 
+cmake_policy(SET CMP0167 NEW)
 find_package(Boost COMPONENTS ${BOOST_REQUIRED_COMPONENTS} REQUIRED)
 
 if(NOT Boost_FOUND)
