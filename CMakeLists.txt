@@ -390,3 +390,47 @@ endif()
 
 
 install(TARGETS trunk-recorder RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+########################################################################
+# Optional shared library target for Rust FFI
+########################################################################
+option(BUILD_SHARED_API "Build shared library for Rust FFI" OFF)
+if(BUILD_SHARED_API)
+    set(shared_sources ${trunk_recorder_sources})
+    list(REMOVE_ITEM shared_sources
+        trunk-recorder/plugin_manager/plugin_manager.cc
+        trunk-recorder/plugin_manager/plugin_event_sink.cc
+        trunk-recorder/call_concluder/call_concluder.cc)
+    add_library(trunk_recorder_shared SHARED ${shared_sources})
+    target_compile_definitions(trunk_recorder_shared PRIVATE TR_HEADLESS)
+    set_target_properties(trunk_recorder_shared PROPERTIES OUTPUT_NAME "trunk-recorder")
+    target_link_libraries(trunk_recorder_shared
+        gnuradio-op25_repeater
+        ssl
+        crypto
+        ${CURL_LIBRARIES}
+        ${Boost_LIBRARIES}
+        ${GNURADIO_PMT_LIBRARIES}
+        ${GNURADIO_RUNTIME_LIBRARIES}
+        ${GNURADIO_FILTER_LIBRARIES}
+        ${GNURADIO_DIGITAL_LIBRARIES}
+        ${GNURADIO_ANALOG_LIBRARIES}
+        ${GNURADIO_AUDIO_LIBRARIES}
+        ${GNURADIO_UHD_LIBRARIES}
+        ${UHD_LIBRARIES}
+        ${GNURADIO_BLOCKS_LIBRARIES}
+        ${GNURADIO_OSMOSDR_LIBRARIES})
+    if(NOT Gnuradio_VERSION VERSION_LESS "3.8")
+        target_link_libraries(trunk_recorder_shared
+            gnuradio::gnuradio-analog
+            gnuradio::gnuradio-blocks
+            gnuradio::gnuradio-digital
+            gnuradio::gnuradio-filter
+            gnuradio::gnuradio-pmt)
+    endif()
+    target_include_directories(trunk_recorder_shared PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/trunk-recorder
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib/op25_repeater/include)
+    install(TARGETS trunk_recorder_shared LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+endif()
