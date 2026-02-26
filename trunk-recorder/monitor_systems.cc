@@ -8,16 +8,15 @@ using namespace std;
 // External reference to global log sink for SIGHUP rotation
 extern boost::shared_ptr<boost::log::sinks::synchronous_sink<boost::log::sinks::text_file_backend>> global_log_sink;
 
-volatile sig_atomic_t exit_flag = 0;
-volatile sig_atomic_t rotate_log_flag = 0;
-int exit_code = EXIT_SUCCESS;
+// File-local pointer for signal handler access to TrunkContext
+static TrunkContext *g_ctx = nullptr;
 
 void exit_interupt(int sig) { // can be called asynchronously
-  exit_flag = 1;              // set flag
+  if (g_ctx) g_ctx->exit_flag = 1;
 }
 
 void rotate_log_signal(int sig) { // can be called asynchronously
-  rotate_log_flag = 1;          // set flag
+  if (g_ctx) g_ctx->rotate_log_flag = 1;
 }
 
 uint64_t time_since_epoch_millisec() {
@@ -783,8 +782,8 @@ void check_message_count(float timeDiff, Config &config, gr::top_block_sptr &tb,
           if (sys->retune_attempts > config.control_retune_limit) {
             BOOST_LOG_TRIVIAL(error) << "[" << sys->get_short_name() << "]\t"
                                      << "Control channel retune limit exceeded after " << sys->retune_attempts << " tries - Terminating trunk recorder";
-            exit_flag = 1;
-            exit_code = EXIT_FAILURE;
+            g_ctx->exit_flag = 1;
+            g_ctx->exit_code = EXIT_FAILURE;
             return;
           }
         }
@@ -845,7 +844,15 @@ void process_recorder_message_queues(std::vector<Call *> &calls) {
   }
 }
 
-int monitor_messages(Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<System *> &systems, std::vector<Call *> &calls) {
+int monitor_messages(TrunkContext &ctx) {
+  g_ctx = &ctx;
+
+  Config &config = ctx.config;
+  gr::top_block_sptr &tb = ctx.tb;
+  std::vector<Source *> &sources = ctx.sources;
+  std::vector<System *> &systems = ctx.systems;
+  std::vector<Call *> &calls = ctx.calls;
+
   gr::message::sptr msg;
 
   time_t last_status_time = time(NULL);
@@ -866,7 +873,7 @@ int monitor_messages(Config &config, gr::top_block_sptr &tb, std::vector<Source 
 
   while (1) {
 
-    if (exit_flag) { // my action when signal set it 1
+    if (ctx.exit_flag) { // my action when signal set it 1
       BOOST_LOG_TRIVIAL(info) << "Caught an Exit Signal...";
       for (vector<Call *>::iterator it = calls.begin(); it != calls.end();) {
         Call *call = *it;
@@ -883,11 +890,11 @@ int monitor_messages(Config &config, gr::top_block_sptr &tb, std::vector<Source 
 
       // Sleep for 5 seconds to allow for all of the Call Concluder threads to finish.
       boost::this_thread::sleep(boost::posix_time::milliseconds(5000));
-      return exit_code;
+      return ctx.exit_code;
     }
 
-    if (rotate_log_flag) { // SIGHUP received for log rotation
-      rotate_log_flag = 0;  // reset flag
+    if (ctx.rotate_log_flag) { // SIGHUP received for log rotation
+      ctx.rotate_log_flag = 0;  // reset flag
       if (global_log_sink) {
         BOOST_LOG_TRIVIAL(info) << "Received SIGHUP signal - rotating log file...";
         // Flush the sink

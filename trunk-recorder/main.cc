@@ -66,6 +66,7 @@
 #include <gnuradio/uhd/usrp_source.h>
 
 #include "plugin_manager/plugin_manager.h"
+#include "trunk_context.h"
 
 #include "cmake.h"
 #include "git.h"
@@ -76,18 +77,8 @@ namespace keywords = boost::log::keywords;
 namespace src = boost::log::sources;
 namespace sinks = boost::log::sinks;
 
-std::vector<Source *> sources;
-std::vector<System *> systems;
-std::vector<Call *> calls;
-std::vector<Call *> monitored_calls;
-
-gr::top_block_sptr tb;
-
-Config config;
-
 int main(int argc, char **argv) {
   // BOOST_STATIC_ASSERT(true) __attribute__((unused));
-  int exit_code = EXIT_SUCCESS;
   logging::core::get()->set_filter(logging::trivial::severity >= logging::trivial::info);
 
   boost::log::register_simple_formatter_factory<boost::log::trivial::severity_level, char>("Severity");
@@ -115,26 +106,27 @@ int main(int argc, char **argv) {
   }
   string config_file = vm["config"].as<string>();
 
-  tb = gr::make_top_block("Trunking");
+  TrunkContext ctx;
+  ctx.tb = gr::make_top_block("Trunking");
 
-  if (!load_config(config_file, config, tb, sources, systems)) {
+  if (!load_config(config_file, ctx.config, ctx.tb, ctx.sources, ctx.systems)) {
     exit(1);
   }
 
-  start_plugins(sources, systems);
+  start_plugins(ctx.sources, ctx.systems);
 
-  if (setup_systems(config, tb, sources, systems, calls)) {
+  if (setup_systems(ctx.config, ctx.tb, ctx.sources, ctx.systems, ctx.calls)) {
 
-    tb->start();
+    ctx.tb->start();
 
-    exit_code = monitor_messages(config, tb, sources, systems, calls);
+    monitor_messages(ctx);
 
     // ------------------------------------------------------------------
     // -- stop flow graph execution
     // ------------------------------------------------------------------
     BOOST_LOG_TRIVIAL(info) << "stopping flow graph" << std::endl;
-    tb->stop();
-    tb->wait();
+    ctx.tb->stop();
+    ctx.tb->wait();
 
     BOOST_LOG_TRIVIAL(info) << "stopping plugins" << std::endl;
     stop_plugins();
@@ -142,5 +134,5 @@ int main(int argc, char **argv) {
     BOOST_LOG_TRIVIAL(error) << "Unable to setup a System to record, exiting..." << std::endl;
   }
 
-  return exit_code;
+  return ctx.exit_code;
 }
