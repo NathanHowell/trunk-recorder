@@ -5,6 +5,8 @@
 
 class PluginEventSink : public EventSink {
 public:
+  void audio_callback(Call *call, Recorder *recorder,
+                      int16_t *samples, int sampleCount) override;
   void poll_one() override;
   int signal(long unitId, const char *signaling_type,
              gr::blocks::SignalType sig_type, Call *call, System *system,

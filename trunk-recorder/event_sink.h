@@ -17,6 +17,8 @@ class EventSink {
 public:
   virtual ~EventSink() = default;
 
+  virtual void audio_callback(Call *call, Recorder *recorder,
+                              int16_t *samples, int sampleCount) = 0;
   virtual void poll_one() = 0;
   virtual int signal(long unitId, const char *signaling_type,
                      gr::blocks::SignalType sig_type, Call *call,

@@ -56,9 +56,9 @@ void p25_recorder_impl::initialize(Source *src) {
 
   modulation_selector = gr::blocks::selector::make(sizeof(gr_complex), 0, 0);
   qpsk_demod = make_p25_recorder_qpsk_demod();
-  qpsk_p25_decode = make_p25_recorder_decode(this, silence_frames, d_soft_vocoder);
+  qpsk_p25_decode = make_p25_recorder_decode(this, config, silence_frames, d_soft_vocoder);
   fsk4_demod = make_p25_recorder_fsk4_demod();
-  fsk4_p25_decode = make_p25_recorder_decode(this, silence_frames, d_soft_vocoder);
+  fsk4_p25_decode = make_p25_recorder_decode(this, config, silence_frames, d_soft_vocoder);
 
   connect(self(), 0, prefilter, 0);
   connect(prefilter, 0, modulation_selector, 0);

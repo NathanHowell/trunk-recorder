@@ -2,6 +2,11 @@
 #include "plugin_manager.h"
 #include "../call_concluder/call_concluder.h"
 
+void PluginEventSink::audio_callback(Call *call, Recorder *recorder,
+                                     int16_t *samples, int sampleCount) {
+  plugman_audio_callback(call, recorder, samples, sampleCount);
+}
+
 void PluginEventSink::poll_one() {
   plugman_poll_one();
 }

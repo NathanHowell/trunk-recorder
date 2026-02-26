@@ -35,14 +35,15 @@ typedef boost::shared_ptr<p25_recorder_decode> p25_recorder_decode_sptr;
 typedef std::shared_ptr<p25_recorder_decode> p25_recorder_decode_sptr;
 #endif
 
-p25_recorder_decode_sptr make_p25_recorder_decode(Recorder *recorder, int silence_frames, bool d_soft_vocoder);
+p25_recorder_decode_sptr make_p25_recorder_decode(Recorder *recorder, Config *config, int silence_frames, bool d_soft_vocoder);
 
 class p25_recorder_decode : public gr::hier_block2 {
-  friend p25_recorder_decode_sptr make_p25_recorder_decode(Recorder *recorder, int silence_frames, bool d_soft_vocoder);
+  friend p25_recorder_decode_sptr make_p25_recorder_decode(Recorder *recorder, Config *config, int silence_frames, bool d_soft_vocoder);
 
 protected:
   virtual void initialize(int silence_frames, bool d_soft_vocoder);
   Recorder *d_recorder;
+  Config *d_config;
   Call *d_call;
   gr::op25_repeater::p25_frame_assembler::sptr op25_frame_assembler;
   gr::msg_queue::sptr traffic_queue;
@@ -54,7 +55,7 @@ protected:
   gr::blocks::plugin_wrapper::sptr plugin_sink;
 
 public:
-  p25_recorder_decode(Recorder *recorder);
+  p25_recorder_decode(Recorder *recorder, Config *config);
   void set_tdma_slot(int slot);
   std::vector<Transmission> get_transmission_list();
   void set_source(long src);

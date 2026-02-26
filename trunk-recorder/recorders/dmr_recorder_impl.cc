@@ -1,9 +1,9 @@
 
 #include "dmr_recorder_impl.h"
 
+#include "../event_sink.h"
 #include "../formatter.h"
 #include "../gr_blocks/plugin_wrapper_impl.h"
-#include "../plugin_manager/plugin_manager.h"
 #include <boost/log/trivial.hpp>
 #ifdef TR_HEADLESS
 #include <gnuradio/blocks/null_sink.h>
@@ -136,7 +136,7 @@ void dmr_recorder_impl::initialize(Source *src) {
 }
 
 void dmr_recorder_impl::plugin_callback_handler(int16_t *samples, int sampleCount) {
-  plugman_audio_callback(call, this, samples, sampleCount);
+  config->event_sink->audio_callback(call, this, samples, sampleCount);
 }
 
 void dmr_recorder_impl::switch_tdma(bool phase2) {

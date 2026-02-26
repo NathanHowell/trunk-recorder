@@ -1,7 +1,7 @@
 
 #include "p25_recorder_decode.h"
+#include "../event_sink.h"
 #include "../gr_blocks/plugin_wrapper_impl.h"
-#include "../plugin_manager/plugin_manager.h"
 #include "../systems/system_impl.h"
 #include "../formatter.h"
 #include "../unit_tags_ota.h"
@@ -10,17 +10,18 @@
 #include <gnuradio/blocks/null_sink.h>
 #endif
 
-p25_recorder_decode_sptr make_p25_recorder_decode(Recorder *recorder, int silence_frames, bool d_soft_vocoder) {
-  p25_recorder_decode *decoder = new p25_recorder_decode(recorder);
+p25_recorder_decode_sptr make_p25_recorder_decode(Recorder *recorder, Config *config, int silence_frames, bool d_soft_vocoder) {
+  p25_recorder_decode *decoder = new p25_recorder_decode(recorder, config);
   decoder->initialize(silence_frames, d_soft_vocoder);
   return gnuradio::get_initial_sptr(decoder);
 }
 
-p25_recorder_decode::p25_recorder_decode(Recorder *recorder)
+p25_recorder_decode::p25_recorder_decode(Recorder *recorder, Config *config)
     : gr::hier_block2("p25_recorder_decode",
                       gr::io_signature::make(1, 1, sizeof(float)),
                       gr::io_signature::make(0, 0, sizeof(float))) {
   d_recorder = recorder;
+  d_config = config;
 }
 
 p25_recorder_decode::~p25_recorder_decode() {
@@ -154,7 +155,7 @@ void p25_recorder_decode::initialize(int silence_frames, bool d_soft_vocoder) {
 
 void p25_recorder_decode::plugin_callback_handler(int16_t *samples, int sampleCount) {
   if (d_call) {
-    plugman_audio_callback(d_call, d_recorder, samples, sampleCount);
+    d_config->event_sink->audio_callback(d_call, d_recorder, samples, sampleCount);
   }
 }
 
