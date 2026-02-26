@@ -66,6 +66,7 @@
 #include <gnuradio/uhd/usrp_source.h>
 
 #include "plugin_manager/plugin_manager.h"
+#include "plugin_manager/plugin_event_sink.h"
 #include "trunk_context.h"
 
 #include "cmake.h"
@@ -107,6 +108,8 @@ int main(int argc, char **argv) {
   string config_file = vm["config"].as<string>();
 
   TrunkContext ctx;
+  PluginEventSink plugin_event_sink;
+  ctx.config.event_sink = &plugin_event_sink;
   ctx.tb = gr::make_top_block("Trunking");
 
   if (!load_config(config_file, ctx.config, ctx.tb, ctx.sources, ctx.systems)) {

@@ -128,7 +128,7 @@ bool start_recorder(Call *call, TrunkMessage message, Config &config, System *sy
         if (recorder->start(call)) {
           call->set_recorder(recorder);
           call->set_state(RECORDING);
-          plugman_setup_recorder(recorder);
+          config.event_sink->setup_recorder(recorder);
           recorder_found = true;
         } else {
           call->set_state(MONITORING);
@@ -148,7 +148,7 @@ bool start_recorder(Call *call, TrunkMessage message, Config &config, System *sy
         debug_recorder->start(call);
         call->set_debug_recorder(debug_recorder);
         call->set_debug_recording(true);
-        plugman_setup_recorder(debug_recorder);
+        config.event_sink->setup_recorder(debug_recorder);
         recorder_found = true;
       } else {
         // BOOST_LOG_TRIVIAL(info) << "\tNot debug recording call";
@@ -160,7 +160,7 @@ bool start_recorder(Call *call, TrunkMessage message, Config &config, System *sy
         sigmf_recorder->start(call);
         call->set_sigmf_recorder(sigmf_recorder);
         call->set_sigmf_recording(true);
-        plugman_setup_recorder(sigmf_recorder);
+        config.event_sink->setup_recorder(sigmf_recorder);
         recorder_found = true;
       } else {
         // BOOST_LOG_TRIVIAL(info) << "\tNot SIGMF recording call";
@@ -263,16 +263,16 @@ void manage_conventional_call(Call *call, Config &config) {
         call->conclude_call();
         call->restart_call();
         if (recorder != NULL) {
-          plugman_setup_recorder(recorder);
-          plugman_call_start(call);
+          config.event_sink->setup_recorder(recorder);
+          config.event_sink->call_start(call);
         }
       } else if ((call->get_current_length() > call->get_system()->get_max_duration()) && (call->get_system()->get_max_duration() > 0)) {
         Recorder *recorder = call->get_recorder();
         call->conclude_call();
         call->restart_call();
         if (recorder != NULL) {
-          plugman_setup_recorder(recorder);
-          plugman_call_start(call);
+          config.event_sink->setup_recorder(recorder);
+          config.event_sink->call_start(call);
         }
       }
     } else if (!call->get_recorder()->is_active()) {
@@ -280,7 +280,7 @@ void manage_conventional_call(Call *call, Config &config) {
       Recorder *recorder = call->get_recorder();
       recorder->start(call);
       call->set_state(RECORDING);
-      plugman_call_start(call);
+      config.event_sink->call_start(call);
       BOOST_LOG_TRIVIAL(trace) << "[" << call->get_short_name() << "]\t\033[0;34m" << call->get_call_num() << "C\033[0m Starting P25 Convetional Recorder ";
 
       // plugman_setup_recorder((Recorder *)recorder->get());
@@ -322,7 +322,7 @@ void manage_calls(Config &config, std::vector<Call *> &calls) {
         // The State of the Recorders has changed, so lets send an update
         ended_call = true;
         if (recorder != NULL) {
-          plugman_setup_recorder(recorder);
+          config.event_sink->setup_recorder(recorder);
         }
         it = calls.erase(it);
         delete call;
@@ -337,50 +337,50 @@ void manage_calls(Config &config, std::vector<Call *> &calls) {
   } // foreach loggers
 
   if (ended_call) {
-    plugman_calls_active(calls);
+    config.event_sink->calls_active(calls);
   }
 }
 
-void current_system_status(TrunkMessage message, System *sys) {
+void current_system_status(TrunkMessage message, System *sys, EventSink *event_sink) {
   if (sys->update_status(message)) {
-    plugman_setup_system(sys);
+    event_sink->setup_system(sys);
   }
 }
 
-void current_system_sysid(TrunkMessage message, System *sys) {
+void current_system_sysid(TrunkMessage message, System *sys, EventSink *event_sink) {
   if ((sys->get_system_type() == "p25") || (sys->get_system_type() == "conventionalP25")) {
     if (sys->update_sysid(message)) {
-      plugman_setup_system(sys);
+      event_sink->setup_system(sys);
     }
   }
 }
 
-void unit_registration(System *sys, long source_id) {
-  plugman_unit_registration(sys, source_id);
+void unit_registration(System *sys, long source_id, EventSink *event_sink) {
+  event_sink->unit_registration(sys, source_id);
 }
 
-void unit_deregistration(System *sys, long source_id) {
-  plugman_unit_deregistration(sys, source_id);
+void unit_deregistration(System *sys, long source_id, EventSink *event_sink) {
+  event_sink->unit_deregistration(sys, source_id);
 }
 
-void unit_acknowledge_response(System *sys, long source_id) {
-  plugman_unit_acknowledge_response(sys, source_id);
+void unit_acknowledge_response(System *sys, long source_id, EventSink *event_sink) {
+  event_sink->unit_acknowledge_response(sys, source_id);
 }
 
-void unit_group_affiliation(System *sys, long source_id, long talkgroup_num) {
-  plugman_unit_group_affiliation(sys, source_id, talkgroup_num);
+void unit_group_affiliation(System *sys, long source_id, long talkgroup_num, EventSink *event_sink) {
+  event_sink->unit_group_affiliation(sys, source_id, talkgroup_num);
 }
 
-void unit_data_grant(System *sys, long source_id) {
-  plugman_unit_data_grant(sys, source_id);
+void unit_data_grant(System *sys, long source_id, EventSink *event_sink) {
+  event_sink->unit_data_grant(sys, source_id);
 }
 
-void unit_answer_request(System *sys, long source_id, long talkgroup) {
-  plugman_unit_answer_request(sys, source_id, talkgroup);
+void unit_answer_request(System *sys, long source_id, long talkgroup, EventSink *event_sink) {
+  event_sink->unit_answer_request(sys, source_id, talkgroup);
 }
 
-void unit_location(System *sys, long source_id, long talkgroup_num) {
-  plugman_unit_location(sys, source_id, talkgroup_num);
+void unit_location(System *sys, long source_id, long talkgroup_num, EventSink *event_sink) {
+  event_sink->unit_location(sys, source_id, talkgroup_num);
 }
 
 
@@ -478,7 +478,7 @@ void handle_call_grant(TrunkMessage message, System *sys, bool grant_message, Co
       call_found = true;
       bool source_updated = call->update(message);
       if (source_updated) {
-        plugman_call_start(call);
+        config.event_sink->call_start(call);
       }
     }
 
@@ -549,12 +549,12 @@ void handle_call_grant(TrunkMessage message, System *sys, bool grant_message, Co
       }
     }
     calls.push_back(call);
-    plugman_call_start(call);
-    plugman_calls_active(calls);
+    config.event_sink->call_start(call);
+    config.event_sink->calls_active(calls);
   }
 }
 
-void handle_call_update(TrunkMessage message, System *sys, std::vector<Call *> &calls) {
+void handle_call_update(TrunkMessage message, System *sys, std::vector<Call *> &calls, Config &config) {
   bool call_found = false;
 
   /* Notes: it is possible for 2 Calls to exist for the same talkgroup on different freq. This happens when a Talkgroup starts on a freq
@@ -583,7 +583,7 @@ void handle_call_update(TrunkMessage message, System *sys, std::vector<Call *> &
 
       bool source_updated = call->update(message);
       if (source_updated) {
-        plugman_call_start(call);
+        config.event_sink->call_start(call);
       }
     }
   }
@@ -609,7 +609,7 @@ void handle_message(std::vector<TrunkMessage> messages, System *sys, Config &con
         handle_call_grant(message, sys, false, config, sources, calls);
       } else {
         // Treat UPDATE as an UPDATE and only update existing calls
-        handle_call_update(message, sys, calls);
+        handle_call_update(message, sys, calls, config);
       }
       break;
 
@@ -621,7 +621,7 @@ void handle_message(std::vector<TrunkMessage> messages, System *sys, Config &con
 
     case UU_V_UPDATE:
       if (config.record_uu_v_calls) {
-        handle_call_update(message, sys, calls);
+        handle_call_update(message, sys, calls, config);
       }
       break;
 
@@ -630,31 +630,31 @@ void handle_message(std::vector<TrunkMessage> messages, System *sys, Config &con
       break;
 
     case REGISTRATION:
-      unit_registration(sys, message.source);
+      unit_registration(sys, message.source, config.event_sink);
       break;
 
     case DEREGISTRATION:
-      unit_deregistration(sys, message.source);
+      unit_deregistration(sys, message.source, config.event_sink);
       break;
 
     case AFFILIATION:
-      unit_group_affiliation(sys, message.source, message.talkgroup);
+      unit_group_affiliation(sys, message.source, message.talkgroup, config.event_sink);
       break;
 
     case SYSID:
-      current_system_sysid(message, sys);
+      current_system_sysid(message, sys, config.event_sink);
       break;
 
     case STATUS:
-      current_system_status(message, sys);
+      current_system_status(message, sys, config.event_sink);
       break;
 
     case LOCATION:
-      unit_location(sys, message.source, message.talkgroup);
+      unit_location(sys, message.source, message.talkgroup, config.event_sink);
       break;
 
     case ACKNOWLEDGE:
-      unit_acknowledge_response(sys, message.source);
+      unit_acknowledge_response(sys, message.source, config.event_sink);
       break;
 
     case PATCH_ADD:
@@ -665,11 +665,11 @@ void handle_message(std::vector<TrunkMessage> messages, System *sys, Config &con
       break;
 
     case DATA_GRANT:
-      unit_data_grant(sys, message.source);
+      unit_data_grant(sys, message.source, config.event_sink);
       break;
 
     case UU_ANS_REQ:
-      unit_answer_request(sys, message.source, message.talkgroup);
+      unit_answer_request(sys, message.source, message.talkgroup, config.event_sink);
       break;
 
     case INVALID_CC_MESSAGE:
@@ -764,8 +764,8 @@ void retune_system(System *sys, gr::top_block_sptr &tb, std::vector<Source *> &s
 }
 
 void check_message_count(float timeDiff, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<System *> &systems) {
-  plugman_setup_config(sources, systems);
-  plugman_system_rates(systems, timeDiff);
+  config.event_sink->setup_config(sources, systems);
+  config.event_sink->system_rates(systems, timeDiff);
 
   for (std::vector<System *>::iterator it = systems.begin(); it != systems.end(); ++it) {
     System_impl *sys = (System_impl *)*it;
@@ -909,7 +909,7 @@ int monitor_messages(TrunkContext &ctx) {
     process_message_queues(systems);
     process_recorder_message_queues(calls);
 
-    plugman_poll_one();
+    config.event_sink->poll_one();
 
     for (vector<System *>::iterator sys_it = systems.begin(); sys_it != systems.end(); sys_it++) {
       System_impl *system = (System_impl *)*sys_it;
@@ -923,13 +923,13 @@ int monitor_messages(TrunkContext &ctx) {
           if (system->get_system_type() == "smartnet") {
             trunk_messages = smartnet_parser->parse_message(msg, system);
             handle_message(trunk_messages, system, config, sources, calls, tb);
-            plugman_trunk_message(trunk_messages, system);
+            config.event_sink->trunk_message(trunk_messages, system);
           }
 
           if (system->get_system_type() == "p25") {
             trunk_messages = p25_parser->parse_message(msg, system);
             handle_message(trunk_messages, system, config, sources, calls, tb);
-            plugman_trunk_message(trunk_messages, system);
+            config.event_sink->trunk_message(trunk_messages, system);
           }
 
           if (msg->type() == -1) {

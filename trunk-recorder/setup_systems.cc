@@ -1,4 +1,5 @@
 #include "./setup_systems.h"
+#include "event_sink.h"
 using namespace std;
 bool setup_conventional_channel(System *system, double frequency, long channel_index, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<Call *> &calls) {
   bool channel_added = false;
@@ -48,8 +49,8 @@ bool setup_conventional_channel(System *system, double frequency, long channel_i
         call->set_state(RECORDING);
         system->add_conventional_recorder(rec);
         calls.push_back(call);
-        plugman_setup_recorder((Recorder *)rec.get());
-        plugman_call_start(call);
+        config.event_sink->setup_recorder((Recorder *)rec.get());
+        config.event_sink->call_start(call);
       } else if (system->get_system_type() == "conventionalDMR") {
         // Because of dynamic mod assignment we can not start the recorder until the graph has been unlocked.
         // This has something to do with the way the Selector block works.

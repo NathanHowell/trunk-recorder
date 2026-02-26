@@ -7,6 +7,8 @@
 
 const int DB_UNSET = 999;
 
+class EventSink;
+
 struct Transmission {
   long source;
   long talkgroup;
@@ -51,6 +53,7 @@ struct Config {
   bool record_uu_v_calls;
   bool archive_files_on_failure;
   int frequency_format;
+  EventSink *event_sink = nullptr;
 };
 
 struct Call_Source {

@@ -261,6 +261,7 @@ list(APPEND trunk_recorder_sources
   trunk-recorder/unit_tags.cc
   trunk-recorder/unit_tags_ota.cc
   trunk-recorder/plugin_manager/plugin_manager.cc
+  trunk-recorder/plugin_manager/plugin_event_sink.cc
   trunk-recorder/call_concluder/call_concluder.cc
   trunk-recorder/autotune.cc
 

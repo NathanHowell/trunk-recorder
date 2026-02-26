@@ -1,6 +1,6 @@
 #include "call_impl.h"
 #include "call.h"
-#include "call_concluder/call_concluder.h"
+#include "event_sink.h"
 #include "formatter.h"
 #include "recorder_globals.h"
 #include "recorders/recorder.h"
@@ -167,14 +167,14 @@ void Call_impl::conclude_call() {
       // Conventional DMR is recorded on two slots, so we need to conclude the call for each slot
       transmission_list = recorder->get_transmission_list(0);
       tdma_slot = 0;
-      Call_Concluder::conclude_call(this, sys, config);
+      config.event_sink->conclude_call(this, sys, config);
       transmission_list = recorder->get_transmission_list(1);
       tdma_slot = 1;
-      Call_Concluder::conclude_call(this, sys, config);
+      config.event_sink->conclude_call(this, sys, config);
     } else {
       // All other system types do not have multiple recorders
       transmission_list = this->get_recorder()->get_transmission_list();
-      Call_Concluder::conclude_call(this, sys, config);
+      config.event_sink->conclude_call(this, sys, config);
    }
 
   }
@@ -387,7 +387,7 @@ bool Call_impl::add_source(long src) {
     }
   }
 
-  plugman_signal(src, NULL, gr::blocks::SignalType::Normal, this, this->get_system(), NULL);
+  config.event_sink->signal(src, NULL, gr::blocks::SignalType::Normal, this, this->get_system(), NULL);
 
   return true;
 }
