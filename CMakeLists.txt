@@ -403,6 +403,8 @@ if(BUILD_SHARED_API)
         trunk-recorder/call_concluder/call_concluder.cc)
     add_library(trunk_recorder_shared SHARED ${shared_sources})
     target_compile_definitions(trunk_recorder_shared PRIVATE TR_HEADLESS)
+    # Override the global -fvisibility=hidden so symbols are exported
+    target_compile_options(trunk_recorder_shared PRIVATE -fvisibility=default)
     set_target_properties(trunk_recorder_shared PROPERTIES OUTPUT_NAME "trunk-recorder")
     target_link_libraries(trunk_recorder_shared
         gnuradio-op25_repeater
