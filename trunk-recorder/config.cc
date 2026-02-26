@@ -195,6 +195,9 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
     config.soft_vocoder = data.value("softVocoder", false);
     BOOST_LOG_TRIVIAL(info) << "Phase 1 Software Vocoder: " << config.soft_vocoder;
     config.enable_audio_streaming = data.value("audioStreaming", false);
+#ifdef TR_HEADLESS
+    config.enable_audio_streaming = true;
+#endif
     BOOST_LOG_TRIVIAL(info) << "Enable Audio Streaming: " << config.enable_audio_streaming;
     config.record_uu_v_calls = data.value("recordUUVCalls", true);
     BOOST_LOG_TRIVIAL(info) << "Record Unit to Unit Voice Calls: " << config.record_uu_v_calls;
@@ -632,11 +635,13 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
       }
     }
 
+#ifndef TR_HEADLESS
     BOOST_LOG_TRIVIAL(info) << "\n\n-------------------------------------\nPLUGINS\n-------------------------------------\n";
     add_internal_plugin("openmhz_uploader", "libopenmhz_uploader.so", data);
     add_internal_plugin("broadcastify_uploader", "libbroadcastify_uploader.so", data);
     add_internal_plugin("unit_script", "libunit_script.so", data);
     initialize_plugins(data, &config, sources, systems);
+#endif
   } catch (std::exception const &e) {
     BOOST_LOG_TRIVIAL(error) << "Failed parsing Config: " << e.what();
     return false;
