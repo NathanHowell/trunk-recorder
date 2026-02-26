@@ -96,32 +96,14 @@ void setup_file_log(std::string log_dir, std::string log_color, std::string time
   }
 }
 
-bool load_config(string config_file, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<System *> &systems) {
+bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<System *> &systems) {
 
   string system_modulation;
 
-  json data;
   int sys_count = 0;
   int source_count = 0;
 
-  config.config_file = config_file;
-
   try {
-    std::ifstream f(config_file);
-    data = json::parse(f);
-  } catch (const json::parse_error &e) {
-    // output exception information
-    std::cout << "message: " << e.what() << '\n'
-              << "exception id: " << e.id << '\n'
-              << "byte position of error: " << e.byte << std::endl;
-  }
-
-  try {
-    // const std::string json_filename = "config.json";
-
-    boost::property_tree::ptree pt;
-    boost::property_tree::read_json(config_file, pt);
-
     // Set NO_COLOR options for console and log files
     // Default is [color console, no_color logfile] unless NO_COLOR env var is set.  config.json overrides NO_COLOR use.
     char *no_color = getenv("NO_COLOR");
@@ -157,7 +139,7 @@ bool load_config(string config_file, Config &config, gr::top_block_sptr &tb, std
       return false;
     }
 
-    BOOST_LOG_TRIVIAL(info) << "Using Config file: " << config_file << "\n";
+    BOOST_LOG_TRIVIAL(info) << "Using Config file: " << config.config_file << "\n";
     BOOST_LOG_TRIVIAL(info) << PROJECT_NAME << ": "
                             << "Version: " << PROJECT_VER << "\n";
 
@@ -671,4 +653,43 @@ bool load_config(string config_file, Config &config, gr::top_block_sptr &tb, std
   }
   BOOST_LOG_TRIVIAL(info) << "\n\n";
   return true;
+}
+
+bool load_config(string config_file, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<System *> &systems) {
+
+  json data;
+
+  config.config_file = config_file;
+
+  try {
+    std::ifstream f(config_file);
+    data = json::parse(f);
+  } catch (const json::parse_error &e) {
+    // output exception information
+    std::cout << "message: " << e.what() << '\n'
+              << "exception id: " << e.id << '\n'
+              << "byte position of error: " << e.byte << std::endl;
+    return false;
+  }
+
+  return load_config_from_json(data, config, tb, sources, systems);
+}
+
+bool load_config_from_string(const std::string &json_body, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<System *> &systems) {
+
+  json data;
+
+  config.config_file = "<json string>";
+
+  try {
+    data = json::parse(json_body);
+  } catch (const json::parse_error &e) {
+    // output exception information
+    std::cout << "message: " << e.what() << '\n'
+              << "exception id: " << e.id << '\n'
+              << "byte position of error: " << e.byte << std::endl;
+    return false;
+  }
+
+  return load_config_from_json(data, config, tb, sources, systems);
 }
