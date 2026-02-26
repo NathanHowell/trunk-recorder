@@ -700,6 +700,11 @@ void retune_system(System *sys, gr::top_block_sptr &tb, std::vector<Source *> &s
 
   BOOST_LOG_TRIVIAL(error) << "[" << system->get_short_name() << "] Retuning to Control Channel: " << format_freq(control_channel_freq);
 
+  if (!current_source) {
+    BOOST_LOG_TRIVIAL(error) << "[" << system->get_short_name() << "] No source assigned to system, cannot retune.";
+    return;
+  }
+
   if ((current_source->get_min_hz() <= control_channel_freq) &&
       (current_source->get_max_hz() >= control_channel_freq)) {
     source_found = true;

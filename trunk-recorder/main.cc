@@ -135,6 +135,7 @@ int main(int argc, char **argv) {
     stop_plugins();
   } else {
     BOOST_LOG_TRIVIAL(error) << "Unable to setup a System to record, exiting..." << std::endl;
+    return 1;
   }
 
   return ctx.exit_code;
