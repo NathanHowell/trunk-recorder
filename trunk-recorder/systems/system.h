@@ -49,10 +49,6 @@ public:
   static System *make(int sys_id);
   virtual std::string get_short_name() = 0;
   virtual void set_short_name(std::string short_name) = 0;
-  virtual std::string get_upload_script() = 0;
-  virtual void set_upload_script(std::string script) = 0;
-  virtual bool get_compress_wav() = 0;
-  virtual void set_compress_wav(bool compress) = 0;
   virtual std::string get_api_key() = 0;
   virtual void set_api_key(std::string api_key) = 0;
   virtual std::string get_bcfy_api_key() = 0;
@@ -65,14 +61,8 @@ public:
   virtual void set_max_duration(double duration) = 0;
   virtual double get_min_tx_duration() = 0;
   virtual void set_min_tx_duration(double duration) = 0;
-  virtual bool get_audio_archive() = 0;
-  virtual void set_audio_archive(bool) = 0;
-  virtual bool get_transmission_archive() = 0;
-  virtual void set_transmission_archive(bool) = 0;
   virtual bool get_record_unknown() = 0;
   virtual void set_record_unknown(bool) = 0;
-  virtual bool get_call_log() = 0;
-  virtual void set_call_log(bool) = 0;
   virtual bool get_conversation_mode() = 0;
   virtual void set_conversation_mode(bool mode) = 0;
   virtual void set_mdc_enabled(bool b) = 0;

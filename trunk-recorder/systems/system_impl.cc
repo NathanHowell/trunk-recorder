@@ -37,22 +37,6 @@ void System_impl::set_short_name(std::string short_name) {
   this->short_name = short_name;
 }
 
-std::string System_impl::get_upload_script() {
-  return this->upload_script;
-}
-
-void System_impl::set_upload_script(std::string script) {
-  this->upload_script = script;
-}
-
-bool System_impl::get_compress_wav() {
-  return this->compress_wav;
-}
-
-void System_impl::set_compress_wav(bool compress) {
-  this->compress_wav = compress;
-}
-
 double System_impl::get_min_duration() {
   return this->min_call_duration;
 }
@@ -189,14 +173,6 @@ int System_impl::get_sys_site_id(){
   return this->sys_site_id;
 }
 
-bool System_impl::get_call_log() {
-  return this->call_log;
-}
-
-void System_impl::set_call_log(bool call_log) {
-  this->call_log = call_log;
-}
-
 void System_impl::set_squelch_db(double s) {
   squelch_db = s;
 }
@@ -262,22 +238,6 @@ bool System_impl::get_mdc_enabled() { return d_mdc_enabled; };
 bool System_impl::get_fsync_enabled() { return d_fsync_enabled; };
 bool System_impl::get_star_enabled() { return d_star_enabled; };
 bool System_impl::get_tps_enabled() { return d_tps_enabled; };
-
-bool System_impl::get_audio_archive() {
-  return this->audio_archive;
-}
-
-void System_impl::set_audio_archive(bool audio_archive) {
-  this->audio_archive = audio_archive;
-}
-
-bool System_impl::get_transmission_archive() {
-  return this->transmission_archive;
-}
-
-void System_impl::set_transmission_archive(bool transmission_archive) {
-  this->transmission_archive = transmission_archive;
-}
 
 bool System_impl::get_record_unknown() {
   return this->record_unknown;

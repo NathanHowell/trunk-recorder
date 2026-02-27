@@ -53,7 +53,6 @@
 
 #include "../gr_blocks/channelizer.h"
 #include "../gr_blocks/selector.h"
-#include "../gr_blocks/transmission_sink.h"
 #include "../gr_blocks/xlat_channelizer.h"
 
 // #include <op25_repeater/include/op25_repeater/rmsagc_ff.h>

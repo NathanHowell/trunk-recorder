@@ -91,13 +91,8 @@ void dmr_recorder_impl::initialize(Source *src) {
   const int debug = 0;
   std::vector<float> slices(l, l + sizeof(l) / sizeof(l[0]));
   slicer = gr::op25_repeater::fsk4_slicer_fb::make(msgq_id, debug, slices);
-#ifdef TR_HEADLESS
   wav_sink_slot0 = gr::blocks::headless_sink::make(1, 8000, 16);
   wav_sink_slot1 = gr::blocks::headless_sink::make(1, 8000, 16);
-#else
-  wav_sink_slot0 = gr::blocks::transmission_sink::make(1, 8000, 16);
-  wav_sink_slot1 = gr::blocks::transmission_sink::make(1, 8000, 16);
-#endif
 
   // OP25 Frame Assembler
   traffic_queue = gr::msg_queue::make(2);

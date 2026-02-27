@@ -956,9 +956,6 @@ int monitor_messages(TrunkContext &ctx) {
 
     if ((current_time - management_timestamp) >= 1.0) {
       manage_calls(config, calls);
-#ifndef TR_HEADLESS
-      Call_Concluder::manage_call_data_workers();
-#endif
       management_timestamp = current_time;
     }
 

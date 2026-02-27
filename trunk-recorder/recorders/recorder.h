@@ -56,8 +56,6 @@
 #include "../state.h"
 #include <gnuradio/blocks/file_sink.h>
 
-#include "../gr_blocks/transmission_sink.h"
-
 class Recorder {
 
 public:

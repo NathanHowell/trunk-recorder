@@ -161,17 +161,6 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
 
     BOOST_LOG_TRIVIAL(info) << "Temporary Transmission Directory: " << config.temp_dir;
 
-    config.archive_files_on_failure = data.value("archiveFilesOnFailure", false);
-    BOOST_LOG_TRIVIAL(info) << "Archive Files on Failure: " << config.archive_files_on_failure;
-
-    config.capture_dir = data.value("captureDir", boost::filesystem::current_path().string());
-    pos = config.capture_dir.find_last_of("/");
-
-    if (pos == config.capture_dir.length() - 1) {
-      config.capture_dir.erase(config.capture_dir.length() - 1);
-    }
-
-    BOOST_LOG_TRIVIAL(info) << "Capture Directory: " << config.capture_dir;
     config.upload_server = data.value("uploadServer", "");
     BOOST_LOG_TRIVIAL(info) << "Upload Server: " << config.upload_server;
     config.bcfy_calls_server = data.value("broadcastifyCallsServer", "");
@@ -194,10 +183,7 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
     BOOST_LOG_TRIVIAL(info) << "Control channel retune limit: " << config.control_retune_limit;
     config.soft_vocoder = data.value("softVocoder", false);
     BOOST_LOG_TRIVIAL(info) << "Phase 1 Software Vocoder: " << config.soft_vocoder;
-    config.enable_audio_streaming = data.value("audioStreaming", false);
-#ifdef TR_HEADLESS
     config.enable_audio_streaming = true;
-#endif
     BOOST_LOG_TRIVIAL(info) << "Enable Audio Streaming: " << config.enable_audio_streaming;
     config.record_uu_v_calls = data.value("recordUUVCalls", true);
     BOOST_LOG_TRIVIAL(info) << "Record Unit to Unit Voice Calls: " << config.record_uu_v_calls;
@@ -346,16 +332,6 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
         BOOST_LOG_TRIVIAL(info) << "Broadcastify API Key: " << system->get_bcfy_api_key();
         system->set_bcfy_system_id(element.value("broadcastifySystemId", 0));
         BOOST_LOG_TRIVIAL(info) << "Broadcastify Calls System ID: " << system->get_bcfy_system_id();
-        system->set_upload_script(element.value("uploadScript", ""));
-        BOOST_LOG_TRIVIAL(info) << "Upload Script: " << system->get_upload_script();
-        system->set_compress_wav(element.value("compressWav", true));
-        BOOST_LOG_TRIVIAL(info) << "Compress .wav Files: " << system->get_compress_wav();
-        system->set_call_log(element.value("callLog", true));
-        BOOST_LOG_TRIVIAL(info) << "Call Log: " << system->get_call_log();
-        system->set_audio_archive(element.value("audioArchive", true));
-        BOOST_LOG_TRIVIAL(info) << "Audio Archive: " << system->get_audio_archive();
-        system->set_transmission_archive(element.value("transmissionArchive", false));
-        BOOST_LOG_TRIVIAL(info) << "Transmission Archive: " << system->get_transmission_archive();
         system->set_unit_tags_file(element.value("unitTagsFile", ""));
         BOOST_LOG_TRIVIAL(info) << "Unit Tags File: " << system->get_unit_tags_file();
         system->set_unit_tags_ota_file(element.value("unitTagsOTA", ""));
@@ -427,13 +403,6 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
         BOOST_LOG_TRIVIAL(info) << "Multiple Site System Name: " << system->get_multiSiteSystemName();
         system->set_multiSiteSystemNumber(element.value("multiSiteSystemNumber", 0));
         BOOST_LOG_TRIVIAL(info) << "Multiple Site System Number: " << system->get_multiSiteSystemNumber();
-
-        if (!system->get_compress_wav()) {
-          if ((system->get_api_key().length() > 0) || (system->get_bcfy_api_key().length() > 0)) {
-            BOOST_LOG_TRIVIAL(error) << "Compress WAV must be set to true if you are using OpenMHz or Broadcastify";
-            return false;
-          }
-        }
 
         systems.push_back(system);
         BOOST_LOG_TRIVIAL(info);
@@ -635,13 +604,6 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
       }
     }
 
-#ifndef TR_HEADLESS
-    BOOST_LOG_TRIVIAL(info) << "\n\n-------------------------------------\nPLUGINS\n-------------------------------------\n";
-    add_internal_plugin("openmhz_uploader", "libopenmhz_uploader.so", data);
-    add_internal_plugin("broadcastify_uploader", "libbroadcastify_uploader.so", data);
-    add_internal_plugin("unit_script", "libunit_script.so", data);
-    initialize_plugins(data, &config, sources, systems);
-#endif
   } catch (std::exception const &e) {
     BOOST_LOG_TRIVIAL(error) << "Failed parsing Config: " << e.what();
     return false;

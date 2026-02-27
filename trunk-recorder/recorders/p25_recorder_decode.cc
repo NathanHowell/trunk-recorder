@@ -83,11 +83,7 @@ void p25_recorder_decode::initialize(int silence_frames, bool d_soft_vocoder) {
   const int msgq_id = 0;
   const int debug = 0;
   slicer = gr::op25_repeater::fsk4_slicer_fb::make(msgq_id, debug, slices);
-#ifdef TR_HEADLESS
   wav_sink = gr::blocks::headless_sink::make(1, 8000, 16);
-#else
-  wav_sink = gr::blocks::transmission_sink::make(1, 8000, 16);
-#endif
   // recorder->initialize(src);
 
   bool use_streaming = d_recorder->get_enable_audio_streaming();

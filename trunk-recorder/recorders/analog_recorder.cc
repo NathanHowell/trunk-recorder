@@ -168,11 +168,7 @@ analog_recorder::analog_recorder(Source *src, System *system, Recorder_Type type
 
   // tm *ltm = localtime(&starttime);
 
-#ifdef TR_HEADLESS
   wav_sink = gr::blocks::headless_sink::make(1, wav_sample_rate, 16);
-#else
-  wav_sink = gr::blocks::transmission_sink::make(1, wav_sample_rate, 16);
-#endif
 
   if (use_streaming) {
     BOOST_LOG_TRIVIAL(info) << "\t Creating plugin sink..." << std::endl;

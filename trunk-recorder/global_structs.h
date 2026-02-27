@@ -3,8 +3,6 @@
 #include <ctime>
 #include <string>
 #include <vector>
-#include <json.hpp>
-
 const int DB_UNSET = 999;
 
 class EventSink;
@@ -26,13 +24,11 @@ struct Transmission {
 
 struct Config {
   std::string config_file;
-  std::string upload_script;
   std::string upload_server;
   std::string bcfy_calls_server;
   std::string status_server;
   std::string instance_key;
   std::string instance_id;
-  std::string capture_dir;
   std::string temp_dir;
   std::string debug_recorder_address;
   std::string log_dir;
@@ -51,7 +47,6 @@ struct Config {
   bool enable_audio_streaming;
   bool soft_vocoder;
   bool record_uu_v_calls;
-  bool archive_files_on_failure;
   int frequency_format;
   EventSink *event_sink = nullptr;
 };
@@ -122,19 +117,10 @@ struct Call_Data_t {
   int priority;
   bool mode;
   bool duplex;
-  bool audio_archive;
-  bool transmission_archive;
-  bool archive_files_on_failure;
-  bool call_log;
-  bool compress_wav;
-  char filename[300];
-  char status_filename[300];
-  char converted[300];
   int min_transmissions_removed;
 
   int sys_num;
   std::string short_name;
-  std::string upload_script;
   std::string audio_type;
 
   int tdma_slot;
@@ -146,11 +132,6 @@ struct Call_Data_t {
   std::vector<Transmission> transmission_list;
 
   Call_Data_Status status;
-  time_t process_call_time;
-  int retry_attempt;
-
-  std::vector<int> plugin_retry_list;
-  nlohmann::ordered_json call_json;
 };
 
 #endif

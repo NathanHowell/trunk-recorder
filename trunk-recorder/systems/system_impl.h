@@ -68,7 +68,6 @@ public:
   std::string bcfy_api_key;
   std::string default_mode;
   std::string system_type;
-  std::string upload_script;
   int bcfy_system_id;
   int message_count;
   int decode_rate;
@@ -85,7 +84,6 @@ public:
   double min_call_duration;
   double max_call_duration;
   double min_transmission_duration;
-  bool compress_wav;
   bool conversation_mode;
   bool qpsk_mod;
   double squelch_db;
@@ -102,10 +100,7 @@ public:
   std::vector<p25_recorder_sptr> conventionalP25_recorders;
   std::vector<dmr_recorder_sptr> conventionalDMR_recorders;
   std::vector<sigmf_recorder_sptr> conventionalSIGMF_recorders;
-  bool transmission_archive;
-  bool audio_archive;
   bool record_unknown;
-  bool call_log;
 
   smartnet_impl::sptr smartnet_trunking;
   p25_trunking_sptr p25_trunking;
@@ -114,10 +109,6 @@ public:
 
   std::string get_short_name() override;
   void set_short_name(std::string short_name) override;
-  std::string get_upload_script() override;
-  void set_upload_script(std::string script) override;
-  bool get_compress_wav() override;
-  void set_compress_wav(bool compress) override;
   std::string get_api_key() override;
   void set_api_key(std::string api_key) override;
   std::string get_bcfy_api_key() override;
@@ -130,14 +121,8 @@ public:
   void set_max_duration(double duration) override;
   double get_min_tx_duration() override;
   void set_min_tx_duration(double duration) override;
-  bool get_audio_archive() override;
-  void set_audio_archive(bool) override;
-  bool get_transmission_archive() override;
-  void set_transmission_archive(bool) override;
   bool get_record_unknown() override;
   void set_record_unknown(bool) override;
-  bool get_call_log() override;
-  void set_call_log(bool) override;
   bool get_conversation_mode() override;
   void set_conversation_mode(bool mode) override;
   void set_mdc_enabled(bool b) override;

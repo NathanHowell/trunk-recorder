@@ -76,11 +76,7 @@
 #include "../gr_blocks/channelizer.h"
 #include "../gr_blocks/plugin_wrapper_impl.h"
 #include "../gr_blocks/selector.h"
-#ifdef TR_HEADLESS
 #include "../gr_blocks/headless_sink.h"
-#else
-#include "../gr_blocks/transmission_sink.h"
-#endif
 #include "../gr_blocks/xlat_channelizer.h"
 #include "../source.h"
 #include "../call_conventional.h"
@@ -173,13 +169,8 @@ private:
   gr::blocks::short_to_float::sptr converter_slot0;
   gr::blocks::short_to_float::sptr converter_slot1;
   gr::blocks::multiply_const_ff::sptr levels;
-#ifdef TR_HEADLESS
   gr::blocks::headless_sink::sptr wav_sink_slot0;
   gr::blocks::headless_sink::sptr wav_sink_slot1;
-#else
-  gr::blocks::transmission_sink::sptr wav_sink_slot0;
-  gr::blocks::transmission_sink::sptr wav_sink_slot1;
-#endif
   gr::blocks::plugin_wrapper::sptr plugin_sink_slot0;
   gr::blocks::plugin_wrapper::sptr plugin_sink_slot1;
 };

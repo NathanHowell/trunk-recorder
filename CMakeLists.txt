@@ -272,7 +272,6 @@ list(APPEND trunk_recorder_sources
   #lib/gr-latency-manager/lib/latency_manager_impl.cc
   #lib/gr-latency-manager/lib/tag_to_msg_impl.cc
   trunk-recorder/gr_blocks/freq_xlating_fft_filter.cc
-  trunk-recorder/gr_blocks/transmission_sink.cc
   trunk-recorder/gr_blocks/headless_sink.cc
   trunk-recorder/gr_blocks/decoders/fsync_decode.cc
   trunk-recorder/gr_blocks/decoders/mdc_decode.cc
@@ -306,19 +305,9 @@ set_source_files_properties(lib/lfsr/lfsr.cxx COMPILE_FLAGS "-w")
 
 
 
-add_library(trunk_recorder_library
-STATIC
-  ${trunk_recorder_sources}
-)
-
 include(GNUInstallDirs)
 
 add_subdirectory(lib/op25_repeater)
-
-#target_compile_options(
-#    imbe_vocoder PRIVATE
-#    "-w"
-#)
 
 target_compile_options(
     gnuradio-op25_repeater PRIVATE
@@ -331,17 +320,47 @@ set_property(
     "${CMAKE_INSTALL_LIBDIR}/trunk-recorder"
 )
 
+########################################################################
+# Shared library target (the only build output — driven by Rust FFI)
+########################################################################
+add_library(trunk_recorder_shared SHARED ${trunk_recorder_sources})
+# Override the global -fvisibility=hidden so symbols are exported
+target_compile_options(trunk_recorder_shared PRIVATE -fvisibility=default)
+set_target_properties(trunk_recorder_shared PROPERTIES OUTPUT_NAME "trunk-recorder")
+target_link_libraries(trunk_recorder_shared
+    gnuradio-op25_repeater
+    ssl
+    crypto
+    ${CURL_LIBRARIES}
+    ${Boost_LIBRARIES}
+    ${GNURADIO_PMT_LIBRARIES}
+    ${GNURADIO_RUNTIME_LIBRARIES}
+    ${GNURADIO_FILTER_LIBRARIES}
+    ${GNURADIO_DIGITAL_LIBRARIES}
+    ${GNURADIO_ANALOG_LIBRARIES}
+    ${GNURADIO_AUDIO_LIBRARIES}
+    ${GNURADIO_UHD_LIBRARIES}
+    ${UHD_LIBRARIES}
+    ${GNURADIO_BLOCKS_LIBRARIES}
+    ${GNURADIO_OSMOSDR_LIBRARIES})
 
-set_target_properties(trunk_recorder_library PROPERTIES OUTPUT_NAME "trunk-recorder")
-#set_target_properties(trunk_recorder_library PROPERTIES PUBLIC_HEADER "${trunk_recorder_headers}")
-#set_target_properties(trunk_recorder_library PROPERTIES PRIVATE_HEADER "${3p_headers}")
+message(STATUS "All libraries:" ${GNURADIO_ALL_LIBRARIES})
+if(NOT Gnuradio_VERSION VERSION_LESS "3.8")
+    target_link_libraries(trunk_recorder_shared
+        gnuradio::gnuradio-analog
+        gnuradio::gnuradio-blocks
+        gnuradio::gnuradio-digital
+        gnuradio::gnuradio-filter
+        gnuradio::gnuradio-pmt)
+endif()
 
-# Weird - when I add LIBRARY before the DESTINATION, it installs in the /usr/local/lib dir on a mac
-install(TARGETS trunk_recorder_library 
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/trunk-recorder
-    #PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/trunk-recorder
-)
-    
+target_include_directories(trunk_recorder_shared PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/trunk-recorder
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/op25_repeater/include)
+
+install(TARGETS trunk_recorder_shared LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/trunk-recorder/" # source directory
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/trunk-recorder" # target directory
     FILES_MATCHING # install only matched files
@@ -351,90 +370,3 @@ install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/trunk-recorder/" # source directo
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/lib/json.hpp" # source file
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/trunk-recorder" # target directory
 )
-
-# Add built-in plugins located in /plugins
-add_subdirectory(plugins/openmhz_uploader)
-add_subdirectory(plugins/broadcastify_uploader)
-add_subdirectory(plugins/unit_script)
-add_subdirectory(plugins/rdioscanner_uploader)
-#add_subdirectory(plugins/simplestream)
-
-# Add user plugins located in /user_plugins
-# Matching: /user_plugins/${plugin_dir}/CMakeLists.txt
-file(GLOB plugin_dirs "user_plugins/*")
-foreach(plugin_dir ${plugin_dirs})
-  if(IS_DIRECTORY ${plugin_dir})
-    file(GLOB cmakelists "${plugin_dir}/CMakeLists.txt")
-    if(cmakelists)
-      add_subdirectory(${plugin_dir})
-      get_filename_component(dir_name ${plugin_dir} NAME)
-      message(STATUS "Added user plugin: ${dir_name}")
-    endif()
-  endif()
-endforeach()
-
-add_executable(trunk-recorder trunk-recorder/main.cc) # ${trunk_recorder_sources})
-
-target_link_libraries(trunk-recorder git trunk_recorder_library gnuradio-op25_repeater   ${CMAKE_DL_LIBS} ssl crypto ${CURL_LIBRARIES} ${Boost_LIBRARIES} ${GNURADIO_PMT_LIBRARIES} ${GNURADIO_RUNTIME_LIBRARIES} ${GNURADIO_FILTER_LIBRARIES} ${GNURADIO_DIGITAL_LIBRARIES} ${GNURADIO_ANALOG_LIBRARIES} ${GNURADIO_AUDIO_LIBRARIES} ${GNURADIO_UHD_LIBRARIES} ${UHD_LIBRARIES} ${GNURADIO_BLOCKS_LIBRARIES} ${GNURADIO_OSMOSDR_LIBRARIES} ) # gRPC::grpc++_reflection protobuf::libprotobuf)
-
-#target_link_libraries(trunk-recorder PRIVATE nlohmann_json::nlohmann_json )
-
-message(STATUS "All libraries:" ${GNURADIO_ALL_LIBRARIES})
-if(NOT Gnuradio_VERSION VERSION_LESS "3.8")
-    target_link_libraries(trunk-recorder
-    gnuradio::gnuradio-analog
-    gnuradio::gnuradio-blocks
-    gnuradio::gnuradio-digital
-    gnuradio::gnuradio-filter
-    gnuradio::gnuradio-pmt
-    )  
-endif()
-
-
-install(TARGETS trunk-recorder RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
-########################################################################
-# Optional shared library target for Rust FFI
-########################################################################
-option(BUILD_SHARED_API "Build shared library for Rust FFI" OFF)
-if(BUILD_SHARED_API)
-    set(shared_sources ${trunk_recorder_sources})
-    list(REMOVE_ITEM shared_sources
-        trunk-recorder/plugin_manager/plugin_manager.cc
-        trunk-recorder/plugin_manager/plugin_event_sink.cc
-        trunk-recorder/call_concluder/call_concluder.cc)
-    add_library(trunk_recorder_shared SHARED ${shared_sources})
-    target_compile_definitions(trunk_recorder_shared PRIVATE TR_HEADLESS)
-    # Override the global -fvisibility=hidden so symbols are exported
-    target_compile_options(trunk_recorder_shared PRIVATE -fvisibility=default)
-    set_target_properties(trunk_recorder_shared PROPERTIES OUTPUT_NAME "trunk-recorder")
-    target_link_libraries(trunk_recorder_shared
-        gnuradio-op25_repeater
-        ssl
-        crypto
-        ${CURL_LIBRARIES}
-        ${Boost_LIBRARIES}
-        ${GNURADIO_PMT_LIBRARIES}
-        ${GNURADIO_RUNTIME_LIBRARIES}
-        ${GNURADIO_FILTER_LIBRARIES}
-        ${GNURADIO_DIGITAL_LIBRARIES}
-        ${GNURADIO_ANALOG_LIBRARIES}
-        ${GNURADIO_AUDIO_LIBRARIES}
-        ${GNURADIO_UHD_LIBRARIES}
-        ${UHD_LIBRARIES}
-        ${GNURADIO_BLOCKS_LIBRARIES}
-        ${GNURADIO_OSMOSDR_LIBRARIES})
-    if(NOT Gnuradio_VERSION VERSION_LESS "3.8")
-        target_link_libraries(trunk_recorder_shared
-            gnuradio::gnuradio-analog
-            gnuradio::gnuradio-blocks
-            gnuradio::gnuradio-digital
-            gnuradio::gnuradio-filter
-            gnuradio::gnuradio-pmt)
-    endif()
-    target_include_directories(trunk_recorder_shared PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/trunk-recorder
-        ${CMAKE_CURRENT_SOURCE_DIR}/lib
-        ${CMAKE_CURRENT_SOURCE_DIR}/lib/op25_repeater/include)
-    install(TARGETS trunk_recorder_shared LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
-endif()
