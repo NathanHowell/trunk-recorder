@@ -32,6 +32,9 @@ private:
   std::chrono::time_point<std::chrono::steady_clock> d_last_write_time;
   time_t d_start_time;
   time_t d_stop_time;
+  long d_sample_count;
+  long d_talkgroup;
+  double d_freq;
 
 public:
 #if GNURADIO_VERSION < 0x030900

@@ -2,13 +2,17 @@
 /*
  * Headless audio sink for TR_HEADLESS builds.
  *
- * Replaces transmission_sink: tracks state and timing without
- * writing WAV files.  Updates d_last_write_time in work() so that
- * the call-timeout logic in manage_calls() works correctly.
+ * Replaces transmission_sink: tracks state, timing, and sample count
+ * without writing WAV files.  Updates d_last_write_time in work() so
+ * that the call-timeout logic in manage_calls() works correctly.
+ * Builds a transmission list so call_concluder gets real duration.
  */
 
 #include "headless_sink.h"
 
+#include "../../trunk-recorder/call.h"
+
+#include <cstring>
 #include <gnuradio/io_signature.h>
 
 namespace gr {
@@ -27,12 +31,21 @@ headless_sink::headless_sink(int n_channels, unsigned int sample_rate, int /*bit
       d_state(AVAILABLE),
       d_last_write_time(std::chrono::steady_clock::now()),
       d_start_time(0),
-      d_stop_time(0) {}
+      d_stop_time(0),
+      d_sample_count(0),
+      d_talkgroup(0),
+      d_freq(0.0) {}
 
-bool headless_sink::start_recording(Call * /*call*/) {
+bool headless_sink::start_recording(Call *call) {
   d_state = IDLE;
   d_start_time = time(NULL);
+  d_stop_time = 0;
+  d_sample_count = 0;
   d_last_write_time = std::chrono::steady_clock::now();
+  if (call) {
+    d_talkgroup = call->get_talkgroup();
+    d_freq = call->get_freq();
+  }
   return true;
 }
 
@@ -66,15 +79,37 @@ std::chrono::time_point<std::chrono::steady_clock> headless_sink::get_last_write
 }
 
 std::vector<Transmission> headless_sink::get_transmission_list() {
-  return {};
+  if (d_sample_count == 0) {
+    return {};
+  }
+
+  Transmission t;
+  memset(&t, 0, sizeof(t));
+  t.talkgroup = d_talkgroup;
+  t.freq = d_freq;
+  t.start_time = d_start_time;
+  t.stop_time = d_stop_time > 0 ? d_stop_time : time(NULL);
+  t.sample_count = d_sample_count;
+  t.length = length_in_seconds();
+  t.source = 0;
+  t.slot = 0;
+  t.color_code = 0;
+  t.spike_count = 0;
+  t.error_count = 0;
+  t.filename[0] = '\0';
+
+  return {t};
 }
 
 double headless_sink::total_length_in_seconds() {
-  return 0.0;
+  return length_in_seconds();
 }
 
 double headless_sink::length_in_seconds() {
-  return 0.0;
+  if (d_sample_rate == 0) {
+    return 0.0;
+  }
+  return (double)d_sample_count / (double)d_sample_rate;
 }
 
 int headless_sink::work(int noutput_items,
@@ -85,6 +120,7 @@ int headless_sink::work(int noutput_items,
   }
 
   if (d_state == RECORDING) {
+    d_sample_count += noutput_items;
     d_last_write_time = std::chrono::steady_clock::now();
     d_stop_time = time(NULL);
   }
