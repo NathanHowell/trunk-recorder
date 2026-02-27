@@ -59,7 +59,7 @@ public:
   std::string api_key;
   std::string bcfy_api_key;
   std::string default_mode;
-  std::string system_type;
+  SystemType system_type;
   int bcfy_system_id;
   int message_count;
   int decode_rate;
@@ -141,7 +141,7 @@ public:
   void set_filter_width(double f) override;
   double get_filter_width() override;
   gr::msg_queue::sptr get_msg_queue() override;
-  std::string get_system_type() override;
+  SystemType get_system_type() override;
   unsigned long get_sys_id() override;
   unsigned long get_wacn() override;
   unsigned long get_nac() override;
@@ -152,7 +152,7 @@ public:
   bool update_status(TrunkMessage message) override;
   bool update_sysid(TrunkMessage message) override;
   int get_sys_num() override;
-  void set_system_type(std::string) override;
+  void set_system_type(SystemType) override;
   std::string get_talkgroups_file() override;
   std::string get_unit_tags_file() override;
   std::shared_ptr<Source> get_source() override;

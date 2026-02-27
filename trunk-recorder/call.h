@@ -81,7 +81,7 @@ public:
   virtual void clear_transmission_list() = 0;
 
   virtual std::string get_talkgroup_tag() = 0;
-  virtual std::string get_system_type() = 0;
+  virtual SystemType get_system_type() = 0;
   virtual double get_final_length() = 0;
   virtual long get_current_source_id() = 0;
   virtual bool get_conversation_mode() = 0;

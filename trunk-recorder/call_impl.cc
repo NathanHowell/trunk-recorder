@@ -151,7 +151,7 @@ void Call_impl::conclude_call() {
         }
       }
 
-      if (this->sys->get_system_type() == "conventionalDMR") {
+      if (this->sys->get_system_type() == SYS_CONVENTIONAL_DMR) {
         auto dmr_rec = std::dynamic_pointer_cast<dmr_recorder>(rec);
         if (!dmr_rec) {
           BOOST_LOG_TRIVIAL(error) << "Call_impl::conclude_call() conventionalDMR system but recorder is not a dmr_recorder!";
@@ -434,7 +434,7 @@ long Call_impl::get_stop_time() {
   return std::chrono::system_clock::to_time_t(stop_time);
 }
 
-std::string Call_impl::get_system_type() {
+SystemType Call_impl::get_system_type() {
   return sys->get_system_type();
 }
 

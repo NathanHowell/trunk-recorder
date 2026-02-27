@@ -242,11 +242,11 @@ void System_impl::set_record_unknown(bool unknown) {
   this->record_unknown = unknown;
 }
 
-std::string System_impl::get_system_type() {
+SystemType System_impl::get_system_type() {
   return this->system_type;
 }
 
-void System_impl::set_system_type(std::string sys_type) {
+void System_impl::set_system_type(SystemType sys_type) {
   this->system_type = sys_type;
 }
 
@@ -726,11 +726,11 @@ void System_impl::setup_trunking(const std::shared_ptr<Source> &source, gr::top_
   double control_channel_freq = get_current_control_channel();
   set_source(source);
 
-  if (system_type == "smartnet") {
+  if (system_type == SYS_SMARTNET) {
     smartnet_trunking = smartnet_impl::make(control_channel_freq, source->get_center(),
                                             source->get_rate(), get_msg_queue(), get_sys_num());
     tb->connect(source->get_src_block(), 0, smartnet_trunking, 0);
-  } else if (system_type == "p25") {
+  } else if (system_type == SYS_P25) {
     p25_trunking = make_p25_trunking(control_channel_freq, source->get_center(),
                                       source->get_rate(), get_msg_queue(), qpsk_mod, get_sys_num());
     tb->connect(source->get_src_block(), 0, p25_trunking, 0);
@@ -750,9 +750,9 @@ void System_impl::retune_trunking(gr::top_block_sptr &tb, std::vector<std::share
 
   if ((current_source->get_min_hz() <= control_channel_freq) &&
       (current_source->get_max_hz() >= control_channel_freq)) {
-    if (system_type == "smartnet") {
+    if (system_type == SYS_SMARTNET) {
       smartnet_trunking->tune_freq(control_channel_freq);
-    } else if (system_type == "p25") {
+    } else if (system_type == SYS_P25) {
       p25_trunking->tune_freq(control_channel_freq);
     } else {
       BOOST_LOG_TRIVIAL(error) << "\t - Unknown system type for Retune";
@@ -764,7 +764,7 @@ void System_impl::retune_trunking(gr::top_block_sptr &tb, std::vector<std::share
           (src->get_max_hz() >= control_channel_freq)) {
         source_found = true;
 
-        if (system_type == "smartnet") {
+        if (system_type == SYS_SMARTNET) {
           set_source(src);
           tb->lock();
           tb->disconnect(current_source->get_src_block(), 0, smartnet_trunking, 0);
@@ -772,7 +772,7 @@ void System_impl::retune_trunking(gr::top_block_sptr &tb, std::vector<std::share
                                                   src->get_rate(), get_msg_queue(), get_sys_num());
           tb->connect(src->get_src_block(), 0, smartnet_trunking, 0);
           tb->unlock();
-        } else if (system_type == "p25") {
+        } else if (system_type == SYS_P25) {
           set_source(src);
           tb->lock();
           tb->disconnect(current_source->get_src_block(), 0, p25_trunking, 0);

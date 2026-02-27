@@ -190,11 +190,11 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
         system->set_short_name(element.value("shortName", default_script.str()));
         BOOST_LOG_TRIVIAL(info) << "Short Name: " << system->get_short_name();
 
-        system->set_system_type(element["type"]);
-        BOOST_LOG_TRIVIAL(info) << "System Type: " << system->get_system_type();
+        system->set_system_type(system_type_from_string(element["type"]));
+        BOOST_LOG_TRIVIAL(info) << "System Type: " << system_type_to_string(system->get_system_type());
 
         // If it is a conventional System
-        if ((system->get_system_type() == "conventional") || (system->get_system_type() == "conventionalP25") || (system->get_system_type() == "conventionalDMR") || (system->get_system_type() == "conventionalSIGMF")) {
+        if (is_conventional(system->get_system_type())) {
 
           bool channel_file_exist = element.contains("channelFile");
           bool channels_exist = element.contains("channels");
@@ -220,7 +220,7 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
             return false;
           }
           // If it is a Trunked System
-        } else if ((system->get_system_type() == "smartnet") || (system->get_system_type() == "p25")) {
+        } else if (system->get_system_type() == SYS_SMARTNET || system->get_system_type() == SYS_P25) {
           BOOST_LOG_TRIVIAL(info) << "Control Channels: ";
           std::vector<double> control_channels = element["control_channels"];
           for (auto &control_channel : control_channels) {
@@ -333,7 +333,7 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
         system->set_bandplan_spacing(element.value("bandplanSpacing", 0.0));
         system->set_bandplan_offset(element.value("bandplanOffset", 0));
 
-        if (system->get_system_type() == "smartnet") {
+        if (system->get_system_type() == SYS_SMARTNET) {
           BOOST_LOG_TRIVIAL(info) << "Smartnet bandplan: " << system->get_bandplan();
           BOOST_LOG_TRIVIAL(info) << "Smartnet band: " << system->get_bandfreq();
 

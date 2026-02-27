@@ -84,7 +84,7 @@ public:
   virtual void set_filter_width(double f) = 0;
   virtual double get_filter_width() = 0;
   virtual gr::msg_queue::sptr get_msg_queue() = 0;
-  virtual std::string get_system_type() = 0;
+  virtual SystemType get_system_type() = 0;
   virtual unsigned long get_sys_id() = 0;
   virtual unsigned long get_wacn() = 0;
   virtual unsigned long get_nac() = 0;
@@ -95,7 +95,7 @@ public:
   virtual bool update_status(TrunkMessage message) = 0;
   virtual bool update_sysid(TrunkMessage message) = 0;
   virtual int get_sys_num() = 0;
-  virtual void set_system_type(std::string) = 0;
+  virtual void set_system_type(SystemType) = 0;
   virtual std::string get_talkgroups_file() = 0;
   virtual std::string get_unit_tags_file() = 0;
   virtual std::shared_ptr<Source> get_source() = 0;

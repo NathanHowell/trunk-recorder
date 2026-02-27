@@ -86,7 +86,7 @@ public:
   void clear_transmission_list();
 
   std::string get_talkgroup_tag();
-  std::string get_system_type();
+  SystemType get_system_type();
   double get_final_length();
   long get_current_source_id();
   bool get_conversation_mode();

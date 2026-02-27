@@ -100,7 +100,7 @@ bool start_recorder(const std::shared_ptr<Call> &call, TrunkMessage message, Con
         // A talkgroup was not found from the talkgroup file.
         // Use an analog recorder if this is a Type II trunk and defaultMode is analog.
         // All other cases use a digital recorder.
-        if ((config.default_mode == "analog") && (sys->get_system_type() == "smartnet")) {
+        if ((config.default_mode == "analog") && (sys->get_system_type() == SYS_SMARTNET)) {
           recorder = source->get_analog_recorder(call);
           call->set_is_analog(true);
         } else {
@@ -200,10 +200,10 @@ void print_status(std::vector<std::shared_ptr<Source>> &sources, std::vector<std
 
   BOOST_LOG_TRIVIAL(info) << "Control Channel Decode Rates: ";
   for (auto &sys : systems) {
-    if ((sys->get_system_type() != "conventional") && (sys->get_system_type() != "conventionalP25") && (sys->get_system_type() != "conventionalDMR") && (sys->get_system_type() != "conventionalSIGMF")) {
+    if (!is_conventional(sys->get_system_type())) {
       BOOST_LOG_TRIVIAL(info) << "[" << sys->get_short_name() << "]\t" << format_freq(sys->get_current_control_channel()) << "\t" << sys->get_decode_rate() << " msg/sec";
       
-      if ((sys->get_source()->get_autotune_source()) && (sys->get_system_type() == "p25")) {
+      if ((sys->get_source()->get_autotune_source()) && (sys->get_system_type() == SYS_P25)) {
         // If control channel source has autotune enabled, perform autotune adjustments and log to console
         autotune_control_channel(sys);
       }
@@ -331,7 +331,7 @@ void current_system_status(TrunkMessage message, const std::shared_ptr<System> &
 }
 
 void current_system_sysid(TrunkMessage message, const std::shared_ptr<System> &sys, const std::shared_ptr<EventSink> &event_sink) {
-  if ((sys->get_system_type() == "p25") || (sys->get_system_type() == "conventionalP25")) {
+  if ((sys->get_system_type() == SYS_P25) || (sys->get_system_type() == SYS_CONVENTIONAL_P25)) {
     if (sys->update_sysid(message)) {
       event_sink->setup_system(sys);
     }
@@ -664,7 +664,7 @@ void handle_message(std::vector<TrunkMessage> messages, const std::shared_ptr<Sy
 
     case TDULC:
       sys->retune_trunking(tb, sources);
-      if (sys->get_source() && sys->get_source()->get_autotune_source() && sys->get_system_type() == "p25") {
+      if (sys->get_source() && sys->get_source()->get_autotune_source() && sys->get_system_type() == SYS_P25) {
         autotune_control_channel(sys, false);
       }
       break;
@@ -681,7 +681,7 @@ void check_message_count(float timeDiff, Config &config, gr::top_block_sptr &tb,
   config.event_sink->system_rates(systems, timeDiff);
 
   for (auto &sys : systems) {
-    if ((sys->get_system_type() != "conventional") && (sys->get_system_type() != "conventionalP25") && (sys->get_system_type() != "conventionalDMR") && (sys->get_system_type() != "conventionalSIGMF")) {
+    if (!is_conventional(sys->get_system_type())) {
       int msgs_decoded_per_second = std::floor(sys->get_message_count() / timeDiff);
       sys->set_decode_rate(msgs_decoded_per_second);
 
@@ -700,7 +700,7 @@ void check_message_count(float timeDiff, Config &config, gr::top_block_sptr &tb,
         }
         if (sys->control_channel_count() > 1) {
           sys->retune_trunking(tb, sources);
-          if (sys->get_source() && sys->get_source()->get_autotune_source() && sys->get_system_type() == "p25") {
+          if (sys->get_source() && sys->get_source()->get_autotune_source() && sys->get_system_type() == SYS_P25) {
             autotune_control_channel(sys, false);
           }
         } else {
@@ -779,7 +779,7 @@ int monitor_messages(TrunkContext &ctx) {
     return 1;
   }
   for (auto &system : systems) {
-    if (system->get_system_type() == "smartnet") {
+    if (system->get_system_type() == SYS_SMARTNET) {
       smartnet_parsers[system->get_sys_num()] = std::make_unique<SmartnetParser>(system);
     }
   }
@@ -809,20 +809,20 @@ int monitor_messages(TrunkContext &ctx) {
     config.event_sink->poll_one();
 
     for (auto &system : systems) {
-      if ((system->get_system_type() == "p25") || (system->get_system_type() == "smartnet")) {
+      if ((system->get_system_type() == SYS_P25) || (system->get_system_type() == SYS_SMARTNET)) {
         msg.reset();
         msg = system->get_msg_queue()->delete_head_nowait();
         while (msg != 0) {
           system->set_message_count(system->get_message_count() + 1);
 
-          if (system->get_system_type() == "smartnet") {
+          if (system->get_system_type() == SYS_SMARTNET) {
             auto &smartnet_parser = smartnet_parsers[system->get_sys_num()];
             trunk_messages = smartnet_parser->parse_message(msg, system);
             handle_message(trunk_messages, system, config, sources, calls, tb);
             config.event_sink->trunk_message(trunk_messages, system);
           }
 
-          if (system->get_system_type() == "p25") {
+          if (system->get_system_type() == SYS_P25) {
             trunk_messages = p25_parser->parse_message(msg, system);
             handle_message(trunk_messages, system, config, sources, calls, tb);
             config.event_sink->trunk_message(trunk_messages, system);
@@ -866,7 +866,7 @@ int monitor_messages(TrunkContext &ctx) {
       }
       last_decode_rate_check = now;
       for (auto &system : systems) {
-        if (system->get_system_type() == "p25") {
+        if (system->get_system_type() == SYS_P25) {
           system->clear_stale_talkgroup_patches();
         }
       }

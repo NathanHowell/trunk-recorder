@@ -34,8 +34,8 @@ bool setup_conventional_channel(const std::shared_ptr<System> &system, double fr
         call = std::make_shared<Call_conventional>(channel_index, frequency, system, config, system->get_squelch_db(), true);  // signal detection is always true when a channel file is not used
       }
 
-      BOOST_LOG_TRIVIAL(info) << "[" << system->get_short_name() << "]\tMonitoring " << system->get_system_type() << " channel: " << format_freq(frequency) << " Talkgroup: " << channel_index;
-      if (system->get_system_type() == "conventional") {
+      BOOST_LOG_TRIVIAL(info) << "[" << system->get_short_name() << "]\tMonitoring " << system_type_to_string(system->get_system_type()) << " channel: " << format_freq(frequency) << " Talkgroup: " << channel_index;
+      if (system->get_system_type() == SYS_CONVENTIONAL) {
         analog_recorder_sptr rec;
         if (tone_freq > 0.0) {
           rec = source->create_conventional_recorder(tb, tone_freq);
@@ -51,7 +51,7 @@ bool setup_conventional_channel(const std::shared_ptr<System> &system, double fr
         calls.push_back(call);
         config.event_sink->setup_recorder(rec);
         config.event_sink->call_start(call);
-      } else if (system->get_system_type() == "conventionalDMR") {
+      } else if (system->get_system_type() == SYS_CONVENTIONAL_DMR) {
         // Because of dynamic mod assignment we can not start the recorder until the graph has been unlocked.
         // This has something to do with the way the Selector block works.
         // the manage_conventional_calls() function handles adding and starting the P25 Recorder
@@ -60,7 +60,7 @@ bool setup_conventional_channel(const std::shared_ptr<System> &system, double fr
         call->set_recorder(rec);
         system->add_conventionalDMR_recorder(rec);
         calls.push_back(call);
-      } else if (system->get_system_type() == "conventionalP25") { // has to be "conventional P25"
+      } else if (system->get_system_type() == SYS_CONVENTIONAL_P25) {
         // Because of dynamic mod assignment we can not start the recorder until the graph has been unlocked.
         // This has something to do with the way the Selector block works.
         // the manage_conventional_calls() function handles adding and starting the P25 Recorder
@@ -69,14 +69,14 @@ bool setup_conventional_channel(const std::shared_ptr<System> &system, double fr
         call->set_recorder(rec);
         system->add_conventionalP25_recorder(rec);
         calls.push_back(call);
-      } else if (system->get_system_type() == "conventionalSIGMF") {
+      } else if (system->get_system_type() == SYS_CONVENTIONAL_SIGMF) {
         sigmf_recorder_sptr rec;
         rec = source->create_sigmf_conventional_recorder(tb);
         call->set_recorder(rec);
         system->add_conventionalSIGMF_recorder(rec);
         calls.push_back(call);
       } else {
-        BOOST_LOG_TRIVIAL(error) << "Error - Unknown system type: " << system->get_system_type();
+        BOOST_LOG_TRIVIAL(error) << "Error - Unknown system type: " << system_type_to_string(system->get_system_type());
       }
 
       // break out of the for loop
@@ -126,7 +126,7 @@ bool setup_systems(Config &config, gr::top_block_sptr &tb, std::vector<std::shar
 
   for (auto &system : systems) {
     bool system_added = false;
-    if ((system->get_system_type() == "conventional") || (system->get_system_type() == "conventionalP25") || (system->get_system_type() == "conventionalDMR")) {
+    if (is_conventional(system->get_system_type())) {
       system_added = setup_conventional_system(system, config, tb, sources, calls);
     } else {
       // If it's not a conventional system, then it's a trunking system
