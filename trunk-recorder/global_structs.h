@@ -31,15 +31,12 @@ struct Config {
   std::string instance_id;
   std::string temp_dir;
   std::string debug_recorder_address;
-  std::string log_dir;
   std::string default_mode;
   bool new_call_from_update;
   bool debug_recorder;
   int debug_recorder_port;
   double call_timeout;
   bool console_log;
-  bool log_file;
-  bool syslog_friendly;
   std::string log_color;
   int control_message_warn_rate;
   int control_retune_limit;

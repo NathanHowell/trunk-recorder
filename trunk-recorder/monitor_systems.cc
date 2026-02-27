@@ -1,22 +1,13 @@
 #include "monitor_systems.h"
 #include "recorders/p25_recorder.h"
-#include <boost/log/sinks/text_file_backend.hpp>
-#include <boost/log/core.hpp>
 
 using namespace std;
-
-// External reference to global log sink for SIGHUP rotation
-extern boost::shared_ptr<boost::log::sinks::synchronous_sink<boost::log::sinks::text_file_backend>> global_log_sink;
 
 // File-local pointer for signal handler access to TrunkContext
 static TrunkContext *g_ctx = nullptr;
 
 void exit_interupt(int sig) { // can be called asynchronously
   if (g_ctx) g_ctx->exit_flag = 1;
-}
-
-void rotate_log_signal(int sig) { // can be called asynchronously
-  if (g_ctx) g_ctx->rotate_log_flag = 1;
 }
 
 uint64_t time_since_epoch_millisec() {
@@ -870,7 +861,6 @@ int monitor_messages(TrunkContext &ctx) {
   P25Parser *p25_parser;
 
   signal(SIGINT, exit_interupt);
-  signal(SIGHUP, rotate_log_signal);
 
   smartnet_parser = new SmartnetParser(systems.front()); // this has to eventually be generic;
   p25_parser = new P25Parser();
@@ -895,16 +885,6 @@ int monitor_messages(TrunkContext &ctx) {
       // Sleep for 5 seconds to allow for all of the Call Concluder threads to finish.
       boost::this_thread::sleep(boost::posix_time::milliseconds(5000));
       return ctx.exit_code;
-    }
-
-    if (ctx.rotate_log_flag) { // SIGHUP received for log rotation
-      ctx.rotate_log_flag = 0;  // reset flag
-      if (global_log_sink) {
-        BOOST_LOG_TRIVIAL(info) << "Received SIGHUP signal - rotating log file...";
-        global_log_sink->flush();
-        global_log_sink->locked_backend()->rotate_file();
-        BOOST_LOG_TRIVIAL(info) << "Log file rotation complete";
-      }
     }
 
     process_message_queues(systems);
