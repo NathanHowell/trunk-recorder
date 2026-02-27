@@ -20,7 +20,7 @@ using json = nlohmann::json;
 SmartnetParser::SmartnetParser(System *system) : system(system) {
     this->debug_level = 1;
     this->msgq_id = -1;
-    this->sysnum = system->get_sys_num();
+    this->sysnum = system ? system->get_sys_num() : 0;
     this->osw_count = 0;
     this->last_osw = 0.0;
     this->rx_cc_freq = 0.0;
@@ -87,6 +87,7 @@ void SmartnetParser::log_bandplan() {
 }
 
 std::vector<TrunkMessage> SmartnetParser::parse_message(gr::message::sptr msg, System *system) {
+    this->system = system;
     int sysnum = system->get_sys_num();
     time_t curr_time = time(NULL);
     std::vector<TrunkMessage> messages;

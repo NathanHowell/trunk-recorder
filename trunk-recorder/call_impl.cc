@@ -217,13 +217,9 @@ double Call_impl::get_final_length() {
 
 double Call_impl::get_current_length() {
   if ((state == RECORDING) && recorder) {
-    if (!recorder) {
-      BOOST_LOG_TRIVIAL(error) << "Call_impl::get_current_length() State is recording, but no recorder assigned!";
-    }
-    return get_recorder()->get_current_length(); // This could SegFault
-  } else {
-    return 0; // time(NULL) - start_time;
+    return recorder->get_current_length();
   }
+  return 0;
 }
 
 System *Call_impl::get_system() {

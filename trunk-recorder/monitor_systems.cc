@@ -901,11 +901,8 @@ int monitor_messages(TrunkContext &ctx) {
       ctx.rotate_log_flag = 0;  // reset flag
       if (global_log_sink) {
         BOOST_LOG_TRIVIAL(info) << "Received SIGHUP signal - rotating log file...";
-        // Flush the sink
         global_log_sink->flush();
-        // Rotate the log file by removing and re-adding the backend
-        boost::log::core::get()->remove_sink(global_log_sink);
-        boost::log::core::get()->add_sink(global_log_sink);
+        global_log_sink->locked_backend()->rotate_file();
         BOOST_LOG_TRIVIAL(info) << "Log file rotation complete";
       }
     }
