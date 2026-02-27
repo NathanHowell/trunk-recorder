@@ -5,9 +5,10 @@
 #include <boost/log/trivial.hpp>
 
 p25_recorder_sptr make_p25_recorder(Source *src, Recorder_Type type) {
-  p25_recorder *recorder = new p25_recorder_impl(src, type);
-
-  return gnuradio::get_initial_sptr(recorder);
+  auto sptr = gnuradio::get_initial_sptr(new p25_recorder_impl(src, type));
+  // shared_from_this() is now available — build the decode blocks and wire the graph.
+  static_cast<p25_recorder_impl *>(sptr.get())->build_graph();
+  return sptr;
 }
 
 p25_recorder_impl::p25_recorder_impl(Source *src, Recorder_Type type)
@@ -51,14 +52,16 @@ void p25_recorder_impl::initialize(Source *src) {
   }
 
   prefilter = xlat_channelizer::make(input_rate, channelizer::phase1_samples_per_symbol, channelizer::phase1_symbol_rate, xlat_channelizer::channel_bandwidth, center_freq, conventional);
-  // initialize_prefilter();
-  //  initialize_p25();
 
   modulation_selector = gr::blocks::selector::make(sizeof(gr_complex), 0, 0);
   qpsk_demod = make_p25_recorder_qpsk_demod();
-  qpsk_p25_decode = make_p25_recorder_decode(this, config, silence_frames, d_soft_vocoder);
   fsk4_demod = make_p25_recorder_fsk4_demod();
-  fsk4_p25_decode = make_p25_recorder_decode(this, config, silence_frames, d_soft_vocoder);
+}
+
+void p25_recorder_impl::build_graph() {
+  auto self_recorder = std::dynamic_pointer_cast<Recorder>(shared_from_this());
+  qpsk_p25_decode = make_p25_recorder_decode(self_recorder, config, silence_frames, d_soft_vocoder);
+  fsk4_p25_decode = make_p25_recorder_decode(self_recorder, config, silence_frames, d_soft_vocoder);
 
   connect(self(), 0, prefilter, 0);
   connect(prefilter, 0, modulation_selector, 0);

@@ -18,12 +18,12 @@ class EventSink {
 public:
   virtual ~EventSink() = default;
 
-  virtual void audio_callback(Call *call, Recorder *recorder,
+  virtual void audio_callback(Call *call, const std::shared_ptr<Recorder> &recorder,
                               int16_t *samples, int sampleCount) = 0;
   virtual void poll_one() = 0;
   virtual int signal(long unitId, const char *signaling_type,
                      gr::blocks::SignalType sig_type, Call *call,
-                     System *system, Recorder *recorder) = 0;
+                     System *system, const std::shared_ptr<Recorder> &recorder) = 0;
   virtual void trunk_message(std::vector<TrunkMessage> messages,
                              System *system) = 0;
   virtual void call_start(Call *call) = 0;

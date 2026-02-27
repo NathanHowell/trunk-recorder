@@ -118,7 +118,8 @@ void dmr_recorder_impl::initialize(Source *src) {
 }
 
 void dmr_recorder_impl::plugin_callback_handler(int16_t *samples, int sampleCount) {
-  config->event_sink->audio_callback(call, this, samples, sampleCount);
+  auto self = std::dynamic_pointer_cast<Recorder>(shared_from_this());
+  config->event_sink->audio_callback(call, self, samples, sampleCount);
 }
 
 void dmr_recorder_impl::switch_tdma(bool phase2) {

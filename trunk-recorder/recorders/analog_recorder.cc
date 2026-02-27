@@ -324,16 +324,18 @@ void analog_recorder::tune_freq(double f) {
 }
 
 void analog_recorder::decoder_callback_handler(long unitId, const char *signaling_type, gr::blocks::SignalType signal) {
+  auto self = std::dynamic_pointer_cast<Recorder>(shared_from_this());
   if (call != NULL) {
     wav_sink->set_source(unitId);
-    config->event_sink->signal(unitId, signaling_type, signal, call, call->get_system(), this);
+    config->event_sink->signal(unitId, signaling_type, signal, call, call->get_system(), self);
   } else {
-    config->event_sink->signal(unitId, signaling_type, signal, NULL, NULL, this);
+    config->event_sink->signal(unitId, signaling_type, signal, NULL, NULL, self);
   }
 }
 
 void analog_recorder::plugin_callback_handler(int16_t *samples, int sampleCount) {
-  config->event_sink->audio_callback(call, this, samples, sampleCount);
+  auto self = std::dynamic_pointer_cast<Recorder>(shared_from_this());
+  config->event_sink->audio_callback(call, self, samples, sampleCount);
 }
 
 void analog_recorder::setup_decoders_for_system(System *system) {

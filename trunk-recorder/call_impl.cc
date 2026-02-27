@@ -378,7 +378,7 @@ bool Call_impl::add_source(long src) {
     }
   }
 
-  config.event_sink->signal(src, NULL, gr::blocks::SignalType::Normal, this, this->get_system(), NULL);
+  config.event_sink->signal(src, NULL, gr::blocks::SignalType::Normal, this, this->get_system(), nullptr);
 
   return true;
 }

@@ -61,9 +61,11 @@ class p25_recorder;
 #include "../source.h"
 
 class p25_recorder_impl : public p25_recorder {
+  friend p25_recorder_sptr make_p25_recorder(Source *src, Recorder_Type type);
 
 protected:
   void initialize(Source *src);
+  void build_graph();
 
 public:
   p25_recorder_impl(Source *src, Recorder_Type type);
