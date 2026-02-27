@@ -779,8 +779,8 @@ int monitor_messages(TrunkContext &ctx) {
   time_t current_time = time(nullptr);
   uint64_t current_time_ms = time_since_epoch_millisec();
   std::vector<TrunkMessage> trunk_messages;
-  SmartnetParser *smartnet_parser;
-  P25Parser *p25_parser;
+  std::unique_ptr<SmartnetParser> smartnet_parser;
+  std::unique_ptr<P25Parser> p25_parser;
 
   signal(SIGINT, exit_interupt);
 
@@ -788,8 +788,8 @@ int monitor_messages(TrunkContext &ctx) {
     BOOST_LOG_TRIVIAL(error) << "No systems configured, cannot start monitoring.";
     return 1;
   }
-  smartnet_parser = new SmartnetParser(systems.front());
-  p25_parser = new P25Parser();
+  smartnet_parser = std::make_unique<SmartnetParser>(systems.front());
+  p25_parser = std::make_unique<P25Parser>();
 
   while (1) {
 
