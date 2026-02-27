@@ -26,34 +26,34 @@ enum MessageType {
 };
 
 struct PatchData {
-  unsigned long sg;
-  unsigned long ga1;
-  unsigned long ga2;
-  unsigned long ga3;
+  unsigned long sg = 0;
+  unsigned long ga1 = 0;
+  unsigned long ga2 = 0;
+  unsigned long ga3 = 0;
 };
 
 struct TrunkMessage {
-  MessageType message_type;
+  MessageType message_type = UNKNOWN;
   std::string meta;
-  double freq;
-  long talkgroup;
-  bool encrypted;
-  bool emergency;
-  bool duplex;
-  bool mode;
-  int priority;
-  int tdma_slot;
-  bool phase2_tdma;
-  long source;
-  int sys_num;
-  unsigned long sys_id;
-  int sys_rfss;
-  int sys_site_id;
-  unsigned long nac;
-  unsigned long wacn;
+  double freq = 0.0;
+  long talkgroup = 0;
+  bool encrypted = false;
+  bool emergency = false;
+  bool duplex = false;
+  bool mode = false;
+  int priority = 0;
+  int tdma_slot = 0;
+  bool phase2_tdma = false;
+  long source = -1;
+  int sys_num = 0;
+  unsigned long sys_id = 0;
+  int sys_rfss = 0;
+  int sys_site_id = 0;
+  unsigned long nac = 0;
+  unsigned long wacn = 0;
   PatchData patch_data;
-  unsigned long opcode;
-  
+  unsigned long opcode = 0;
+
 };
 
 class TrunkParser {
