@@ -739,22 +739,6 @@ void Source::print_recorders() {
   }
 }
 
-int Source::digital_recorder_count() {
-  return digital_recorders.size() + digital_conv_recorders.size() + dmr_conv_recorders.size();
-}
-
-int Source::analog_recorder_count() {
-  return analog_recorders.size() + analog_conv_recorders.size();
-}
-
-int Source::debug_recorder_count() {
-  return debug_recorders.size();
-}
-
-int Source::sigmf_recorder_count() {
-  return sigmf_recorders.size();
-}
-
 int Source::get_num_available_digital_recorders() {
   int num_available_recorders = 0;
 

@@ -37,8 +37,6 @@ void p25_recorder_impl::initialize(const std::shared_ptr<Source> &src) {
   talkgroup = 0;
   d_phase2_tdma = false;
   rec_num = rec_counter++;
-  recording_count = 0;
-  recording_duration = 0;
 
   state = INACTIVE;
 
@@ -254,12 +252,6 @@ std::vector<Transmission> p25_recorder_impl::get_transmission_list() {
 
 void p25_recorder_impl::stop() {
   if (state == ACTIVE) {
-    if (qpsk_mod) {
-      recording_duration += qpsk_p25_decode->get_current_length();
-    } else {
-      recording_duration += fsk4_p25_decode->get_current_length();
-    }
-
     if (source->get_autotune_source()) {
       // Send last tuning measurements to autotune manager
       source->add_autotune_error_measurement(this->get_freq_error(), autotune_offset);
@@ -359,7 +351,6 @@ bool p25_recorder_impl::start(const std::shared_ptr<Call> &call) {
     prefilter->set_squelch_db(squelch_db);
 
 
-    recording_count++;
   } else {
     BOOST_LOG_TRIVIAL(error) << "p25_recorder.cc: Trying to Start an already Active Logger!!!";
     return false;

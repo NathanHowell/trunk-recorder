@@ -34,8 +34,6 @@ void dmr_recorder_impl::initialize(const std::shared_ptr<Source> &src) {
   talkgroup = 0;
   d_phase2_tdma = true;
   rec_num = rec_counter++;
-  recording_count = 0;
-  recording_duration = 0;
 
   bool use_streaming = false;
 
@@ -229,8 +227,6 @@ std::vector<Transmission> dmr_recorder_impl::get_transmission_list(int slot) {
 
 void dmr_recorder_impl::stop() {
   if (state == ACTIVE) {
-    recording_duration += wav_sink_slot0->total_length_in_seconds();
-
     state = INACTIVE;
     set_enabled(false);
     wav_sink_slot0->stop_recording();
@@ -280,7 +276,6 @@ bool dmr_recorder_impl::start(const std::shared_ptr<Call> &call) {
   }
   prefilter->set_squelch_db(squelch_db);
 
-    recording_count++;
   } else {
     BOOST_LOG_TRIVIAL(error) << "dmr_recorder.cc: Trying to Start an already Active Logger!!!";
     return false;

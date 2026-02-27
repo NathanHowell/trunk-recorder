@@ -34,8 +34,6 @@ sigmf_recorder_impl::sigmf_recorder_impl(const std::shared_ptr<Source> &src, Rec
   squelch_db = 0;
   input_rate = source->get_rate();
   talkgroup = 0;
-  recording_count = 0;
-  recording_duration = 0;
 
   rec_num = rec_counter++;
 

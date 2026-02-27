@@ -1022,20 +1022,6 @@ std::vector<TrunkMessage> P25Parser::decode_tsbk(boost::dynamic_bitset<> &tsbk, 
   return messages;
 }
 
-void P25Parser::print_bitset(boost::dynamic_bitset<> &tsbk) {
-  /*boost::dynamic_bitset<> bitmask(tsbk.size(), 0x3f);
-     unsigned long result = (tsbk & bitmask).to_ulong();
-     BOOST_LOG_TRIVIAL(debug) << tsbk << " = " << std::hex << result;*/
-}
-
-void printbincharpad(char c) {
-  for (int i = 7; i >= 0; --i) {
-    std::cout << ((c & (1 << i)) ? '1' : '0');
-  }
-
-  // std::cout << " | ";
-}
-
 std::vector<TrunkMessage> P25Parser::parse_message(gr::message::sptr msg, const std::shared_ptr<System> &system) {
   std::vector<TrunkMessage> messages;
 

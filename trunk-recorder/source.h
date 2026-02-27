@@ -124,12 +124,7 @@ public:
 
   /* -- Recorders -- */
   void print_recorders();
-  void tune_digital_recorders();
-  int debug_recorder_count();
   int get_debug_recorder_port();
-  int sigmf_recorder_count();
-  int digital_recorder_count();
-  int analog_recorder_count();
   int get_num_available_analog_recorders();
   int get_num_available_digital_recorders();
   void set_signal_detector_threshold(float t);

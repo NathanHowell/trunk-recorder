@@ -86,8 +86,6 @@ analog_recorder::analog_recorder(const std::shared_ptr<Source> &src, const std::
   input_rate = source->get_rate();
   squelch_db = 0;
   talkgroup = 0;
-  recording_count = 0;
-  recording_duration = 0;
 
   rec_num = rec_counter++;
   state = INACTIVE;
@@ -222,7 +220,6 @@ std::vector<Transmission> analog_recorder::get_transmission_list() {
 
 void analog_recorder::stop() {
   if (state == ACTIVE) {
-    recording_duration += wav_sink->length_in_seconds();
     state = INACTIVE;
     set_enabled(false);
     wav_sink->stop_recording();

@@ -29,7 +29,6 @@ public:
   void add_error_measurement(int observed_error, int current_offset);
   int get_average_error() const;
   std::string get_status_string() const;
-  void reset();
 };
 
 void autotune_control_channel(const std::shared_ptr<System> &system, bool store_measurement = true);

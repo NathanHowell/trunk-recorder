@@ -124,14 +124,6 @@ std::string AutotuneManager::get_status_string() const {
 }
 
 /**
- * Clear all error measurements
- */
-void AutotuneManager::reset() {
-  std::lock_guard<std::mutex> lock(history_mutex);
-  error_history.clear();
-}
-
-/**
  * Coordinate autotune corrections for an active control channel
  *
  * @param system Pointer to the System managing the control channel
