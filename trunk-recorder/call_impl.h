@@ -21,8 +21,8 @@ class System;
 
 class Call_impl : public Call {
 public:
-  Call_impl(long t, double f, System *s, Config c);
-  Call_impl(TrunkMessage message, System *s, Config c);
+  Call_impl(long t, double f, const std::shared_ptr<System> &s, Config c);
+  Call_impl(TrunkMessage message, const std::shared_ptr<System> &s, Config c);
 
   long get_call_num();
   virtual void restart_call();
@@ -90,7 +90,7 @@ public:
   double get_final_length();
   long get_current_source_id();
   bool get_conversation_mode();
-  System *get_system();
+  std::shared_ptr<System> get_system();
   std::vector<Transmission> get_transmissions();
 
 protected:
@@ -104,7 +104,7 @@ protected:
   double signal;
   int freq_error;
   std::vector<Transmission> transmission_list;
-  System *sys;
+  std::shared_ptr<System> sys;
   std::string short_name;
   long curr_src_id;
   long error_list_count;

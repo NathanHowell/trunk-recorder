@@ -241,6 +241,12 @@ public:
   unsigned long get_multiSiteSystemNumber() override;
   void set_multiSiteSystemNumber(unsigned long multiSiteSystemNumber) override;
 
+  int get_retune_attempts() override;
+  void set_retune_attempts(int attempts) override;
+  bool add_ota_unit_tag(const OTAAlias &ota_alias) override;
+  void setup_trunking(Source *source, gr::top_block_sptr &tb) override;
+  void retune_trunking(gr::top_block_sptr &tb, std::vector<Source *> &sources) override;
+
 private:
   TalkgroupDisplayFormat talkgroup_display_format;
   bool d_hideEncrypted;

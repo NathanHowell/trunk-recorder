@@ -19,8 +19,8 @@ class System;
 
 class Call {
 public:
-  // static Call * make(long t, double f, System *s, Config c);
-  static Call *make(TrunkMessage message, System *s, Config c);
+  // static Call * make(long t, double f, const std::shared_ptr<System> &s, Config c);
+  static Call *make(TrunkMessage message, const std::shared_ptr<System> &s, Config c);
   virtual ~Call(){};
   virtual long get_call_num() = 0;
   virtual void restart_call() = 0;
@@ -88,7 +88,7 @@ public:
   virtual double get_final_length() = 0;
   virtual long get_current_source_id() = 0;
   virtual bool get_conversation_mode() = 0;
-  virtual System *get_system() = 0;
+  virtual std::shared_ptr<System> get_system() = 0;
   virtual std::vector<Transmission> get_transmissions() = 0;
 };
 

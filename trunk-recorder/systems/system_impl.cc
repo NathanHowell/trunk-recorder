@@ -1,8 +1,10 @@
 #include "system_impl.h"
 #include "system.h"
+#include "../source.h"
+#include "../formatter.h"
 
-System *System::make(int sys_num) {
-  return (System *)new System_impl(sys_num);
+std::shared_ptr<System> System::make(int sys_num) {
+  return std::make_shared<System_impl>(sys_num);
 }
 
 std::string System_impl::get_api_key() {
@@ -729,4 +731,89 @@ unsigned long System_impl::get_multiSiteSystemNumber() {
 
 void System_impl::set_multiSiteSystemNumber(unsigned long multiSiteSystemNumber) {
   d_multiSiteSystemNumber = multiSiteSystemNumber;
+}
+
+int System_impl::get_retune_attempts() {
+  return retune_attempts;
+}
+
+void System_impl::set_retune_attempts(int attempts) {
+  retune_attempts = attempts;
+}
+
+bool System_impl::add_ota_unit_tag(const OTAAlias &ota_alias) {
+  if (unit_tags) {
+    return unit_tags->add_ota(ota_alias);
+  }
+  return false;
+}
+
+void System_impl::setup_trunking(Source *source, gr::top_block_sptr &tb) {
+  double control_channel_freq = get_current_control_channel();
+  set_source(source);
+
+  if (system_type == "smartnet") {
+    smartnet_trunking = smartnet_impl::make(control_channel_freq, source->get_center(),
+                                            source->get_rate(), get_msg_queue(), get_sys_num());
+    tb->connect(source->get_src_block(), 0, smartnet_trunking, 0);
+  } else if (system_type == "p25") {
+    p25_trunking = make_p25_trunking(control_channel_freq, source->get_center(),
+                                      source->get_rate(), get_msg_queue(), qpsk_mod, get_sys_num());
+    tb->connect(source->get_src_block(), 0, p25_trunking, 0);
+  }
+}
+
+void System_impl::retune_trunking(gr::top_block_sptr &tb, std::vector<Source *> &sources) {
+  Source *current_source = get_source();
+  double control_channel_freq = get_next_control_channel();
+
+  BOOST_LOG_TRIVIAL(error) << "[" << short_name << "] Retuning to Control Channel: " << format_freq(control_channel_freq);
+
+  if (!current_source) {
+    BOOST_LOG_TRIVIAL(error) << "[" << short_name << "] No source assigned to system, cannot retune.";
+    return;
+  }
+
+  if ((current_source->get_min_hz() <= control_channel_freq) &&
+      (current_source->get_max_hz() >= control_channel_freq)) {
+    if (system_type == "smartnet") {
+      smartnet_trunking->tune_freq(control_channel_freq);
+    } else if (system_type == "p25") {
+      p25_trunking->tune_freq(control_channel_freq);
+    } else {
+      BOOST_LOG_TRIVIAL(error) << "\t - Unknown system type for Retune";
+    }
+  } else {
+    bool source_found = false;
+    for (auto *src : sources) {
+      if ((src->get_min_hz() <= control_channel_freq) &&
+          (src->get_max_hz() >= control_channel_freq)) {
+        source_found = true;
+
+        if (system_type == "smartnet") {
+          set_source(src);
+          tb->lock();
+          tb->disconnect(current_source->get_src_block(), 0, smartnet_trunking, 0);
+          smartnet_trunking = smartnet_impl::make(control_channel_freq, src->get_center(),
+                                                  src->get_rate(), get_msg_queue(), get_sys_num());
+          tb->connect(src->get_src_block(), 0, smartnet_trunking, 0);
+          tb->unlock();
+        } else if (system_type == "p25") {
+          set_source(src);
+          tb->lock();
+          tb->disconnect(current_source->get_src_block(), 0, p25_trunking, 0);
+          p25_trunking = make_p25_trunking(control_channel_freq, src->get_center(),
+                                            src->get_rate(), get_msg_queue(), qpsk_mod, get_sys_num());
+          tb->connect(src->get_src_block(), 0, p25_trunking, 0);
+          tb->unlock();
+        } else {
+          BOOST_LOG_TRIVIAL(error) << "\t - Unknown system type for Retune";
+        }
+        break;
+      }
+    }
+    if (!source_found) {
+      BOOST_LOG_TRIVIAL(error) << "\t - Unable to retune System control channel, freq not covered by any source.";
+    }
+  }
 }

@@ -136,7 +136,7 @@ bool sigmf_recorder_impl::start(Call *call) {
     int nchars;
     tm *ltm = localtime(&starttime);
     this->call = call;
-    System *system = call->get_system();
+    auto system = call->get_system();
     talkgroup = call->get_talkgroup();
     freq = call->get_freq();
     

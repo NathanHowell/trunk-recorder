@@ -1,7 +1,7 @@
 #include "./setup_systems.h"
 #include "event_sink.h"
 using namespace std;
-bool setup_conventional_channel(System *system, double frequency, long channel_index, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<Call *> &calls) {
+bool setup_conventional_channel(const std::shared_ptr<System> &system, double frequency, long channel_index, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<Call *> &calls) {
   bool channel_added = false;
   Source *source = NULL;
   float tone_freq = 0.0;
@@ -86,7 +86,7 @@ bool setup_conventional_channel(System *system, double frequency, long channel_i
   return channel_added;
 }
 
-bool setup_conventional_system(System *system, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<Call *> &calls) {
+bool setup_conventional_system(const std::shared_ptr<System> &system, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<Call *> &calls) {
   bool system_added = false;
 
   if (system->has_channel_file()) {
@@ -122,13 +122,11 @@ bool setup_conventional_system(System *system, Config &config, gr::top_block_spt
   return system_added;
 }
 
-bool setup_systems(Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<System *> &systems, std::vector<Call *> &calls) {
+bool setup_systems(Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<std::shared_ptr<System>> &systems, std::vector<Call *> &calls) {
 
   Source *source = NULL;
 
-  for (vector<System *>::iterator sys_it = systems.begin(); sys_it != systems.end(); sys_it++) {
-    System_impl *system = (System_impl *)*sys_it;
-    // bool    source_found = false;
+  for (auto &system : systems) {
     bool system_added = false;
     if ((system->get_system_type() == "conventional") || (system->get_system_type() == "conventionalP25") || (system->get_system_type() == "conventionalDMR")) {
       system_added = setup_conventional_system(system, config, tb, sources, calls);
@@ -137,34 +135,11 @@ bool setup_systems(Config &config, gr::top_block_sptr &tb, std::vector<Source *>
       double control_channel_freq = system->get_current_control_channel();
       BOOST_LOG_TRIVIAL(info) << "[" << system->get_short_name() << "]\tStarted with Control Channel: " << format_freq(control_channel_freq);
 
-      for (vector<Source *>::iterator src_it = sources.begin(); src_it != sources.end(); src_it++) {
-        source = *src_it;
-
-        if ((source->get_min_hz() <= control_channel_freq) &&
-            (source->get_max_hz() >= control_channel_freq)) {
-          // The source can cover the System's control channel
+      for (auto *src : sources) {
+        if ((src->get_min_hz() <= control_channel_freq) &&
+            (src->get_max_hz() >= control_channel_freq)) {
           system_added = true;
-          system->set_source(source);
-
-          if (system->get_system_type() == "smartnet") {
-            system->smartnet_trunking = smartnet_impl::make(control_channel_freq,
-                                                               source->get_center(),
-                                                               source->get_rate(),
-                                                               system->get_msg_queue(),
-                                                               system->get_sys_num());
-            tb->connect(source->get_src_block(), 0, system->smartnet_trunking, 0);
-          }
-
-          if (system->get_system_type() == "p25") {
-            system->p25_trunking = make_p25_trunking(control_channel_freq,
-                                                     source->get_center(),
-                                                     source->get_rate(),
-                                                     system->get_msg_queue(),
-                                                     system->get_qpsk_mod(),
-                                                     system->get_sys_num());
-            tb->connect(source->get_src_block(), 0, system->p25_trunking, 0);
-          }
-
+          system->setup_trunking(src, tb);
           break;
         }
       }

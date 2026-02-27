@@ -67,7 +67,7 @@ void setup_console_log(std::string log_color, std::string time_fmt) {
   console_sink->imbue(loc);
 }
 
-bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<System *> &systems) {
+bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<std::shared_ptr<System>> &systems) {
 
   string system_modulation;
 
@@ -178,7 +178,7 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
       bool system_enabled = element.value("enabled", true);
       if (system_enabled) {
         // each system should have a unique index value;
-        System *system = System::make(sys_count++);
+        auto system = System::make(sys_count++);
 
         std::stringstream default_script;
         unsigned long sys_id;
@@ -582,7 +582,7 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
   return true;
 }
 
-bool load_config(string config_file, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<System *> &systems) {
+bool load_config(string config_file, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<std::shared_ptr<System>> &systems) {
 
   json data;
 
@@ -602,7 +602,7 @@ bool load_config(string config_file, Config &config, gr::top_block_sptr &tb, std
   return load_config_from_json(data, config, tb, sources, systems);
 }
 
-bool load_config_from_string(const std::string &json_body, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<System *> &systems) {
+bool load_config_from_string(const std::string &json_body, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<std::shared_ptr<System>> &systems) {
 
   json data;
 

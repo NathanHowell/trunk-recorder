@@ -1,9 +1,12 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
+#include <memory>
 #include "../talkgroups.h"
 #include "../unit_tags.h"
+#include "../unit_tags_ota.h"
 #include <boost/log/trivial.hpp>
 #include <gnuradio/msg_queue.h>
+#include <gnuradio/top_block.h>
 #include <stdio.h>
 //#include "../source.h"
 #include "parser.h"
@@ -38,7 +41,7 @@ typedef std::shared_ptr<sigmf_recorder> sigmf_recorder_sptr;
 class System {
 
 public:
-  static System *make(int sys_id);
+  static std::shared_ptr<System> make(int sys_id);
   virtual std::string get_short_name() = 0;
   virtual void set_short_name(std::string short_name) = 0;
   virtual std::string get_api_key() = 0;
@@ -179,5 +182,11 @@ public:
   virtual unsigned long get_multiSiteSystemNumber() = 0;
   virtual void set_multiSiteSystemNumber(unsigned long multiSiteSystemName) = 0;
 
+  virtual int get_retune_attempts() = 0;
+  virtual void set_retune_attempts(int attempts) = 0;
+  virtual bool add_ota_unit_tag(const OTAAlias &ota_alias) = 0;
+
+  virtual void setup_trunking(Source *source, gr::top_block_sptr &tb) = 0;
+  virtual void retune_trunking(gr::top_block_sptr &tb, std::vector<Source *> &sources) = 0;
 };
 #endif

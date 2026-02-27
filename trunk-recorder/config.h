@@ -30,8 +30,8 @@
 
 #include <json.hpp>
 
-bool load_config(std::string config_file, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<System *> &systems);
-bool load_config_from_json(nlohmann::json &data, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<System *> &systems);
-bool load_config_from_string(const std::string &json_body, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<System *> &systems);
+bool load_config(std::string config_file, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<std::shared_ptr<System>> &systems);
+bool load_config_from_json(nlohmann::json &data, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<std::shared_ptr<System>> &systems);
+bool load_config_from_string(const std::string &json_body, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<std::shared_ptr<System>> &systems);
 
 #endif

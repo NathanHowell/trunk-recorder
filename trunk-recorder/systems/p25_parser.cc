@@ -1036,7 +1036,7 @@ void printbincharpad(char c) {
   // std::cout << " | ";
 }
 
-std::vector<TrunkMessage> P25Parser::parse_message(gr::message::sptr msg, System *system) {
+std::vector<TrunkMessage> P25Parser::parse_message(gr::message::sptr msg, const std::shared_ptr<System> &system) {
   std::vector<TrunkMessage> messages;
 
   long type = msg->type();

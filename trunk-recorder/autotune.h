@@ -6,6 +6,8 @@
 #include <deque>
 #include <mutex>
 
+#include <memory>
+
 class Source;
 class System;
 
@@ -30,6 +32,6 @@ public:
   void reset();
 };
 
-void autotune_control_channel(System *system, bool store_measurement = true);
+void autotune_control_channel(const std::shared_ptr<System> &system, bool store_measurement = true);
 
 #endif // AUTOTUNE_H

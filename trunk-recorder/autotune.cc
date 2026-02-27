@@ -136,7 +136,7 @@ void AutotuneManager::reset() {
  * @param store_measurement Whether to store the current measurement in history (default: true)
  *                          Set to false when retuning to avoid storing junk values from retuned channels
  */
-void autotune_control_channel(System *system, bool store_measurement) {
+void autotune_control_channel(const std::shared_ptr<System> &system, bool store_measurement) {
   Source *source = system->get_source();
   double control_channel_freq = system->get_current_control_channel();
 

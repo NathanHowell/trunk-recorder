@@ -17,7 +17,7 @@ using json = nlohmann::json;
 #define ALT_CC_EXPIRY_TIME 60.0
 #define TGID_DEFAULT_PRIO 3
 
-SmartnetParser::SmartnetParser(System *system) : system(system) {
+SmartnetParser::SmartnetParser(const std::shared_ptr<System> &system) : system(system) {
     this->debug_level = 1;
     this->msgq_id = -1;
     this->sysnum = system ? system->get_sys_num() : 0;
@@ -86,7 +86,7 @@ void SmartnetParser::log_bandplan() {
                              << " Rebanded: " << is_rebanded;
 }
 
-std::vector<TrunkMessage> SmartnetParser::parse_message(gr::message::sptr msg, System *system) {
+std::vector<TrunkMessage> SmartnetParser::parse_message(gr::message::sptr msg, const std::shared_ptr<System> &system) {
     this->system = system;
     int sysnum = system->get_sys_num();
     time_t curr_time = time(NULL);

@@ -305,7 +305,7 @@ void p25_recorder_impl::set_tdma_slot(int slot) {
 
 bool p25_recorder_impl::start(Call *call) {
   if (state == INACTIVE) {
-    System *system = call->get_system();
+    auto system = call->get_system();
     qpsk_mod = system->get_qpsk_mod();
     set_tdma(call->get_phase2_tdma());
     if (call->get_phase2_tdma()) {

@@ -258,7 +258,7 @@ void dmr_recorder_impl::set_tdma_slot(int slot) {
 
 bool dmr_recorder_impl::start(Call *call) {
   if (state == INACTIVE) {
-    System *system = call->get_system();
+    auto system = call->get_system();
     set_tdma_slot(0);
 
     timestamp = time(NULL);

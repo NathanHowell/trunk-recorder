@@ -2,7 +2,6 @@
 #include "p25_recorder_decode.h"
 #include "../event_sink.h"
 #include "../gr_blocks/plugin_wrapper_impl.h"
-#include "../systems/system_impl.h"
 #include "../formatter.h"
 #include "../unit_tags_ota.h"
 #include <chrono>
@@ -177,7 +176,7 @@ void p25_recorder_decode::handle_alias_message(const nlohmann::json& j) {
   } else if (j["type"] == "motorola_alias_p2") {
     result = UnitTagsOTA::decode_motorola_alias_p2(alias_buffer, messages);
   } else if (j["type"] == "harris_alias_p1") {
-    System *sys = d_call->get_system();
+    auto sys = d_call->get_system();
     std::string wacn = sys ? std::to_string(sys->get_wacn()) : "";
     std::string sys_id = sys ? std::to_string(sys->get_sys_id()) : "";
     
@@ -223,7 +222,7 @@ void p25_recorder_decode::handle_alias_message(const nlohmann::json& j) {
     
     result = UnitTagsOTA::decode_harris_alias(alias_buffer, unit_id, talkgroup, wacn, sys_id);
   } else if (j["type"] == "harris_alias_p2") {
-    System *sys = d_call->get_system();
+    auto sys = d_call->get_system();
     std::string wacn = sys ? std::to_string(sys->get_wacn()) : "";
     std::string sys_id = sys ? std::to_string(sys->get_sys_id()) : "";
     
@@ -275,17 +274,13 @@ void p25_recorder_decode::handle_alias_message(const nlohmann::json& j) {
     
     BOOST_LOG_TRIVIAL(debug) << loghdr << "Alias OTA: " << result.radio_id << " = \"" << result.alias << "\" [" << result.source << "]";
     
-    System *sys = d_call->get_system();
+    auto sys = d_call->get_system();
     if (sys) {
-      System_impl *sys_impl = dynamic_cast<System_impl*>(sys);
-      if (sys_impl && sys_impl->unit_tags) {
-        bool added = sys_impl->unit_tags->add_ota(result);
-        if (added) {
-          BOOST_LOG_TRIVIAL(info) << loghdr << Color::BMAG << "New " << result.source << " alias: " << Color::RST 
-                                  << result.radio_id << " (" << Color::BLU << result.alias << Color::RST << ")"; 
-        } else {
-          BOOST_LOG_TRIVIAL(debug) << loghdr << "Alias for " << result.radio_id << " already exists";
-        }
+      if (sys->add_ota_unit_tag(result)) {
+        BOOST_LOG_TRIVIAL(info) << loghdr << Color::BMAG << "New " << result.source << " alias: " << Color::RST
+                                << result.radio_id << " (" << Color::BLU << result.alias << Color::RST << ")";
+      } else {
+        BOOST_LOG_TRIVIAL(debug) << loghdr << "Alias for " << result.radio_id << " already exists";
       }
     }
   }

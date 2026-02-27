@@ -4,7 +4,7 @@
 #include "recorders/recorder.h"
 #include <boost/algorithm/string.hpp>
 
-Call_conventional::Call_conventional(long t, double f, System *s, Config c, double squelch_db, bool signal_detection) : Call_impl(t, f, s, c) {
+Call_conventional::Call_conventional(long t, double f, const std::shared_ptr<System> &s, Config c, double squelch_db, bool signal_detection) : Call_impl(t, f, s, c) {
   this->squelch_db = squelch_db;
   this->signal_detection = signal_detection;
   BOOST_LOG_TRIVIAL(info) << "[" << sys->get_short_name() << "]\tFreq: " << format_freq(f) << "\tSquelch: " << squelch_db << " dB\tSignal Detection: " << signal_detection;

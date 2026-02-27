@@ -57,7 +57,7 @@ class analog_recorder : public gr::hier_block2, public Recorder {
   friend analog_recorder_sptr make_analog_recorder(Source *src, Recorder_Type type, float tone_freq);
 
 protected:
-  analog_recorder(Source *src, System *system, Recorder_Type type, float tone_freq);
+  analog_recorder(Source *src, const std::shared_ptr<System> &system, Recorder_Type type, float tone_freq);
 
 public:
   ~analog_recorder();
@@ -122,7 +122,7 @@ private:
   Call *call;
   Config *config;
   Source *source;
-  System *system;
+  std::shared_ptr<System> system;
   void calculate_iir_taps(float tau);
 
   /* GR blocks */
@@ -147,7 +147,7 @@ private:
   gr::blocks::decoder_wrapper::sptr decoder_sink;
   gr::blocks::plugin_wrapper::sptr plugin_sink;
 
-  void setup_decoders_for_system(System *system);
+  void setup_decoders_for_system(const std::shared_ptr<System> &system);
 };
 
 #endif // ifndef ANALOG_RECORDER_H

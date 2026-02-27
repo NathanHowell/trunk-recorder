@@ -6,7 +6,6 @@
 #include <boost/log/trivial.hpp>
 #include <gnuradio/message.h>
 #include "system.h"
-#include "system_impl.h"
 #include <iomanip>
 #include <iostream>
 #include <map>
@@ -44,7 +43,7 @@ public:
   void load_freq_table(std::string custom_freq_table_file, int sys_num);
   double channel_id_to_frequency(int chan_id, int sys_num);
   std::string channel_to_string(int chan, int sys_num);
-  std::vector<TrunkMessage> parse_message(gr::message::sptr msg, System *system);
+  std::vector<TrunkMessage> parse_message(gr::message::sptr msg, const std::shared_ptr<System> &system);
 };
 
 #endif

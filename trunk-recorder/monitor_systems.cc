@@ -15,7 +15,7 @@ uint64_t time_since_epoch_millisec() {
   return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 }
 
-bool start_recorder(Call *call, TrunkMessage message, Config &config, System *sys, std::vector<Source *> &sources) {
+bool start_recorder(Call *call, TrunkMessage message, Config &config, const std::shared_ptr<System> &sys, std::vector<Source *> &sources) {
   auto talkgroup = sys->find_talkgroup(call->get_talkgroup());
 
   bool source_found = false;
@@ -174,7 +174,7 @@ bool start_recorder(Call *call, TrunkMessage message, Config &config, System *sy
   return false;
 }
 
-void print_status(std::vector<Source *> &sources, std::vector<System *> &systems, std::vector<Call *> &calls) {
+void print_status(std::vector<Source *> &sources, std::vector<std::shared_ptr<System>> &systems, std::vector<Call *> &calls) {
   BOOST_LOG_TRIVIAL(info) << "Active Calls: " << calls.size();
 
   for (vector<Call *>::iterator it = calls.begin(); it != calls.end(); it++) {
@@ -198,16 +198,12 @@ void print_status(std::vector<Source *> &sources, std::vector<System *> &systems
   }
 
   BOOST_LOG_TRIVIAL(info) << "Active Patches: ";
-  for (std::vector<System *>::iterator it = systems.begin(); it != systems.end(); ++it) {
-    System_impl *sys = (System_impl *)*it;
-
+  for (auto &sys : systems) {
     sys->print_active_talkgroup_patches();
   }
 
   BOOST_LOG_TRIVIAL(info) << "Control Channel Decode Rates: ";
-  for (std::vector<System *>::iterator it = systems.begin(); it != systems.end(); ++it) {
-    System_impl *sys = (System_impl *)*it;
-
+  for (auto &sys : systems) {
     if ((sys->get_system_type() != "conventional") && (sys->get_system_type() != "conventionalP25") && (sys->get_system_type() != "conventionalDMR") && (sys->get_system_type() != "conventionalSIGMF")) {
       BOOST_LOG_TRIVIAL(info) << "[" << sys->get_short_name() << "]\t" << format_freq(sys->get_current_control_channel()) << "\t" << sys->get_decode_rate() << " msg/sec";
       
@@ -335,13 +331,13 @@ void manage_calls(Config &config, std::vector<Call *> &calls) {
   }
 }
 
-void current_system_status(TrunkMessage message, System *sys, EventSink *event_sink) {
+void current_system_status(TrunkMessage message, const std::shared_ptr<System> &sys, EventSink *event_sink) {
   if (sys->update_status(message)) {
     event_sink->setup_system(sys);
   }
 }
 
-void current_system_sysid(TrunkMessage message, System *sys, EventSink *event_sink) {
+void current_system_sysid(TrunkMessage message, const std::shared_ptr<System> &sys, EventSink *event_sink) {
   if ((sys->get_system_type() == "p25") || (sys->get_system_type() == "conventionalP25")) {
     if (sys->update_sysid(message)) {
       event_sink->setup_system(sys);
@@ -349,38 +345,38 @@ void current_system_sysid(TrunkMessage message, System *sys, EventSink *event_si
   }
 }
 
-void unit_registration(System *sys, long source_id, EventSink *event_sink) {
+void unit_registration(const std::shared_ptr<System> &sys, long source_id, EventSink *event_sink) {
   event_sink->unit_registration(sys, source_id);
 }
 
-void unit_deregistration(System *sys, long source_id, EventSink *event_sink) {
+void unit_deregistration(const std::shared_ptr<System> &sys, long source_id, EventSink *event_sink) {
   event_sink->unit_deregistration(sys, source_id);
 }
 
-void unit_acknowledge_response(System *sys, long source_id, EventSink *event_sink) {
+void unit_acknowledge_response(const std::shared_ptr<System> &sys, long source_id, EventSink *event_sink) {
   event_sink->unit_acknowledge_response(sys, source_id);
 }
 
-void unit_group_affiliation(System *sys, long source_id, long talkgroup_num, EventSink *event_sink) {
+void unit_group_affiliation(const std::shared_ptr<System> &sys, long source_id, long talkgroup_num, EventSink *event_sink) {
   event_sink->unit_group_affiliation(sys, source_id, talkgroup_num);
 }
 
-void unit_data_grant(System *sys, long source_id, EventSink *event_sink) {
+void unit_data_grant(const std::shared_ptr<System> &sys, long source_id, EventSink *event_sink) {
   event_sink->unit_data_grant(sys, source_id);
 }
 
-void unit_answer_request(System *sys, long source_id, long talkgroup, EventSink *event_sink) {
+void unit_answer_request(const std::shared_ptr<System> &sys, long source_id, long talkgroup, EventSink *event_sink) {
   event_sink->unit_answer_request(sys, source_id, talkgroup);
 }
 
-void unit_location(System *sys, long source_id, long talkgroup_num, EventSink *event_sink) {
+void unit_location(const std::shared_ptr<System> &sys, long source_id, long talkgroup_num, EventSink *event_sink) {
   event_sink->unit_location(sys, source_id, talkgroup_num);
 }
 
 
 
 
-void handle_call_grant(TrunkMessage message, System *sys, bool grant_message, Config &config, std::vector<Source *> &sources, std::vector<Call *> &calls) {
+void handle_call_grant(TrunkMessage message, const std::shared_ptr<System> &sys, bool grant_message, Config &config, std::vector<Source *> &sources, std::vector<Call *> &calls) {
   bool call_found = false;
   bool duplicate_grant = false;
   bool superseding_grant = false;
@@ -548,7 +544,7 @@ void handle_call_grant(TrunkMessage message, System *sys, bool grant_message, Co
   }
 }
 
-void handle_call_update(TrunkMessage message, System *sys, std::vector<Call *> &calls, Config &config) {
+void handle_call_update(TrunkMessage message, const std::shared_ptr<System> &sys, std::vector<Call *> &calls, Config &config) {
   bool call_found = false;
 
   /* Notes: it is possible for 2 Calls to exist for the same talkgroup on different freq. This happens when a Talkgroup starts on a freq
@@ -588,7 +584,7 @@ void handle_call_update(TrunkMessage message, System *sys, std::vector<Call *> &
   }
 }
 
-void handle_message(std::vector<TrunkMessage> messages, System *sys, Config &config, std::vector<Source *> &sources, std::vector<Call *> &calls, gr::top_block_sptr &tb) {
+void handle_message(std::vector<TrunkMessage> messages, const std::shared_ptr<System> &sys, Config &config, std::vector<Source *> &sources, std::vector<Call *> &calls, gr::top_block_sptr &tb) {
   for (std::vector<TrunkMessage>::iterator it = messages.begin(); it != messages.end(); it++) {
     TrunkMessage message = *it;
 
@@ -677,7 +673,10 @@ void handle_message(std::vector<TrunkMessage> messages, System *sys, Config &con
     }
 
     case TDULC:
-      retune_system(sys,tb,sources);
+      sys->retune_trunking(tb, sources);
+      if (sys->get_source() && sys->get_source()->get_autotune_source() && sys->get_system_type() == "p25") {
+        autotune_control_channel(sys, false);
+      }
       break;
 
     case UNKNOWN:
@@ -686,123 +685,49 @@ void handle_message(std::vector<TrunkMessage> messages, System *sys, Config &con
   }
 }
 
-void retune_system(System *sys, gr::top_block_sptr &tb, std::vector<Source *> &sources) {
-  System_impl *system = (System_impl *)sys;
-  bool source_found = false;
-  Source *current_source = system->get_source();
-  double control_channel_freq = system->get_next_control_channel();
 
-  BOOST_LOG_TRIVIAL(error) << "[" << system->get_short_name() << "] Retuning to Control Channel: " << format_freq(control_channel_freq);
-
-  if (!current_source) {
-    BOOST_LOG_TRIVIAL(error) << "[" << system->get_short_name() << "] No source assigned to system, cannot retune.";
-    return;
-  }
-
-  if ((current_source->get_min_hz() <= control_channel_freq) &&
-      (current_source->get_max_hz() >= control_channel_freq)) {
-    source_found = true;
-    BOOST_LOG_TRIVIAL(info) << "\t - System Source " << current_source->get_num() << " - Min Freq: " << format_freq(current_source->get_min_hz()) << " Max Freq: " << format_freq(current_source->get_max_hz());
-    // The source can cover the System's control channel, break out of the
-    // For Loop
-    if (system->get_system_type() == "smartnet") {
-      system->smartnet_trunking->tune_freq(control_channel_freq);
-      //system->smartnet_trunking->reset();
-    } else if (system->get_system_type() == "p25") {
-      system->p25_trunking->tune_freq(control_channel_freq);
-    } else {
-      BOOST_LOG_TRIVIAL(error) << "\t - Unknown system type for Retune";
-    }
-  } else {
-    for (vector<Source *>::iterator src_it = sources.begin(); src_it != sources.end(); src_it++) {
-      Source *source = *src_it;
-
-      if ((source->get_min_hz() <= control_channel_freq) &&
-          (source->get_max_hz() >= control_channel_freq)) {
-        source_found = true;
-        BOOST_LOG_TRIVIAL(info) << "\t - System Source " << source->get_num() << " - Min Freq: " << format_freq(source->get_min_hz()) << " Max Freq: " << format_freq(source->get_max_hz());
-
-        if (system->get_system_type() == "smartnet") {
-          system->set_source(source);
-          // We must lock the flow graph in order to disconnect and reconnect blocks
-          tb->lock();
-          tb->disconnect(current_source->get_src_block(), 0, system->smartnet_trunking, 0);
-          system->smartnet_trunking = smartnet_impl::make(control_channel_freq, source->get_center(), source->get_rate(), system->get_msg_queue(), system->get_sys_num());
-          tb->connect(source->get_src_block(), 0, system->smartnet_trunking, 0);
-          tb->unlock();
-          //system->smartnet_trunking->reset();
-        } else if (system->get_system_type() == "p25") {
-          system->set_source(source);
-          // We must lock the flow graph in order to disconnect and reconnect blocks
-          // ( We have gone back and forth on whether this should be lock/unlock or stop/wait/start.
-          //   If there are unexplained issues around control channel tuning, we should look at alternet
-          //   approaches. See PR #1090 )
-          tb->lock();
-          tb->disconnect(current_source->get_src_block(), 0, system->p25_trunking, 0);
-          system->p25_trunking = make_p25_trunking(control_channel_freq, source->get_center(), source->get_rate(), system->get_msg_queue(), system->get_qpsk_mod(), system->get_sys_num());
-          tb->connect(source->get_src_block(), 0, system->p25_trunking, 0);
-          tb->unlock();
-        } else {
-          BOOST_LOG_TRIVIAL(error) << "\t - Unkown system type for Retune";
-        }
-
-        // break out of the For Loop
-        break;
-      }
-    }
-  }
-  if (!source_found) {
-    BOOST_LOG_TRIVIAL(error) << "\t - Unable to retune System control channel, freq not covered by any source.";
-  } else {
-    if ((system->get_source()->get_autotune_source()) && (system->get_system_type() == "p25")) {
-      // If control channel source has autotune enabled, perform adjustments after retune completes
-      // Don't store measurements since the control channel recorder just started
-      autotune_control_channel(system, false);
-    }
-  }
-}
-
-void check_message_count(float timeDiff, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<System *> &systems) {
+void check_message_count(float timeDiff, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<std::shared_ptr<System>> &systems) {
   config.event_sink->setup_config(sources, systems);
   config.event_sink->system_rates(systems, timeDiff);
 
-  for (std::vector<System *>::iterator it = systems.begin(); it != systems.end(); ++it) {
-    System_impl *sys = (System_impl *)*it;
-
+  for (auto &sys : systems) {
     if ((sys->get_system_type() != "conventional") && (sys->get_system_type() != "conventionalP25") && (sys->get_system_type() != "conventionalDMR") && (sys->get_system_type() != "conventionalSIGMF")) {
-      int msgs_decoded_per_second = std::floor(sys->message_count / timeDiff);
+      int msgs_decoded_per_second = std::floor(sys->get_message_count() / timeDiff);
       sys->set_decode_rate(msgs_decoded_per_second);
 
       if (msgs_decoded_per_second < 2) {
 
         // if it loses track of the control channel, quit after a while
         if (config.control_retune_limit > 0) {
-          sys->retune_attempts++;
-          if (sys->retune_attempts > config.control_retune_limit) {
+          sys->set_retune_attempts(sys->get_retune_attempts() + 1);
+          if (sys->get_retune_attempts() > config.control_retune_limit) {
             BOOST_LOG_TRIVIAL(error) << "[" << sys->get_short_name() << "]\t"
-                                     << "Control channel retune limit exceeded after " << sys->retune_attempts << " tries - Terminating trunk recorder";
+                                     << "Control channel retune limit exceeded after " << sys->get_retune_attempts() << " tries - Terminating trunk recorder";
             g_ctx->exit_flag = 1;
             g_ctx->exit_code = EXIT_FAILURE;
             return;
           }
         }
         if (sys->control_channel_count() > 1) {
-          retune_system(sys, tb, sources);
+          sys->retune_trunking(tb, sources);
+          if (sys->get_source() && sys->get_source()->get_autotune_source() && sys->get_system_type() == "p25") {
+            autotune_control_channel(sys, false);
+          }
         } else {
           BOOST_LOG_TRIVIAL(error) << "[" << sys->get_short_name() << "]\tThere is only one control channel defined";
         }
 
       } else {
-        sys->retune_attempts = 0;
+        sys->set_retune_attempts(0);
       }
 
       if (msgs_decoded_per_second < config.control_message_warn_rate) {
-        BOOST_LOG_TRIVIAL(error) << "[" << sys->get_short_name() << "]\tfreq: " << format_freq(sys->get_current_control_channel()) << "\tControl Channel Message Decode Rate: " << msgs_decoded_per_second << "/sec, count:  " << sys->message_count;
+        BOOST_LOG_TRIVIAL(error) << "[" << sys->get_short_name() << "]\tfreq: " << format_freq(sys->get_current_control_channel()) << "\tControl Channel Message Decode Rate: " << msgs_decoded_per_second << "/sec, count:  " << sys->get_message_count();
       } else if (config.control_message_warn_rate == -1) {
-        BOOST_LOG_TRIVIAL(info) << "[" << sys->get_short_name() << "]\tfreq: " << format_freq(sys->get_current_control_channel()) << "\tControl Channel Message Decode Rate: " << msgs_decoded_per_second << "/sec, count:  " << sys->message_count;
+        BOOST_LOG_TRIVIAL(info) << "[" << sys->get_short_name() << "]\tfreq: " << format_freq(sys->get_current_control_channel()) << "\tControl Channel Message Decode Rate: " << msgs_decoded_per_second << "/sec, count:  " << sys->get_message_count();
       }
     }
-    sys->message_count = 0;
+    sys->set_message_count(0);
   }
 }
 
@@ -815,12 +740,9 @@ void check_conventional_channel_detection(std::vector<Source *> &sources) {
 }
 
 // This is to handle the messages that come off the Analog recorder.
-void process_message_queues(std::vector<System *> &systems) {
-  for (std::vector<System *>::iterator it = systems.begin(); it != systems.end(); ++it) {
-    System_impl *sys = (System_impl *)*it;
-
-    for (std::vector<analog_recorder_sptr>::iterator arit = sys->conventional_recorders.begin(); arit != sys->conventional_recorders.end(); ++arit) {
-      analog_recorder_sptr ar = (analog_recorder_sptr)*arit;
+void process_message_queues(std::vector<std::shared_ptr<System>> &systems) {
+  for (auto &sys : systems) {
+    for (auto &ar : sys->get_conventional_recorders()) {
       ar->process_message_queues();
     }
   }
@@ -849,7 +771,7 @@ int monitor_messages(TrunkContext &ctx) {
   Config &config = ctx.config;
   gr::top_block_sptr &tb = ctx.tb;
   std::vector<Source *> &sources = ctx.sources;
-  std::vector<System *> &systems = ctx.systems;
+  std::vector<std::shared_ptr<System>> &systems = ctx.systems;
   std::vector<Call *> &calls = ctx.calls;
 
   gr::message::sptr msg;
@@ -870,7 +792,7 @@ int monitor_messages(TrunkContext &ctx) {
     BOOST_LOG_TRIVIAL(error) << "No systems configured, cannot start monitoring.";
     return 1;
   }
-  smartnet_parser = new SmartnetParser(systems.front()); // this has to eventually be generic;
+  smartnet_parser = new SmartnetParser(systems.front());
   p25_parser = new P25Parser();
 
   while (1) {
@@ -900,9 +822,7 @@ int monitor_messages(TrunkContext &ctx) {
 
     config.event_sink->poll_one();
 
-    for (vector<System *>::iterator sys_it = systems.begin(); sys_it != systems.end(); sys_it++) {
-      System_impl *system = (System_impl *)*sys_it;
-
+    for (auto &system : systems) {
       if ((system->get_system_type() == "p25") || (system->get_system_type() == "smartnet")) {
         msg.reset();
         msg = system->get_msg_queue()->delete_head_nowait();
@@ -958,8 +878,7 @@ int monitor_messages(TrunkContext &ctx) {
         }
       }
       last_decode_rate_check = current_time;
-      for (vector<System *>::iterator sys_it = systems.begin(); sys_it != systems.end(); sys_it++) {
-        System *system = *sys_it;
+      for (auto &system : systems) {
         if (system->get_system_type() == "p25") {
           system->clear_stale_talkgroup_patches();
         }

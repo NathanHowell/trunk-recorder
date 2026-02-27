@@ -66,10 +66,10 @@ struct AdjacentSite {
 
 class SmartnetParser {
 public:
-    SmartnetParser(System *system);
+    SmartnetParser(const std::shared_ptr<System> &system);
     ~SmartnetParser();
 
-    std::vector<TrunkMessage> parse_message(gr::message::sptr msg, System *system);
+    std::vector<TrunkMessage> parse_message(gr::message::sptr msg, const std::shared_ptr<System> &system);
     std::vector<TrunkMessage> process_osws(time_t curr_time);
     
     std::string to_json();
@@ -77,7 +77,7 @@ public:
     void set_msgq_id(int id) { msgq_id = id; }
 
 private:
-    System *system;
+    std::shared_ptr<System> system;
     int debug_level;
     int sysnum;
     int msgq_id;

@@ -10,7 +10,7 @@ class Recorder;
 
 class Call_conventional : public Call_impl {
 public:
-  Call_conventional(long t, double f, System *s, Config c, double squelch_db, bool signal_detection);
+  Call_conventional(long t, double f, const std::shared_ptr<System> &s, Config c, double squelch_db, bool signal_detection);
   time_t get_start_time();
   bool is_conventional() { return true; }
   void restart_call();

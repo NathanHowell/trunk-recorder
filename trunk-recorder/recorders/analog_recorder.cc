@@ -26,11 +26,11 @@ std::vector<float> design_filter(double interpolation, double deci) {
 }
 
 analog_recorder_sptr make_analog_recorder(Source *src, Recorder_Type type) {
-  return gnuradio::get_initial_sptr(new analog_recorder(src, static_cast<System*>(nullptr), type, -1));
+  return gnuradio::get_initial_sptr(new analog_recorder(src, nullptr, type, -1));
 }
 
 analog_recorder_sptr make_analog_recorder(Source *src, Recorder_Type type, float tone_freq) {
-  return gnuradio::get_initial_sptr(new analog_recorder(src, static_cast<System*>(nullptr), type, tone_freq));
+  return gnuradio::get_initial_sptr(new analog_recorder(src, nullptr, type, tone_freq));
 }
 
 void analog_recorder::set_tau(float tau) {
@@ -71,7 +71,7 @@ void analog_recorder::calculate_iir_taps(float tau) {
   d_fbtaps[1] = -p1;
 }
 
-analog_recorder::analog_recorder(Source *src, System *system, Recorder_Type type, float tone_freq)
+analog_recorder::analog_recorder(Source *src, const std::shared_ptr<System> &system, Recorder_Type type, float tone_freq)
     : gr::hier_block2("analog_recorder",
                       gr::io_signature::make(1, 1, sizeof(gr_complex)),
                       gr::io_signature::make(0, 0, sizeof(float))),
@@ -338,7 +338,7 @@ void analog_recorder::plugin_callback_handler(int16_t *samples, int sampleCount)
   config->event_sink->audio_callback(call, self, samples, sampleCount);
 }
 
-void analog_recorder::setup_decoders_for_system(System *system) {
+void analog_recorder::setup_decoders_for_system(const std::shared_ptr<System> &system) {
   decoder_sink->set_mdc_enabled(system->get_mdc_enabled());
   decoder_sink->set_fsync_enabled(system->get_fsync_enabled());
   decoder_sink->set_star_enabled(system->get_star_enabled());
@@ -347,7 +347,7 @@ void analog_recorder::setup_decoders_for_system(System *system) {
 
 bool analog_recorder::start(Call *call) {
   starttime = time(NULL);
-  System *system = call->get_system();
+  auto system = call->get_system();
   this->call = call;
 
   setup_decoders_for_system(call->get_system());

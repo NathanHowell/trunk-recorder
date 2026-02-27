@@ -12,17 +12,11 @@ std::string Call_impl::get_temp_dir() {
   return this->config.temp_dir;
 }
 
-/*
-Call * Call::make(long t, double f, System *s, Config c) {
-
-  return (Call *) new Call_impl(t, f, s, c);
-}*/
-
-Call *Call::make(TrunkMessage message, System *s, Config c) {
+Call *Call::make(TrunkMessage message, const std::shared_ptr<System> &s, Config c) {
   return (Call *)new Call_impl(message, s, c);
 }
 
-Call_impl::Call_impl(long t, double f, System *s, Config c) {
+Call_impl::Call_impl(long t, double f, const std::shared_ptr<System> &s, Config c) {
   config = c;
   call_num = call_counter++;
   noise = DB_UNSET;
@@ -54,7 +48,7 @@ Call_impl::Call_impl(long t, double f, System *s, Config c) {
   this->update_talkgroup_display();
 }
 
-Call_impl::Call_impl(TrunkMessage message, System *s, Config c) {
+Call_impl::Call_impl(TrunkMessage message, const std::shared_ptr<System> &s, Config c) {
   config = c;
   call_num = call_counter++;
   noise = DB_UNSET;
@@ -217,7 +211,7 @@ double Call_impl::get_current_length() {
   return 0;
 }
 
-System *Call_impl::get_system() {
+std::shared_ptr<System> Call_impl::get_system() {
   return sys;
 }
 
