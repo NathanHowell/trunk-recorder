@@ -19,7 +19,8 @@ p25_recorder_decode_sptr make_p25_recorder_decode(Recorder *recorder, Config *co
 p25_recorder_decode::p25_recorder_decode(Recorder *recorder, Config *config)
     : gr::hier_block2("p25_recorder_decode",
                       gr::io_signature::make(1, 1, sizeof(float)),
-                      gr::io_signature::make(0, 0, sizeof(float))) {
+                      gr::io_signature::make(0, 0, sizeof(float))),
+      d_state(AVAILABLE) {
   d_recorder = recorder;
   d_config = config;
 }
@@ -30,6 +31,8 @@ p25_recorder_decode::~p25_recorder_decode() {
 void p25_recorder_decode::stop() {
 #ifndef TR_HEADLESS
   wav_sink->stop_recording();
+#else
+  d_state = AVAILABLE;
 #endif
   d_call = NULL;
 }
@@ -43,6 +46,8 @@ void p25_recorder_decode::start(Call *call) {
   } else {
     wav_sink->start_recording(call);
   }
+#else
+  d_state = IDLE;
 #endif
 
   d_call = call;
@@ -83,7 +88,7 @@ State p25_recorder_decode::get_state() {
 #ifndef TR_HEADLESS
   return wav_sink->get_state();
 #else
-  return INACTIVE;
+  return d_state;
 #endif
 }
 

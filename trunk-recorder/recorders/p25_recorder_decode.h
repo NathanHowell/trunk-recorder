@@ -53,6 +53,7 @@ protected:
   gr::blocks::multiply_const_ss::sptr levels;
   gr::blocks::transmission_sink::sptr wav_sink;
   gr::blocks::plugin_wrapper::sptr plugin_sink;
+  State d_state;
 
 public:
   p25_recorder_decode(Recorder *recorder, Config *config);
