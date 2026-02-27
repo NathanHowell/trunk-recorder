@@ -10,10 +10,8 @@ void exit_interupt(int sig) { // can be called asynchronously
   if (g_ctx) g_ctx->exit_flag = 1;
 }
 
-uint64_t time_since_epoch_millisec() {
-  using namespace std::chrono;
-  return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-}
+using SteadyClock = std::chrono::steady_clock;
+using TimePoint = SteadyClock::time_point;
 
 bool start_recorder(const std::shared_ptr<Call> &call, TrunkMessage message, Config &config, const std::shared_ptr<System> &sys, std::vector<std::shared_ptr<Source>> &sources) {
   auto talkgroup = sys->find_talkgroup(call->get_talkgroup());
@@ -765,12 +763,11 @@ int monitor_messages(TrunkContext &ctx) {
 
   gr::message::sptr msg;
 
-  time_t last_status_time = time(nullptr);
-  time_t last_decode_rate_check = time(nullptr);
-  time_t management_timestamp = time(nullptr);
-  uint64_t last_conventional_channel_detection_check = time_since_epoch_millisec();
-  time_t current_time = time(nullptr);
-  uint64_t current_time_ms = time_since_epoch_millisec();
+  auto now = SteadyClock::now();
+  TimePoint last_status_time = now;
+  TimePoint last_decode_rate_check = now;
+  TimePoint management_timestamp = now;
+  TimePoint last_conventional_channel_detection_check = now;
   std::vector<TrunkMessage> trunk_messages;
   std::unique_ptr<SmartnetParser> smartnet_parser;
   std::unique_ptr<P25Parser> p25_parser;
@@ -836,24 +833,25 @@ int monitor_messages(TrunkContext &ctx) {
         }
       }
     }
-    current_time = time(nullptr);
-    current_time_ms = time_since_epoch_millisec();
-    if ((current_time_ms - last_conventional_channel_detection_check) >= 0.1) {
+    now = SteadyClock::now();
+
+    if ((now - last_conventional_channel_detection_check) >= std::chrono::milliseconds(100)) {
       check_conventional_channel_detection(sources);
-      last_conventional_channel_detection_check = current_time_ms;
+      last_conventional_channel_detection_check = now;
     }
 
-    if ((current_time - management_timestamp) >= 1.0) {
+    if ((now - management_timestamp) >= std::chrono::seconds(1)) {
       manage_calls(config, calls);
-      management_timestamp = current_time;
+      management_timestamp = now;
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-    float decode_rate_check_time_diff = current_time - last_decode_rate_check;
+    auto decode_rate_elapsed = now - last_decode_rate_check;
 
-    if (decode_rate_check_time_diff >= 3.0) {
-      check_message_count(decode_rate_check_time_diff, config, tb, sources, systems);
+    if (decode_rate_elapsed >= std::chrono::seconds(3)) {
+      float timeDiffSeconds = std::chrono::duration<float>(decode_rate_elapsed).count();
+      check_message_count(timeDiffSeconds, config, tb, sources, systems);
       for (auto &source : sources) {
         if (!source->got_samples()) {
           BOOST_LOG_TRIVIAL(error) << "Source " << source->get_num() << " has stopped receiving samples - Terminating trunk recorder";
@@ -862,7 +860,7 @@ int monitor_messages(TrunkContext &ctx) {
           break;
         }
       }
-      last_decode_rate_check = current_time;
+      last_decode_rate_check = now;
       for (auto &system : systems) {
         if (system->get_system_type() == "p25") {
           system->clear_stale_talkgroup_patches();
@@ -870,10 +868,8 @@ int monitor_messages(TrunkContext &ctx) {
       }
     }
 
-    float print_status_time_diff = current_time - last_status_time;
-
-    if (print_status_time_diff > 200) {
-      last_status_time = current_time;
+    if ((now - last_status_time) > std::chrono::seconds(200)) {
+      last_status_time = now;
       print_status(sources, systems, calls);
     }
   }
