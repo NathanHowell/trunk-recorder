@@ -4,6 +4,7 @@
 #include "unit_tag.h"
 #include "unit_tags_ota.h"
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -15,8 +16,8 @@ enum UnitTagMode {
 };
 
 class UnitTags {
-  std::vector<UnitTag *> unit_tags;                  // Manual tags from unitTagsFile (regex patterns)
-  std::vector<UnitTagOTA *> unit_tags_ota;           // OTA tags: simple (unitID, alias) pairs
+  std::vector<std::shared_ptr<UnitTag>> unit_tags;                  // Manual tags from unitTagsFile (regex patterns)
+  std::vector<std::shared_ptr<UnitTagOTA>> unit_tags_ota;           // OTA tags: simple (unitID, alias) pairs
   std::string ota_filename;
   UnitTagMode mode = TAG_USER_FIRST;                 // Default to user tags first
 
@@ -28,7 +29,5 @@ public:
   bool add_ota(const OTAAlias& ota_alias);
   void set_mode(UnitTagMode mode);
   UnitTagMode get_mode();
-  std::vector<UnitTag *> get_unit_tags();
-  std::vector<UnitTagOTA *> get_unit_tags_ota();
 };
 #endif // UNIT_TAGS_H

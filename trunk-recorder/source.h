@@ -1,5 +1,6 @@
 #ifndef SOURCE_H
 #define SOURCE_H
+#include <memory>
 #include "./global_structs.h"
 #include "./gr_blocks/selector.h"
 #include "./gr_blocks/signal_detector_cvf.h"
@@ -147,14 +148,14 @@ public:
   dmr_recorder_sptr create_dmr_conventional_recorder(gr::top_block_sptr tb);
 
   Recorder *get_digital_recorder(Call *call);
-  Recorder *get_digital_recorder(Talkgroup *talkgroup, int priority, Call *call);
+  Recorder *get_digital_recorder(const std::shared_ptr<Talkgroup> &talkgroup, int priority, Call *call);
   Recorder *get_analog_recorder(Call *call);
-  Recorder *get_analog_recorder(Talkgroup *talkgroup, int priority, Call *call);
+  Recorder *get_analog_recorder(const std::shared_ptr<Talkgroup> &talkgroup, int priority, Call *call);
   Recorder *get_debug_recorder();
   Recorder *get_sigmf_recorder();
   std::vector<Recorder *> get_recorders();
 
-  AutotuneManager *autotune_manager;
+  std::unique_ptr<AutotuneManager> autotune_manager;
   void set_autotune_source(bool m);
   bool get_autotune_source();
   void add_autotune_error_measurement(int error, int offset);

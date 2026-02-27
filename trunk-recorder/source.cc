@@ -66,7 +66,7 @@ Source::Source(double c, double r, double e, std::string drv, std::string dev, C
   attached_selector = false;
   next_selector_port = 0;
   autotune_source = false;
-  autotune_manager = new AutotuneManager(this);
+  autotune_manager = std::make_unique<AutotuneManager>(this);
 
   recorder_selector = gr::blocks::selector::make(sizeof(gr_complex), 0, 0);
 
@@ -172,7 +172,7 @@ void Source::set_iq_source(std::string iq_file, bool repeat, double center, doub
   attached_selector = false;
   next_selector_port = 0;
   autotune_source = false;
-  autotune_manager = new AutotuneManager(this);
+  autotune_manager = std::make_unique<AutotuneManager>(this);
 
   iq_file_source::sptr iq_file_src;
   iq_file_src = iq_file_source::make(iq_file, this->rate, repeat);
@@ -614,7 +614,7 @@ void Source::create_debug_recorder(gr::top_block_sptr tb, int source_num) {
   tb->connect(source_block, 0, log, 0);
 }
 
-Recorder *Source::get_analog_recorder(Talkgroup *talkgroup, int priority, Call *call) {
+Recorder *Source::get_analog_recorder(const std::shared_ptr<Talkgroup> &talkgroup, int priority, Call *call) {
   int num_available_recorders = get_num_available_analog_recorders();
   std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup_display(), call->get_freq());
   if (talkgroup && (priority == -1)) {
@@ -650,7 +650,7 @@ Recorder *Source::get_analog_recorder(Call *call) {
   return NULL;
 }
 
-Recorder *Source::get_digital_recorder(Talkgroup *talkgroup, int priority, Call *call) {
+Recorder *Source::get_digital_recorder(const std::shared_ptr<Talkgroup> &talkgroup, int priority, Call *call) {
   int num_available_recorders = get_num_available_digital_recorders();
   std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup_display(), call->get_freq());
 

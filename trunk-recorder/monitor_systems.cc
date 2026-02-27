@@ -16,7 +16,7 @@ uint64_t time_since_epoch_millisec() {
 }
 
 bool start_recorder(Call *call, TrunkMessage message, Config &config, System *sys, std::vector<Source *> &sources) {
-  Talkgroup *talkgroup = sys->find_talkgroup(call->get_talkgroup());
+  auto talkgroup = sys->find_talkgroup(call->get_talkgroup());
 
   bool source_found = false;
   bool recorder_found = false;
@@ -398,7 +398,7 @@ void handle_call_grant(TrunkMessage message, System *sys, bool grant_message, Co
   unsigned long call_rfss_site = 0;
   unsigned long sys_rfss_site = 0;
 
-  Talkgroup *message_talkgroup = sys->find_talkgroup(message.talkgroup);
+  auto message_talkgroup = sys->find_talkgroup(message.talkgroup);
   if (message_talkgroup) {
     message_preferredNAC = message_talkgroup->get_preferredNAC();
   }
@@ -422,7 +422,7 @@ void handle_call_grant(TrunkMessage message, System *sys, bool grant_message, Co
                 original_call = call;
 
                 unsigned long call_preferredNAC = 0;
-                Talkgroup *call_talkgroup = call->get_system()->find_talkgroup(message.talkgroup);
+                auto call_talkgroup = call->get_system()->find_talkgroup(message.talkgroup);
                 if (call_talkgroup) {
                   call_preferredNAC = call_talkgroup->get_preferredNAC();
                 }
@@ -447,7 +447,7 @@ void handle_call_grant(TrunkMessage message, System *sys, bool grant_message, Co
                 original_call = call;
 
                 unsigned long call_preferredNAC = 0;
-                Talkgroup *call_talkgroup = call->get_system()->find_talkgroup(message.talkgroup);
+                auto call_talkgroup = call->get_system()->find_talkgroup(message.talkgroup);
                 if (call_talkgroup) {
                   call_preferredNAC = call_talkgroup->get_preferredNAC();
                 }
@@ -490,7 +490,7 @@ void handle_call_grant(TrunkMessage message, System *sys, bool grant_message, Co
   if (!call_found) {
     Call *call = Call::make(message, sys, config);
 
-    Talkgroup *talkgroup = sys->find_talkgroup(call->get_talkgroup());
+    auto talkgroup = sys->find_talkgroup(call->get_talkgroup());
 
     if (talkgroup) {
       call->set_talkgroup_tag(talkgroup->alpha_tag);
@@ -565,7 +565,7 @@ void handle_call_update(TrunkMessage message, System *sys, std::vector<Call *> &
       if (message.encrypted) {
         call->set_encrypted(true);
       } else {
-        Talkgroup *talkgroup = sys->find_talkgroup(message.talkgroup);
+        auto talkgroup = sys->find_talkgroup(message.talkgroup);
         if (talkgroup && (talkgroup->mode.compare("E") == 0 || talkgroup->mode.compare("TE") == 0 || talkgroup->mode.compare("DE") == 0)) {
           call->set_encrypted(true);
         }

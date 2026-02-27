@@ -26,6 +26,7 @@
 #include "../decoder_wrapper.h"
 #include "signal_decoder_sink.h"
 #include <boost/log/trivial.hpp>
+#include <memory>
 
 #include "fsync_decode.h"
 #include "mdc_decode.h"
@@ -34,11 +35,13 @@
 namespace gr {
 namespace blocks {
 
+struct FreeDeleter { void operator()(void *p) const { free(p); } };
+
 class signal_decoder_sink_impl : public signal_decoder_sink {
 private:
-  mdc_decoder_t *d_mdc_decoder;
-  fsync_decoder_t *d_fsync_decoder;
-  star_decoder_t *d_star_decoder;
+  std::unique_ptr<mdc_decoder_t, FreeDeleter> d_mdc_decoder;
+  std::unique_ptr<fsync_decoder_t, FreeDeleter> d_fsync_decoder;
+  std::unique_ptr<star_decoder_t, FreeDeleter> d_star_decoder;
   decoder_callback d_callback;
 
   bool d_mdc_enabled;

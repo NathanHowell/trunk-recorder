@@ -152,13 +152,13 @@ signal_decoder_sink_impl::signal_decoder_sink_impl(unsigned int sample_rate, dec
       d_mdc_enabled(false),
       d_fsync_enabled(false),
       d_star_enabled(false) {
-  d_mdc_decoder = mdc_decoder_new(sample_rate);
-  d_fsync_decoder = fsync_decoder_new(sample_rate);
-  d_star_decoder = star_decoder_new(sample_rate);
+  d_mdc_decoder.reset(mdc_decoder_new(sample_rate));
+  d_fsync_decoder.reset(fsync_decoder_new(sample_rate));
+  d_star_decoder.reset(star_decoder_new(sample_rate));
 
-  mdc_decoder_set_callback(d_mdc_decoder, mdc_callback, this);
-  fsync_decoder_set_callback(d_fsync_decoder, fsync_callback, this);
-  star_decoder_set_callback(d_star_decoder, star_format_1_16383, star_callback, this);
+  mdc_decoder_set_callback(d_mdc_decoder.get(), mdc_callback, this);
+  fsync_decoder_set_callback(d_fsync_decoder.get(), fsync_callback, this);
+  star_decoder_set_callback(d_star_decoder.get(), star_format_1_16383, star_callback, this);
 }
 
 void signal_decoder_sink_impl::set_mdc_enabled(bool b) { d_mdc_enabled = b; };
@@ -179,15 +179,15 @@ int signal_decoder_sink_impl::work(int noutput_items, gr_vector_const_void_star 
 int signal_decoder_sink_impl::dowork(int noutput_items, gr_vector_const_void_star &input_items, gr_vector_void_star &output_items) {
 
   if (d_mdc_enabled) {
-    mdc_decoder_process_samples(d_mdc_decoder, (float *)input_items[0], noutput_items);
+    mdc_decoder_process_samples(d_mdc_decoder.get(), (float *)input_items[0], noutput_items);
   }
 
   if (d_fsync_enabled) {
-    fsync_decoder_process_samples(d_fsync_decoder, (float *)input_items[0], noutput_items);
+    fsync_decoder_process_samples(d_fsync_decoder.get(), (float *)input_items[0], noutput_items);
   }
 
   if (d_star_enabled) {
-    star_decoder_process_samples(d_star_decoder, (float *)input_items[0], noutput_items);
+    star_decoder_process_samples(d_star_decoder.get(), (float *)input_items[0], noutput_items);
   }
 
   return noutput_items;

@@ -88,8 +88,8 @@ std::vector<Transmission> headless_sink::get_transmission_list() {
   t.talkgroup = d_talkgroup;
   t.freq = d_freq;
   t.start_time = d_start_time;
-  t.stop_time = d_stop_time > 0 ? d_stop_time : time(NULL);
-  t.sample_count = d_sample_count;
+  t.stop_time = d_stop_time.load() > 0 ? d_stop_time.load() : time(NULL);
+  t.sample_count = d_sample_count.load();
   t.length = length_in_seconds();
   t.source = 0;
   t.slot = 0;

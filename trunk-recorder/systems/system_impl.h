@@ -54,8 +54,8 @@ class System_impl : public System {
   int sys_site_id;
 
 public:
-  Talkgroups *talkgroups;
-  UnitTags *unit_tags;
+  std::unique_ptr<Talkgroups> talkgroups;
+  std::unique_ptr<UnitTags> unit_tags;
   std::unique_ptr<p25p2_lfsr> lfsr;
   Source *source;
   std::string talkgroups_file;
@@ -167,8 +167,8 @@ public:
   std::string get_unit_tags_file() override;
   Source *get_source() override;
   void set_source(Source *) override;
-  Talkgroup *find_talkgroup(long tg) override;
-  Talkgroup *find_talkgroup_by_freq(double freq) override;
+  std::shared_ptr<Talkgroup> find_talkgroup(long tg) override;
+  std::shared_ptr<Talkgroup> find_talkgroup_by_freq(double freq) override;
   std::string find_unit_tag(long unitID) override;
   void set_talkgroups_file(std::string) override;
   void set_channel_file(std::string channel_file) override;
@@ -201,9 +201,7 @@ public:
   std::vector<dmr_recorder_sptr> get_conventionalDMR_recorders() override;
   std::vector<double> get_channels() override;
   std::vector<double> get_control_channels() override;
-  std::vector<Talkgroup *> get_talkgroups() override;
-  std::vector<UnitTag *> get_unit_tags() override;
-  std::vector<UnitTagOTA *> get_unit_tags_ota() override;
+  std::vector<std::shared_ptr<Talkgroup>> get_talkgroups() override;
   gr::msg_queue::sptr msg_queue;
   System_impl(int sys_id);
   void set_bandplan(std::string) override;

@@ -72,9 +72,9 @@ System_impl::System_impl(int sys_num) {
   xor_mask_len = 0;
   xor_mask = NULL;
   // Setup the talkgroups from the CSV file
-  talkgroups = new Talkgroups();
+  talkgroups = std::make_unique<Talkgroups>();
   // Setup the unit tags from the CSV file
-  unit_tags = new UnitTags();
+  unit_tags = std::make_unique<UnitTags>();
   talkgroup_patches = {};
   d_hideEncrypted = false;
   d_monitorEncrypted = false;
@@ -342,11 +342,11 @@ void System_impl::set_source(Source *s) {
   this->source = s;
 }
 
-Talkgroup *System_impl::find_talkgroup(long tg_number) {
+std::shared_ptr<Talkgroup> System_impl::find_talkgroup(long tg_number) {
   return talkgroups->find_talkgroup(sys_num, tg_number);
 }
 
-Talkgroup *System_impl::find_talkgroup_by_freq(double freq) {
+std::shared_ptr<Talkgroup> System_impl::find_talkgroup_by_freq(double freq) {
   return talkgroups->find_talkgroup_by_freq(sys_num, freq);
 }
 std::string System_impl::find_unit_tag(long unitID) {
@@ -357,23 +357,10 @@ std::vector<double> System_impl::get_channels() {
   return channels;
 }
 
-std::vector<Talkgroup *> System_impl::get_talkgroups() {
+std::vector<std::shared_ptr<Talkgroup>> System_impl::get_talkgroups() {
   return talkgroups->get_talkgroups();
 }
 
-std::vector<UnitTag *> System_impl::get_unit_tags() {
-  if (unit_tags) {
-    return unit_tags->get_unit_tags();
-  }
-  return std::vector<UnitTag *>();
-}
-
-std::vector<UnitTagOTA *> System_impl::get_unit_tags_ota() {
-  if (unit_tags) {
-    return unit_tags->get_unit_tags_ota();
-  }
-  return std::vector<UnitTagOTA *>();
-}
 
 int System_impl::channel_count() {
   return channels.size();

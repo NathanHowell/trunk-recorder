@@ -54,7 +54,6 @@ void Talkgroups::load_talkgroups(int sys_num, std::string filename) {
 
   long lines_pushed = 0;
   for (CSVRow &row : reader) { // Input iterator
-    Talkgroup *tg = NULL;
     int priority = 1;
     unsigned long preferredNAC = 0;
     long tg_number = 0;
@@ -104,8 +103,7 @@ void Talkgroups::load_talkgroups(int sys_num, std::string filename) {
     if ((reader.index_of("Preferred NAC") >= 0) && row["Preferred NAC"].is_int()) {
       preferredNAC = row["Preferred NAC"].get<unsigned long>();
     }
-    tg = new Talkgroup(sys_num, tg_number, mode, alpha_tag, description, tag, group, priority, preferredNAC);
-    talkgroups.push_back(tg);
+    talkgroups.push_back(std::make_shared<Talkgroup>(sys_num, tg_number, mode, alpha_tag, description, tag, group, priority, preferredNAC));
     lines_pushed++;
   }
 
@@ -148,7 +146,6 @@ void Talkgroups::load_channels(int sys_num, std::string filename) {
 
   long lines_pushed = 0;
   for (CSVRow &row : reader) { // Input iterator
-    Talkgroup *tg = NULL;
     long tg_number = 0;
     std::string alpha_tag = "";
     std::string description = "";
@@ -212,8 +209,7 @@ void Talkgroups::load_channels(int sys_num, std::string filename) {
       }
     }
     if (enable) {
-      tg = new Talkgroup(sys_num, tg_number, freq, tone, alpha_tag, description, tag, group, squelch_db, signal_detector);
-      talkgroups.push_back(tg);
+      talkgroups.push_back(std::make_shared<Talkgroup>(sys_num, tg_number, freq, tone, alpha_tag, description, tag, group, squelch_db, signal_detector));
       lines_pushed++;
     }
 
@@ -221,34 +217,24 @@ void Talkgroups::load_channels(int sys_num, std::string filename) {
   }
 }
 
-Talkgroup *Talkgroups::find_talkgroup(int sys_num, long tg_number) {
-  Talkgroup *tg_match = NULL;
-
-  for (std::vector<Talkgroup *>::iterator it = talkgroups.begin(); it != talkgroups.end(); ++it) {
-    Talkgroup *tg = (Talkgroup *)*it;
-
+std::shared_ptr<Talkgroup> Talkgroups::find_talkgroup(int sys_num, long tg_number) {
+  for (auto &tg : talkgroups) {
     if ((tg->sys_num == sys_num) && (tg->number == tg_number)) {
-      tg_match = tg;
-      break;
+      return tg;
     }
   }
-  return tg_match;
+  return nullptr;
 }
 
-Talkgroup *Talkgroups::find_talkgroup_by_freq(int sys_num, double freq) {
-  Talkgroup *tg_match = NULL;
-
-  for (std::vector<Talkgroup *>::iterator it = talkgroups.begin(); it != talkgroups.end(); ++it) {
-    Talkgroup *tg = (Talkgroup *)*it;
-
+std::shared_ptr<Talkgroup> Talkgroups::find_talkgroup_by_freq(int sys_num, double freq) {
+  for (auto &tg : talkgroups) {
     if ((tg->sys_num == sys_num) && (tg->freq == freq)) {
-      tg_match = tg;
-      break;
+      return tg;
     }
   }
-  return tg_match;
+  return nullptr;
 }
 
-std::vector<Talkgroup *> Talkgroups::get_talkgroups() {
+std::vector<std::shared_ptr<Talkgroup>> Talkgroups::get_talkgroups() {
   return talkgroups;
 }

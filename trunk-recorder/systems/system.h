@@ -106,8 +106,8 @@ public:
   virtual std::string get_unit_tags_file() = 0;
   virtual Source *get_source() = 0;
   virtual void set_source(Source *) = 0;
-  virtual Talkgroup *find_talkgroup(long tg) = 0;
-  virtual Talkgroup *find_talkgroup_by_freq(double freq) = 0;
+  virtual std::shared_ptr<Talkgroup> find_talkgroup(long tg) = 0;
+  virtual std::shared_ptr<Talkgroup> find_talkgroup_by_freq(double freq) = 0;
   virtual std::string find_unit_tag(long unitID) = 0;
   virtual void set_talkgroups_file(std::string) = 0;
   virtual void set_channel_file(std::string channel_file) = 0;
@@ -140,9 +140,7 @@ public:
   virtual std::vector<dmr_recorder_sptr> get_conventionalDMR_recorders() = 0;
   virtual std::vector<double> get_channels() = 0;
   virtual std::vector<double> get_control_channels() = 0;
-  virtual std::vector<Talkgroup *> get_talkgroups() = 0;
-  virtual std::vector<UnitTag *> get_unit_tags() = 0;
-  virtual std::vector<UnitTagOTA *> get_unit_tags_ota() = 0;
+  virtual std::vector<std::shared_ptr<Talkgroup>> get_talkgroups() = 0;
   virtual void set_bandplan(std::string) = 0;
   virtual std::string get_bandplan() = 0;
   virtual void set_bandfreq(int) = 0;

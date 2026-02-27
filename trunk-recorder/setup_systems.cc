@@ -19,7 +19,7 @@ bool setup_conventional_channel(System *system, double frequency, long channel_i
 
       Call_conventional *call = NULL;
       if (system->has_channel_file()) {
-        Talkgroup *tg = system->find_talkgroup_by_freq(frequency);
+        auto tg = system->find_talkgroup_by_freq(frequency);
         tone_freq = tg->tone;
 
         // If there is a per channel squelch setting, use it, otherwise use the system squelch setting
@@ -90,9 +90,9 @@ bool setup_conventional_system(System *system, Config &config, gr::top_block_spt
   bool system_added = false;
 
   if (system->has_channel_file()) {
-    std::vector<Talkgroup *> talkgroups = system->get_talkgroups();
-    for (vector<Talkgroup *>::iterator tg_it = talkgroups.begin(); tg_it != talkgroups.end(); tg_it++) {
-      Talkgroup *tg = *tg_it;
+    auto talkgroups = system->get_talkgroups();
+    for (auto tg_it = talkgroups.begin(); tg_it != talkgroups.end(); tg_it++) {
+      auto &tg = *tg_it;
 
       bool channel_added = setup_conventional_channel(system, tg->freq, tg->number, config, tb, sources, calls);
 

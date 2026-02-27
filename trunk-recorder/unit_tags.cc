@@ -96,8 +96,7 @@ void UnitTags::load_unit_tags_ota(std::string filename) {
         lines_needing_update++;
       }
       
-      UnitTagOTA *ota_tag = new UnitTagOTA(unit_id, tag, source, wacn, sys, tg, ts);
-      unit_tags_ota.push_back(ota_tag);
+      unit_tags_ota.push_back(std::make_shared<UnitTagOTA>(unit_id, tag, source, wacn, sys, tg, ts));
       lines_loaded++;
     }
     
@@ -114,27 +113,24 @@ void UnitTags::load_unit_tags_ota(std::string filename) {
       }
       
       // Deduplicate: keep newest entry per unit_id
-      std::map<long, UnitTagOTA*> unique_tags;
+      std::map<long, std::shared_ptr<UnitTagOTA>> unique_tags;
       int duplicates_removed = 0;
-      
-      for (auto ota_tag : unit_tags_ota) {
+
+      for (auto &ota_tag : unit_tags_ota) {
         auto result = unique_tags.insert(std::make_pair(ota_tag->unit_id, ota_tag));
-        
+
         if (!result.second) {
           // Duplicate found - compare timestamps and metadata completeness
-          UnitTagOTA *current = result.first->second;
+          auto &current = result.first->second;
           bool replace = false;
           if (ota_tag->timestamp > current->timestamp) {
             replace = true;
           } else if (ota_tag->timestamp == current->timestamp && !ota_tag->wacn.empty() && current->wacn.empty()) {
             replace = true;
           }
-          
+
           if (replace) {
-            delete current;
             result.first->second = ota_tag;
-          } else {
-            delete ota_tag;
           }
           duplicates_removed++;
         }
@@ -162,7 +158,7 @@ void UnitTags::load_unit_tags_ota(std::string filename) {
           std::ofstream out(temp_file, std::ios::trunc);
           if (out.is_open()) {
             CSVWriter<std::ofstream> writer(out);
-            for (UnitTagOTA *ota_tag : unit_tags_ota) {
+            for (auto &ota_tag : unit_tags_ota) {
               writer << std::vector<std::string>{
                 std::to_string(ota_tag->unit_id),
                 ota_tag->alias,
@@ -201,19 +197,18 @@ std::string UnitTags::find_unit_tag(long tg_number) {
   
   // Helper lambda: Search user tags
   auto search_user_tags = [&]() -> std::string {
-    for (std::vector<UnitTag *>::iterator it = unit_tags.begin(); it != unit_tags.end(); ++it) {
-      UnitTag *tg = (UnitTag *)*it;
+    for (auto &tg : unit_tags) {
       if (regex_match(tg_num_str, tg->pattern)) {
         return regex_replace(tg_num_str, tg->pattern, tg->tag, boost::regex_constants::format_no_copy | boost::regex_constants::format_all);
       }
     }
     return "";
   };
-  
+
   // Helper lambda: Search OTA tags
   auto search_ota_tags = [&]() -> std::string {
     for (auto it = unit_tags_ota.rbegin(); it != unit_tags_ota.rend(); ++it) {
-      UnitTagOTA *ota_tag = *it;
+      auto &ota_tag = *it;
       if (ota_tag->unit_id == tg_number) {
         return ota_tag->alias;
       }
@@ -252,8 +247,7 @@ void UnitTags::add(std::string pattern, std::string tag) {
     // otherwise add ^ and $ to the pattern e.g. ^123$ to make a regex for simple IDs
     pattern = "^" + pattern + "$";
   }
-  UnitTag *unit_tag = new UnitTag(pattern, tag);
-  unit_tags.push_back(unit_tag);
+  unit_tags.push_back(std::make_shared<UnitTag>(pattern, tag));
 }
 
 bool UnitTags::add_ota(const OTAAlias& ota_alias) {
@@ -267,11 +261,10 @@ bool UnitTags::add_ota(const OTAAlias& ota_alias) {
   }
   
   // Check if this unit already has an OTA tag (search OTA list only)
-  UnitTagOTA *existing_ota = nullptr;
+  std::shared_ptr<UnitTagOTA> existing_ota;
   for (auto it = unit_tags_ota.rbegin(); it != unit_tags_ota.rend(); ++it) {
-    UnitTagOTA *ota_tag = *it;
-    if (ota_tag->unit_id == ota_alias.radio_id) {
-      existing_ota = ota_tag;
+    if ((*it)->unit_id == ota_alias.radio_id) {
+      existing_ota = *it;
       break;
     }
   }
@@ -315,7 +308,7 @@ bool UnitTags::add_ota(const OTAAlias& ota_alias) {
     BOOST_LOG_TRIVIAL(info) << "Unit " << ota_alias.radio_id << " OTA alias updated: '" << existing_ota->alias << "' -> '" << ota_alias.alias << "'";
   }
   
-  UnitTagOTA *ota_tag = new UnitTagOTA(ota_alias.radio_id, ota_alias.alias, ota_alias.source, ota_alias.wacn, ota_alias.sys, ota_alias.talkgroup_id, std::time(nullptr));
+  auto ota_tag = std::make_shared<UnitTagOTA>(ota_alias.radio_id, ota_alias.alias, ota_alias.source, ota_alias.wacn, ota_alias.sys, ota_alias.talkgroup_id, std::time(nullptr));
   unit_tags_ota.push_back(ota_tag);
 
   // Write to OTA file if configured
@@ -345,10 +338,3 @@ UnitTagMode UnitTags::get_mode() {
   return this->mode;
 }
 
-std::vector<UnitTag *> UnitTags::get_unit_tags() {
-  return unit_tags;
-}
-
-std::vector<UnitTagOTA *> UnitTags::get_unit_tags_ota() {
-  return unit_tags_ota;
-}
