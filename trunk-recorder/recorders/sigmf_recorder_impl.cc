@@ -152,7 +152,7 @@ bool sigmf_recorder_impl::start(Call *call) {
     // Found some good advice on Streams and Strings here: https://blog.sensecodons.com/2013/04/dont-let-stdstringstreamstrcstr-happen.html
     path_stream << call->get_temp_dir() << "/" << call->get_short_name() << "/" << 1900 + ltm->tm_year << "/" << 1 + ltm->tm_mon << "/" << ltm->tm_mday;
     std::string path_string = path_stream.str();
-    boost::filesystem::create_directories(path_string);
+    std::filesystem::create_directories(path_string);
 
     nchars = snprintf(filename, 255, "%s/%ld-%ld_%.0f-call_%lu.sigmf-data", path_string.c_str(), talkgroup, starttime, call->get_freq(), call->get_call_num());
     if (nchars >= 255) {

@@ -2,6 +2,7 @@
 #define P25_RECORDER_DECODE_H
 
 #include <boost/shared_ptr.hpp>
+#include <json.hpp>
 #include <gnuradio/block.h>
 #include <gnuradio/block_detail.h>
 #include <gnuradio/blocks/short_to_float.h>

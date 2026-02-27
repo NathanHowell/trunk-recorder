@@ -138,14 +138,7 @@ message(STATUS "GnuRadio Version: " ${GNURADIO_VERSION})
 ########################################################################
 find_package(GnuradioUHD)
 find_package(GnuradioOsmosdr)
-find_package(LibHackRF)
 find_package(LibUHD)
-find_package(OpenSSL REQUIRED)
-find_package(CURL REQUIRED)
-if (STREAMER)
-    find_package(Protobuf REQUIRED)
-    find_package(GRPC REQUIRED)
-endif()
 
 ########################################################################
 # Setup boost
@@ -155,12 +148,9 @@ MESSAGE(STATUS "Configuring Boost C++ Libraries...")
 # Although not required on my system, some users have linking issues without
 SET(BOOST_REQUIRED_COMPONENTS
     thread
-    program_options
-    filesystem
     log_setup
     log
     regex
-    random
 )
 
 if(UNIX AND NOT BOOST_ROOT AND EXISTS "/usr/lib64")
@@ -204,13 +194,8 @@ include_directories(
     ${CMAKE_BINARY_DIR}/include
     ${CMAKE_SOURCE_DIR}/lib/op25_repeater/lib
     ${CMAKE_SOURCE_DIR}/lib/op25_repeater/include
-    ${OPENSSL_INCLUDE_DIR}
-    ${CURL_INCLUDE_DIR}
     "lib"
 )
-#    ${PROTOBUF_INCLUDE_DIR}
-#    ${GRPC_INCLUDE_DIR}
-#)
 
 link_directories(
     ${Boost_LIBRARY_DIRS}
@@ -218,7 +203,6 @@ link_directories(
     ${GROSMOSDR_LIBRARIES_DIRS}
     ${GNURADIO_UHD_LIBRARIES_DIRS}
     ${UHD_LIBRARIES_DIRS}
-    ${OPENSSL_ROOT_DIR}/lib
 )
 
 set(CMAKE_CXX_FLAGS_DEBUG "-Wall -Wno-deprecated-declarations -Wno-error=deprecated-declarations -g3")
@@ -325,9 +309,6 @@ target_compile_options(trunk_recorder_shared PRIVATE -fvisibility=default)
 set_target_properties(trunk_recorder_shared PROPERTIES OUTPUT_NAME "trunk-recorder")
 target_link_libraries(trunk_recorder_shared
     gnuradio-op25_repeater
-    ssl
-    crypto
-    ${CURL_LIBRARIES}
     ${Boost_LIBRARIES}
     ${GNURADIO_PMT_LIBRARIES}
     ${GNURADIO_RUNTIME_LIBRARIES}

@@ -1,6 +1,5 @@
 #ifndef CONFIG_H
 #define CONFIG_H
-#include <boost/program_options.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
@@ -15,10 +14,10 @@
 #include <boost/log/trivial.hpp>
 #include <boost/log/utility/setup/common_attributes.hpp>
 #include <boost/log/utility/setup/console.hpp>
-#include <boost/log/utility/setup/file.hpp>
 
 #include <gnuradio/top_block.h>
 
+#include <filesystem>
 #include <fstream>
 #include <regex>
 

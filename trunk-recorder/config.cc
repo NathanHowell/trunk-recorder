@@ -107,9 +107,9 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
     BOOST_LOG_TRIVIAL(info) << PROJECT_NAME << ": "
                             << "Version: " << PROJECT_VER << "\n";
 
-    std::string defaultTempDir = boost::filesystem::current_path().string();
+    std::string defaultTempDir = std::filesystem::current_path().string();
 
-    if (boost::filesystem::exists("/dev/shm")) {
+    if (std::filesystem::exists("/dev/shm")) {
       defaultTempDir = "/dev/shm";
     }
     config.temp_dir = data.value("tempDir", defaultTempDir);

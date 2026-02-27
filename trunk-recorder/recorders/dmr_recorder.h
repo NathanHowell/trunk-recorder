@@ -13,8 +13,6 @@
 #include "../gr_blocks/plugin_wrapper_impl.h"
 #include "../source.h"
 #include "recorder.h"
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/path.hpp>
 #include <boost/shared_ptr.hpp>
 
 class Source;

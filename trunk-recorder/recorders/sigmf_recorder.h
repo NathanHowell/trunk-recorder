@@ -10,8 +10,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/path.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include "../gr_blocks/freq_xlating_fft_filter.h"

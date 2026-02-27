@@ -10,8 +10,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/path.hpp>
 #include <boost/shared_ptr.hpp>
 #if GNURADIO_VERSION < 0x030a00
 #include <gnuradio/blocks/udp_sink.h>

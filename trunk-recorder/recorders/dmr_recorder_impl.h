@@ -10,8 +10,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/path.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <gnuradio/filter/firdes.h>
