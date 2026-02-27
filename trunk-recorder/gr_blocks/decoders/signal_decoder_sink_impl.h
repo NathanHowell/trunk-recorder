@@ -27,6 +27,7 @@
 #include "signal_decoder_sink.h"
 #include <boost/log/trivial.hpp>
 #include <memory>
+#include <mutex>
 
 #include "fsync_decode.h"
 #include "mdc_decode.h"
@@ -49,7 +50,7 @@ private:
   bool d_star_enabled;
 
 protected:
-  boost::mutex d_mutex;
+  std::mutex d_mutex;
   virtual int dowork(int noutput_items, gr_vector_const_void_star &input_items, gr_vector_void_star &output_items);
 
 public:

@@ -25,6 +25,7 @@
 
 #include "plugin_wrapper.h"
 #include <boost/log/trivial.hpp>
+#include <mutex>
 
 namespace gr {
 namespace blocks {
@@ -34,7 +35,7 @@ private:
   plugin_callback d_callback;
 
 protected:
-  boost::mutex d_mutex;
+  std::mutex d_mutex;
   virtual int dowork(int noutput_items, gr_vector_const_void_star &input_items, gr_vector_void_star &output_items);
 
 public:

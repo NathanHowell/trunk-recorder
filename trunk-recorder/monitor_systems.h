@@ -1,7 +1,9 @@
 #ifndef MONITOR_SYSTEMS_H
 #define MONITOR_SYSTEMS_H
+#include <chrono>
 #include <signal.h>
 #include <stdlib.h>
+#include <thread>
 
 #include "./global_structs.h"
 #include "call.h"

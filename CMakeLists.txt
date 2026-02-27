@@ -147,7 +147,6 @@ MESSAGE(STATUS "Configuring Boost C++ Libraries...")
 
 # Although not required on my system, some users have linking issues without
 SET(BOOST_REQUIRED_COMPONENTS
-    thread
     log_setup
     log
 )

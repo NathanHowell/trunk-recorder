@@ -883,7 +883,7 @@ int monitor_messages(TrunkContext &ctx) {
       BOOST_LOG_TRIVIAL(info) << "Cleaning up & Exiting...";
 
       // Sleep for 5 seconds to allow for all of the Call Concluder threads to finish.
-      boost::this_thread::sleep(boost::posix_time::milliseconds(5000));
+      std::this_thread::sleep_for(std::chrono::milliseconds(5000));
       return ctx.exit_code;
     }
 
@@ -934,7 +934,7 @@ int monitor_messages(TrunkContext &ctx) {
       management_timestamp = current_time;
     }
 
-    boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     float decode_rate_check_time_diff = current_time - last_decode_rate_check;
 

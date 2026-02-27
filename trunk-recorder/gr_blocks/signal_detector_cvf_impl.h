@@ -22,6 +22,7 @@
 #define INCLUDED_INSPECTOR_SIGNAL_DETECTOR_CVF_IMPL_H
 #include "./signal_detector_cvf.h"
 #include <boost/log/trivial.hpp>
+#include <mutex>
 #include <fstream>
 #include <gnuradio/fft/fft.h>
 #include <gnuradio/fft/window.h>
@@ -33,7 +34,7 @@ namespace inspector {*/
 
 class signal_detector_cvf_impl : public signal_detector_cvf {
 private:
-  boost::mutex d_mutex;
+  std::mutex d_mutex;
   bool d_auto_threshold;
   unsigned int d_fft_len;
   unsigned int d_tmpbuflen;
