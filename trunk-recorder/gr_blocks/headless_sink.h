@@ -31,8 +31,8 @@ private:
   unsigned d_sample_rate;
   std::atomic<State> d_state;
   std::atomic<std::chrono::time_point<std::chrono::steady_clock>> d_last_write_time;
-  time_t d_start_time;
-  std::atomic<time_t> d_stop_time;
+  std::chrono::time_point<std::chrono::system_clock> d_start_time;
+  std::atomic<std::chrono::time_point<std::chrono::steady_clock>> d_stop_time;
   std::atomic<long> d_sample_count;
   long d_talkgroup;
   double d_freq;
@@ -55,8 +55,8 @@ public:
   void set_source(long src);
 
   State get_state();
-  time_t get_start_time();
-  time_t get_stop_time();
+  std::chrono::time_point<std::chrono::system_clock> get_start_time();
+  std::chrono::time_point<std::chrono::steady_clock> get_stop_time();
   std::chrono::time_point<std::chrono::steady_clock> get_last_write_time();
 
   std::vector<Transmission> get_transmission_list();

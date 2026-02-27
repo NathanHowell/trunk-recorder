@@ -1,6 +1,6 @@
 #ifndef GLOBAL_STRUCTS_H
 #define GLOBAL_STRUCTS_H
-#include <ctime>
+#include <chrono>
 #include <memory>
 #include <string>
 #include <vector>
@@ -36,7 +36,7 @@ struct Config {
   bool new_call_from_update;
   bool debug_recorder;
   int debug_recorder_port;
-  double call_timeout;
+  std::chrono::duration<double> call_timeout;
   bool console_log;
   std::string log_color;
   int control_message_warn_rate;

@@ -43,9 +43,9 @@ public:
   virtual int get_idle_count() = 0;
   virtual void increase_idle_count() = 0;
   virtual void reset_idle_count() = 0;
-  virtual int since_last_update() = 0;
-  virtual double since_last_voice_update() = 0;
-  virtual long elapsed() = 0;
+  virtual std::chrono::duration<double> since_last_update() = 0;
+  virtual std::chrono::duration<double> since_last_voice_update() = 0;
+  virtual std::chrono::duration<double> elapsed() = 0;
 
   virtual double get_current_length() = 0;
   virtual long get_stop_time() = 0;

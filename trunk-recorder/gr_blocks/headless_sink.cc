@@ -30,16 +30,16 @@ headless_sink::headless_sink(int n_channels, unsigned int sample_rate, int /*bit
       d_sample_rate(sample_rate),
       d_state(AVAILABLE),
       d_last_write_time(std::chrono::steady_clock::now()),
-      d_start_time(0),
-      d_stop_time(0),
+      d_start_time(),
+      d_stop_time(std::chrono::steady_clock::now()),
       d_sample_count(0),
       d_talkgroup(0),
       d_freq(0.0) {}
 
 bool headless_sink::start_recording(const std::shared_ptr<Call> &call) {
   d_state = IDLE;
-  d_start_time = time(nullptr);
-  d_stop_time = 0;
+  d_start_time = std::chrono::system_clock::now();
+  d_stop_time = std::chrono::steady_clock::now();
   d_sample_count = 0;
   d_last_write_time = std::chrono::steady_clock::now();
   if (call) {
@@ -55,7 +55,7 @@ bool headless_sink::start_recording(const std::shared_ptr<Call> &call, int /*slo
 
 void headless_sink::stop_recording() {
   d_state = AVAILABLE;
-  d_stop_time = time(nullptr);
+  d_stop_time = std::chrono::steady_clock::now();
 }
 
 void headless_sink::set_source(long /*src*/) {
@@ -66,11 +66,11 @@ State headless_sink::get_state() {
   return d_state;
 }
 
-time_t headless_sink::get_start_time() {
+std::chrono::time_point<std::chrono::system_clock> headless_sink::get_start_time() {
   return d_start_time;
 }
 
-time_t headless_sink::get_stop_time() {
+std::chrono::time_point<std::chrono::steady_clock> headless_sink::get_stop_time() {
   return d_stop_time;
 }
 
@@ -87,8 +87,8 @@ std::vector<Transmission> headless_sink::get_transmission_list() {
   memset(&t, 0, sizeof(t));
   t.talkgroup = d_talkgroup;
   t.freq = d_freq;
-  t.start_time = d_start_time;
-  t.stop_time = d_stop_time.load() > 0 ? d_stop_time.load() : time(nullptr);
+  t.start_time = std::chrono::system_clock::to_time_t(d_start_time);
+  t.stop_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
   t.sample_count = d_sample_count.load();
   t.length = length_in_seconds();
   t.source = 0;
@@ -121,8 +121,9 @@ int headless_sink::work(int noutput_items,
 
   if (d_state == RECORDING) {
     d_sample_count += noutput_items;
-    d_last_write_time = std::chrono::steady_clock::now();
-    d_stop_time = time(nullptr);
+    auto now = std::chrono::steady_clock::now();
+    d_last_write_time = now;
+    d_stop_time = now;
   }
 
   // Consume all samples (discard audio data).

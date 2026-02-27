@@ -8,6 +8,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <chrono>
 #include <time.h>
 
 #include <filesystem>
@@ -67,6 +68,7 @@ public:
   int get_freq_error();
   int get_num();
   double get_current_length();
+  std::chrono::duration<double> since_last_write();
   void set_enabled(bool enabled);
   bool is_enabled();
   bool is_active();
@@ -85,8 +87,8 @@ private:
   const double phase1_symbol_rate = 4800;
 
   double squelch_db;
-  time_t timestamp;
-  time_t starttime;
+  std::chrono::steady_clock::time_point timestamp;
+  std::chrono::steady_clock::time_point starttime;
 
   const Config &config;
   std::shared_ptr<Source> source;

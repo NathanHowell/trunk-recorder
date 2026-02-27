@@ -154,8 +154,8 @@ debug_recorder_impl::debug_recorder_impl(const std::shared_ptr<Source> &src, std
 
   state = INACTIVE;
 
-  timestamp = time(nullptr);
-  starttime = time(nullptr);
+  timestamp = std::chrono::steady_clock::now();
+  starttime = std::chrono::steady_clock::now();
 
   initialize_prefilter();
 #if GNURADIO_VERSION < 0x030a00
@@ -198,12 +198,16 @@ double debug_recorder_impl::get_current_length() {
   return 0; // wav_sink->length_in_seconds();
 }
 
+std::chrono::duration<double> debug_recorder_impl::since_last_write() {
+  return std::chrono::duration<double>::zero(); // debug recorders stream continuously and never time out
+}
+
 int debug_recorder_impl::lastupdate() {
-  return time(nullptr) - timestamp;
+  return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - timestamp).count();
 }
 
 long debug_recorder_impl::elapsed() {
-  return time(nullptr) - starttime;
+  return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - starttime).count();
 }
 
 void debug_recorder_impl::tune_freq(double f) {
@@ -252,8 +256,8 @@ void debug_recorder_impl::stop() {
 
 bool debug_recorder_impl::start(const std::shared_ptr<Call> &call) {
   if (state == INACTIVE) {
-    timestamp = time(nullptr);
-    starttime = time(nullptr);
+    timestamp = std::chrono::steady_clock::now();
+    starttime = std::chrono::steady_clock::now();
 
     talkgroup = call->get_talkgroup();
     chan_freq = call->get_freq();

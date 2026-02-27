@@ -42,8 +42,8 @@ void p25_recorder_impl::initialize(const std::shared_ptr<Source> &src) {
 
   state = INACTIVE;
 
-  timestamp = time(nullptr);
-  starttime = time(nullptr);
+  timestamp = std::chrono::steady_clock::now();
+  starttime = std::chrono::steady_clock::now();
 
   this->set_enable_audio_streaming(config.enable_audio_streaming);
 
@@ -155,7 +155,7 @@ int p25_recorder_impl::get_num() {
   return rec_num;
 }
 
-double p25_recorder_impl::since_last_write() {
+std::chrono::duration<double> p25_recorder_impl::since_last_write() {
   if (qpsk_mod) {
     return qpsk_p25_decode->since_last_write();
   } else {
@@ -232,11 +232,11 @@ double p25_recorder_impl::get_current_length() {
 }
 
 int p25_recorder_impl::lastupdate() {
-  return time(nullptr) - timestamp;
+  return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - timestamp).count();
 }
 
 long p25_recorder_impl::elapsed() {
-  return time(nullptr) - starttime;
+  return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - starttime).count();
 }
 
 void p25_recorder_impl::tune_freq(double f) {
@@ -321,8 +321,8 @@ bool p25_recorder_impl::start(const std::shared_ptr<Call> &call) {
       set_tdma_slot(0);
     }
 
-    timestamp = time(nullptr);
-    starttime = time(nullptr);
+    timestamp = std::chrono::steady_clock::now();
+    starttime = std::chrono::steady_clock::now();
 
     talkgroup = call->get_talkgroup();
     short_name = call->get_short_name();

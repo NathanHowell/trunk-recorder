@@ -7,6 +7,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <chrono>
 #include <time.h>
 #include <unistd.h>
 
@@ -69,7 +70,6 @@ public:
   void set_source(long src);
   std::shared_ptr<Source> get_source();
   long get_talkgroup();
-  time_t get_start_time();
   double get_current_length();
   long get_wav_hz();
   void set_enabled(bool enabled);
@@ -89,7 +89,7 @@ public:
   void decoder_callback_handler(long unitId, const char *signaling_type, gr::blocks::SignalType signal);
   void plugin_callback_handler(int16_t *samples, int sampleCount);
   double get_output_sample_rate();
-  double since_last_write();
+  std::chrono::duration<double> since_last_write();
   void set_tau(float tau);
   float get_tau() const;
 
@@ -103,8 +103,8 @@ private:
   float quad_gain;
   double wav_sample_rate;
   double squelch_db;
-  time_t timestamp;
-  time_t starttime;
+  std::chrono::steady_clock::time_point timestamp;
+  std::chrono::steady_clock::time_point starttime;
   bool use_tone_squelch;
 
   State state;

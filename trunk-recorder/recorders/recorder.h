@@ -82,7 +82,7 @@ public:
   virtual bool is_idle() { return true; };
   virtual bool is_squelched() { return true; };
   virtual double get_current_length() { return 0; };
-  virtual double since_last_write() { return 0; };
+  virtual std::chrono::duration<double> since_last_write() = 0;
   virtual void clear(){};
   virtual boost::property_tree::ptree get_stats();
   virtual int get_recording_count() { return recording_count; }

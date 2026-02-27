@@ -178,13 +178,13 @@ void print_status(std::vector<std::shared_ptr<Source>> &sources, std::vector<std
     auto recorder = call->get_recorder();
     std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup_display(), call->get_freq());
     if (call->get_state() == MONITORING) {
-      BOOST_LOG_TRIVIAL(info) << loghdr << "Elapsed: " << std::setw(4) << call->elapsed() << " State: " << format_state(call->get_state(), call->get_monitoring_state());
+      BOOST_LOG_TRIVIAL(info) << loghdr << "Elapsed: " << std::setw(4) << call->elapsed().count() << " State: " << format_state(call->get_state(), call->get_monitoring_state());
     } else {
       if (call->is_conventional() ) {
         bool is_enabled = call->get_recorder()->is_enabled();
-         BOOST_LOG_TRIVIAL(info) << loghdr << "Elapsed: " << std::setw(4) << call->elapsed() << " State: " << format_state(call->get_state()) << " Enabled: " << is_enabled;
+         BOOST_LOG_TRIVIAL(info) << loghdr << "Elapsed: " << std::setw(4) << call->elapsed().count() << " State: " << format_state(call->get_state()) << " Enabled: " << is_enabled;
       } else {
-        BOOST_LOG_TRIVIAL(info) << loghdr << "Elapsed: " << std::setw(4) << call->elapsed() << " State: " << format_state(call->get_state());
+        BOOST_LOG_TRIVIAL(info) << loghdr << "Elapsed: " << std::setw(4) << call->elapsed().count() << " State: " << format_state(call->get_state());
       }
     }
 
@@ -240,7 +240,7 @@ void manage_conventional_call(const std::shared_ptr<Call> &call, Config &config)
       }
 
       // if no additional recording has happened in the past X periods, stop and open new file
-      if (call->get_idle_count() > config.call_timeout) {
+      if (call->get_idle_count() > config.call_timeout.count()) {
         auto recorder = call->get_recorder();
         call->conclude_call();
         call->restart_call();
@@ -297,7 +297,7 @@ void manage_calls(Config &config, std::vector<std::shared_ptr<Call>> &calls) {
 
       if (recorder && (recorder->since_last_write() > config.call_timeout) && (call->since_last_update() > config.call_timeout)) {
         std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup_display(), call->get_freq());
-        BOOST_LOG_TRIVIAL(trace) << loghdr << "\u001b[36m Stopping Call because of Recorder \u001b[0m Rec last write: " << recorder->since_last_write() << " State: " << format_state(recorder->get_state());
+        BOOST_LOG_TRIVIAL(trace) << loghdr << "\u001b[36m Stopping Call because of Recorder \u001b[0m Rec last write: " << recorder->since_last_write().count() << "s State: " << format_state(recorder->get_state());
         call->conclude_call();
         // The State of the Recorders has changed, so lets send an update
         ended_call = true;
@@ -311,9 +311,9 @@ void manage_calls(Config &config, std::vector<std::shared_ptr<Call>> &calls) {
       auto recorder = call->get_recorder();
       std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup_display(), call->get_freq());
       if (recorder) {
-        BOOST_LOG_TRIVIAL(trace) << loghdr << "\u001b[36m  Call UPDATEs has been inactive for more than " << config.call_timeout << " Sec \u001b[0m Rec last write: " << recorder->since_last_write() << " State: " << format_state(recorder->get_state());
+        BOOST_LOG_TRIVIAL(trace) << loghdr << "\u001b[36m  Call UPDATEs has been inactive for more than " << config.call_timeout.count() << "s \u001b[0m Rec last write: " << recorder->since_last_write().count() << "s State: " << format_state(recorder->get_state());
       } else {
-        BOOST_LOG_TRIVIAL(trace) << loghdr << "\u001b[36m  Call UPDATEs has been inactive for more than " << config.call_timeout << " Sec \u001b[0m (no recorder)";
+        BOOST_LOG_TRIVIAL(trace) << loghdr << "\u001b[36m  Call UPDATEs has been inactive for more than " << config.call_timeout.count() << "s \u001b[0m (no recorder)";
       }
     }
     ++it;

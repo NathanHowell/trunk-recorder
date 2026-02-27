@@ -8,6 +8,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <chrono>
 #include <time.h>
 
 
@@ -84,7 +85,7 @@ public:
   void switch_tdma(bool phase2);
   void set_tdma_slot(int slot);
   void set_source(long src);
-  double since_last_write();
+  std::chrono::duration<double> since_last_write();
   void process_message_queues();
   double get_current_length();
   void set_enabled(bool enabled);
@@ -102,8 +103,8 @@ public:
 
 protected:
   State state;
-  time_t timestamp;
-  time_t starttime;
+  std::chrono::steady_clock::time_point timestamp;
+  std::chrono::steady_clock::time_point starttime;
   long talkgroup;
   std::string short_name;
   std::shared_ptr<Call> call;

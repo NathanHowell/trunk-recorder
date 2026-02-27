@@ -92,8 +92,8 @@ analog_recorder::analog_recorder(const std::shared_ptr<Source> &src, const std::
   rec_num = rec_counter++;
   state = INACTIVE;
 
-  timestamp = time(nullptr);
-  starttime = time(nullptr);
+  timestamp = std::chrono::steady_clock::now();
+  starttime = std::chrono::steady_clock::now();
 
   bool use_streaming = false;
 
@@ -209,9 +209,8 @@ State analog_recorder::get_state() {
   return wav_sink->get_state();
 }
 
-double analog_recorder::since_last_write() {
-  time_t now = time(nullptr);
-  return now - wav_sink->get_stop_time();
+std::chrono::duration<double> analog_recorder::since_last_write() {
+  return std::chrono::steady_clock::now() - wav_sink->get_stop_time();
 }
 
 int analog_recorder::get_num() {
@@ -299,15 +298,11 @@ std::shared_ptr<Source> analog_recorder::get_source() {
 }
 
 int analog_recorder::lastupdate() {
-  return time(nullptr) - timestamp;
+  return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - timestamp).count();
 }
 
 long analog_recorder::elapsed() {
-  return time(nullptr) - starttime;
-}
-
-time_t analog_recorder::get_start_time() {
-  return starttime;
+  return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - starttime).count();
 }
 
 double analog_recorder::get_current_length() {
@@ -344,7 +339,7 @@ void analog_recorder::setup_decoders_for_system(const std::shared_ptr<System> &s
 }
 
 bool analog_recorder::start(const std::shared_ptr<Call> &call) {
-  starttime = time(nullptr);
+  starttime = std::chrono::steady_clock::now();
   auto system = call->get_system();
   this->call = call;
 

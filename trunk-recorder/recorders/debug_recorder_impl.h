@@ -8,6 +8,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <chrono>
 #include <time.h>
 
 #if GNURADIO_VERSION < 0x030a00
@@ -71,6 +72,7 @@ public:
   double get_freq();
   int get_num();
   double get_current_length();
+  std::chrono::duration<double> since_last_write();
   bool is_active();
   State get_state();
   int lastupdate();
@@ -87,8 +89,8 @@ private:
   double chan_freq;
   double center_freq;
   long talkgroup;
-  time_t timestamp;
-  time_t starttime;
+  std::chrono::steady_clock::time_point timestamp;
+  std::chrono::steady_clock::time_point starttime;
 
   const Config &config;
   std::shared_ptr<Source> source;

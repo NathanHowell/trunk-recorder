@@ -135,8 +135,8 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
     BOOST_LOG_TRIVIAL(info) << "Broadcast Signals: " << config.broadcast_signals;
     config.default_mode = data.value("defaultMode", "digital");
     BOOST_LOG_TRIVIAL(info) << "Default Mode: " << config.default_mode;
-    config.call_timeout = data.value("callTimeout", 3.0);
-    BOOST_LOG_TRIVIAL(info) << "Call Timeout (seconds): " << config.call_timeout;
+    config.call_timeout = std::chrono::duration<double>(data.value("callTimeout", 3.0));
+    BOOST_LOG_TRIVIAL(info) << "Call Timeout (seconds): " << config.call_timeout.count();
     config.control_message_warn_rate = data.value("controlWarnRate", 10);
     BOOST_LOG_TRIVIAL(info) << "Control channel warning rate: " << config.control_message_warn_rate;
     config.control_retune_limit = data.value("controlRetuneLimit", 0);

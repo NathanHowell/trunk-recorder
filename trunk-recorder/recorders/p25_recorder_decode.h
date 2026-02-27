@@ -54,7 +54,7 @@ public:
   void set_xor_mask(const char *mask);
   void switch_tdma(bool phase2_tdma);
   void start(const std::shared_ptr<Call> &call);
-  double since_last_write();
+  std::chrono::duration<double> since_last_write();
   void stop();
   void reset();
   void reset_block(gr::basic_block_sptr block); 

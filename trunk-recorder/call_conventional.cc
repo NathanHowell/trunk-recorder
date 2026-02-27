@@ -16,9 +16,9 @@ void Call_conventional::restart_call() {
   signal = DB_UNSET;
   noise = DB_UNSET;
   curr_src_id = -1;
-  start_time = time(nullptr);
-  stop_time = time(nullptr);
-  last_update = time(nullptr);
+  start_time = std::chrono::system_clock::now();
+  stop_time = std::chrono::system_clock::now();
+  last_update = std::chrono::steady_clock::now();
   state = RECORDING;
   debug_recording = false;
   phase2_tdma = false;
@@ -34,7 +34,8 @@ void Call_conventional::restart_call() {
 
 time_t Call_conventional::get_start_time() {
   // Fixes https://github.com/robotastic/trunk-recorder/issues/103#issuecomment-284825841
-  return start_time = stop_time - final_length;
+  start_time = stop_time - std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::duration<double>(final_length));
+  return std::chrono::system_clock::to_time_t(start_time);
 }
 
 void Call_conventional::set_recorder(const std::shared_ptr<Recorder> &r) {
@@ -43,7 +44,7 @@ void Call_conventional::set_recorder(const std::shared_ptr<Recorder> &r) {
 }
 
 void Call_conventional::recording_started() {
-  start_time = time(nullptr);
+  start_time = std::chrono::system_clock::now();
 }
 
 double Call_conventional::get_squelch_db() {

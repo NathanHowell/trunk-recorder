@@ -4,6 +4,7 @@
 #include "./global_structs.h"
 #include "gr_blocks/decoder_wrapper.h"
 #include <boost/log/trivial.hpp>
+#include <chrono>
 #include <string>
 #include <sys/time.h>
 #include <vector>
@@ -45,9 +46,9 @@ public:
   int get_idle_count();
   void increase_idle_count();
   void reset_idle_count();
-  double since_last_voice_update();
-  int since_last_update();
-  long elapsed();
+  std::chrono::duration<double> since_last_voice_update();
+  std::chrono::duration<double> since_last_update();
+  std::chrono::duration<double> elapsed();
 
   double get_current_length();
   long get_stop_time();
@@ -66,7 +67,7 @@ public:
   bool get_is_analog();
   void set_is_analog(bool a);
   const char *get_xor_mask();
-  virtual time_t get_start_time() { return start_time; }
+  virtual time_t get_start_time() { return std::chrono::system_clock::to_time_t(start_time); }
   bool is_conventional() { return false; }
   void set_encrypted(bool m);
   bool get_encrypted();
@@ -109,10 +110,10 @@ protected:
   long curr_src_id;
   long error_list_count;
   long freq_count;
-  time_t last_update;
+  std::chrono::steady_clock::time_point last_update;
   int idle_count;
-  time_t stop_time;
-  time_t start_time;
+  std::chrono::system_clock::time_point stop_time;
+  std::chrono::system_clock::time_point start_time;
   bool debug_recording;
   bool sigmf_recording;
   bool was_update;

@@ -43,8 +43,8 @@ sigmf_recorder_impl::sigmf_recorder_impl(const std::shared_ptr<Source> &src, Rec
 
   // double symbol_rate         = 4800;
 
-  timestamp = time(nullptr);
-  starttime = time(nullptr);
+  timestamp = std::chrono::steady_clock::now();
+  starttime = std::chrono::steady_clock::now();
 
 
 
@@ -97,12 +97,16 @@ double sigmf_recorder_impl::get_current_length() {
   return 0;
 }
 
+std::chrono::duration<double> sigmf_recorder_impl::since_last_write() {
+  return std::chrono::duration<double>::zero(); // sigmf recorders write continuously and never time out
+}
+
 int sigmf_recorder_impl::lastupdate() {
-  return time(nullptr) - timestamp;
+  return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - timestamp).count();
 }
 
 long sigmf_recorder_impl::elapsed() {
-  return time(nullptr) - starttime;
+  return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - starttime).count();
 }
 /*
 void sigmf_recorder_impl::tune_offset(double f) {
@@ -131,10 +135,11 @@ void sigmf_recorder_impl::stop() {
 
 bool sigmf_recorder_impl::start(const std::shared_ptr<Call> &call) {
   if (state == INACTIVE) {
-    timestamp = time(nullptr);
-    starttime = time(nullptr);
+    timestamp = std::chrono::steady_clock::now();
+    starttime = std::chrono::steady_clock::now();
     int nchars;
-    tm *ltm = localtime(&starttime);
+    time_t wall_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    tm *ltm = localtime(&wall_time);
     this->call = call;
     auto system = call->get_system();
     talkgroup = call->get_talkgroup();
@@ -154,7 +159,7 @@ bool sigmf_recorder_impl::start(const std::shared_ptr<Call> &call) {
     std::string path_string = path_stream.str();
     std::filesystem::create_directories(path_string);
 
-    nchars = snprintf(filename, 255, "%s/%ld-%ld_%.0f-call_%lu.sigmf-data", path_string.c_str(), talkgroup, starttime, call->get_freq(), call->get_call_num());
+    nchars = snprintf(filename, 255, "%s/%ld-%ld_%.0f-call_%lu.sigmf-data", path_string.c_str(), talkgroup, (long)wall_time, call->get_freq(), call->get_call_num());
     if (nchars >= 255) {
       BOOST_LOG_TRIVIAL(error) << "SigMF-meta: Path longer than 255 charecters";
     }
