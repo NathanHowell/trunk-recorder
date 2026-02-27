@@ -2,7 +2,6 @@
 #include "call.h"
 #include "event_sink.h"
 #include "formatter.h"
-#include "recorder_globals.h"
 #include "recorders/recorder.h"
 #include "source.h"
 #include <boost/algorithm/string.hpp>
@@ -42,7 +41,6 @@ Call_impl::Call_impl(long t, double f, System *s, Config c) {
   monitoringState = UNSPECIFIED;
   debug_recording = false;
   sigmf_recording = false;
-  recorder = NULL;
   phase2_tdma = false;
   tdma_slot = 0;
   encrypted = false;
@@ -75,7 +73,6 @@ Call_impl::Call_impl(TrunkMessage message, System *s, Config c) {
   monitoringState = UNSPECIFIED;
   debug_recording = false;
   sigmf_recording = false;
-  recorder = NULL;
   phase2_tdma = message.phase2_tdma;
   tdma_slot = message.tdma_slot;
   encrypted = message.encrypted;
@@ -103,7 +100,7 @@ void Call_impl::restart_call() {
 
 void Call_impl::stop_call() {
 
-  if (this->get_recorder() != NULL) {
+  if (this->get_recorder()) {
     // If the call is being recorded, check to see if the recorder is currently in an INACTIVE state. This means that the recorder is not
     // doing anything and can be stopped.
     if ((state == RECORDING) && this->get_recorder()->is_idle()) {
@@ -126,52 +123,50 @@ void Call_impl::conclude_call() {
     } else {
       final_length = recorder->get_current_length();
 
-    }
-
-
-    if (this->is_conventional()) {
-      // Update the signal and noise levels for the call
-      // the squelch could be open if the program is being forced to stop
-      if (this->get_recorder()->is_idle()) {
-        this->set_noise(this->get_recorder()->get_pwr());
+      if (this->is_conventional()) {
+        // Update the signal and noise levels for the call
+        // the squelch could be open if the program is being forced to stop
+        if (recorder->is_idle()) {
+          this->set_noise(recorder->get_pwr());
+        } else {
+          this->set_signal(recorder->get_pwr());
+        }
+          std::string loghdr = log_header( sys->get_short_name(), this->get_call_num(), this->get_talkgroup_display(), this->get_freq());
+          BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[33mConcluding Recorded Call\u001b[0m - Last Update: " << this->since_last_update() << "s\tRecorder last write:" << recorder->since_last_write() << "\tCall Elapsed: " << this->elapsed() << "\t Signal: " << floor(this->get_signal()) << "dBm\t Noise: " << floor(this->get_noise()) << "dBm";
       } else {
-        this->set_signal(this->get_recorder()->get_pwr());
+          std::string loghdr = log_header( sys->get_short_name(), this->get_call_num(), this->get_talkgroup_display(), this->get_freq());
+          BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[33mConcluding Recorded Call\u001b[0m - Last Update: " << this->since_last_update() << "s\tRecorder last write:" << recorder->since_last_write() << "\tCall Elapsed: " << this->elapsed();
       }
+      if (was_update) {
         std::string loghdr = log_header( sys->get_short_name(), this->get_call_num(), this->get_talkgroup_display(), this->get_freq());
-        BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[33mConcluding Recorded Call\u001b[0m - Last Update: " << this->since_last_update() << "s\tRecorder last write:" << recorder->since_last_write() << "\tCall Elapsed: " << this->elapsed() << "\t Signal: " << floor(this->get_signal()) << "dBm\t Noise: " << floor(this->get_noise()) << "dBm";
-    } else {
-        std::string loghdr = log_header( sys->get_short_name(), this->get_call_num(), this->get_talkgroup_display(), this->get_freq());
-        BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[33mConcluding Recorded Call\u001b[0m - Last Update: " << this->since_last_update() << "s\tRecorder last write:" << recorder->since_last_write() << "\tCall Elapsed: " << this->elapsed();
-    }
-    if (was_update) {
-      std::string loghdr = log_header( sys->get_short_name(), this->get_call_num(), this->get_talkgroup_display(), this->get_freq());
-      BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[33mCall was UPDATE not GRANT\u001b[0m";
-    }
-    freq_error = this->get_recorder()->get_freq_error();
-    this->get_recorder()->stop();
+        BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[33mCall was UPDATE not GRANT\u001b[0m";
+      }
+      freq_error = recorder->get_freq_error();
+      recorder->stop();
 
-    if (this->get_sigmf_recording() == true) {
-      this->get_sigmf_recorder()->stop();
-    }
+      if (this->get_sigmf_recording() == true && sigmf_recorder) {
+        sigmf_recorder->stop();
+      }
 
-    if (this->get_debug_recording() == true) {
-      this->get_debug_recorder()->stop();
-    }
+      if (this->get_debug_recording() == true && debug_recorder) {
+        debug_recorder->stop();
+      }
 
-    if (this->sys->get_system_type() == "conventionalDMR") {
-      dmr_recorder *recorder = dynamic_cast<dmr_recorder *>(this->get_recorder());
-      // Conventional DMR is recorded on two slots, so we need to conclude the call for each slot
-      transmission_list = recorder->get_transmission_list(0);
-      tdma_slot = 0;
-      config.event_sink->conclude_call(this, sys, config);
-      transmission_list = recorder->get_transmission_list(1);
-      tdma_slot = 1;
-      config.event_sink->conclude_call(this, sys, config);
-    } else {
-      // All other system types do not have multiple recorders
-      transmission_list = this->get_recorder()->get_transmission_list();
-      config.event_sink->conclude_call(this, sys, config);
-   }
+      if (this->sys->get_system_type() == "conventionalDMR") {
+        auto dmr_rec = std::dynamic_pointer_cast<dmr_recorder>(recorder);
+        // Conventional DMR is recorded on two slots, so we need to conclude the call for each slot
+        transmission_list = dmr_rec->get_transmission_list(0);
+        tdma_slot = 0;
+        config.event_sink->conclude_call(this, sys, config);
+        transmission_list = dmr_rec->get_transmission_list(1);
+        tdma_slot = 1;
+        config.event_sink->conclude_call(this, sys, config);
+      } else {
+        // All other system types do not have multiple recorders
+        transmission_list = recorder->get_transmission_list();
+        config.event_sink->conclude_call(this, sys, config);
+      }
+    }
 
   } else if (state == MONITORING) {
     // Monitored-only calls (encrypted, no source, etc.) never got a recorder,
@@ -179,27 +174,27 @@ void Call_impl::conclude_call() {
     config.event_sink->conclude_call(this, sys, config);
   }
 }
-void Call_impl::set_sigmf_recorder(Recorder *r) {
+void Call_impl::set_sigmf_recorder(const std::shared_ptr<Recorder> &r) {
   sigmf_recorder = r;
 }
 
-Recorder *Call_impl::get_sigmf_recorder() {
+std::shared_ptr<Recorder> Call_impl::get_sigmf_recorder() {
   return sigmf_recorder;
 }
 
-void Call_impl::set_debug_recorder(Recorder *r) {
+void Call_impl::set_debug_recorder(const std::shared_ptr<Recorder> &r) {
   debug_recorder = r;
 }
 
-Recorder *Call_impl::get_debug_recorder() {
+std::shared_ptr<Recorder> Call_impl::get_debug_recorder() {
   return debug_recorder;
 }
 
-void Call_impl::set_recorder(Recorder *r) {
+void Call_impl::set_recorder(const std::shared_ptr<Recorder> &r) {
   recorder = r;
 }
 
-Recorder *Call_impl::get_recorder() {
+std::shared_ptr<Recorder> Call_impl::get_recorder() {
   return recorder;
 }
 
@@ -377,8 +372,8 @@ bool Call_impl::add_source(long src) {
   curr_src_id = src;
 
   if (state == RECORDING) {
-    Recorder *rec = this->get_recorder();
-    if (rec != NULL) {
+    auto rec = this->get_recorder();
+    if (rec) {
       rec->set_source(src);
     }
   }
@@ -405,8 +400,8 @@ int Call_impl::since_last_update() {
 
 double Call_impl::since_last_voice_update() {
   if (state == RECORDING) {
-    Recorder *rec = this->get_recorder();
-    if (rec != NULL) {
+    auto rec = this->get_recorder();
+    if (rec) {
       return rec->since_last_write();
     }
   }
@@ -505,7 +500,7 @@ boost::property_tree::ptree Call_impl::get_stats() {
   call_node.put("stopTime", this->get_stop_time());
   call_node.put("srcId", this->get_current_source_id());
 
-  Recorder *recorder = this->get_recorder();
+  auto recorder = this->get_recorder();
 
   if (recorder) {
     call_node.put("recNum", recorder->get_num());

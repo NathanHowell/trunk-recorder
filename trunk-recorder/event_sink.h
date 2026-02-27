@@ -2,6 +2,7 @@
 #define EVENT_SINK_H
 
 #include <cstdint>
+#include <memory>
 #include <vector>
 
 #include "global_structs.h"
@@ -28,7 +29,7 @@ public:
   virtual void call_start(Call *call) = 0;
   virtual void conclude_call(Call *call, System *sys, Config config) = 0;
   virtual void calls_active(std::vector<Call *> calls) = 0;
-  virtual void setup_recorder(Recorder *recorder) = 0;
+  virtual void setup_recorder(const std::shared_ptr<Recorder> &recorder) = 0;
   virtual void setup_system(System *system) = 0;
   virtual void setup_config(std::vector<Source *> sources,
                             std::vector<System *> systems) = 0;

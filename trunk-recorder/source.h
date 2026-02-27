@@ -132,7 +132,7 @@ public:
   int get_num_available_analog_recorders();
   int get_num_available_digital_recorders();
   void set_signal_detector_threshold(float t);
-  std::vector<Recorder *> find_conventional_recorders_by_freq(Detected_Signal ds);
+  std::vector<std::shared_ptr<Recorder>> find_conventional_recorders_by_freq(Detected_Signal ds);
   void enable_detected_recorders();
   void set_selector_port_enabled(unsigned int port, bool enabled);
   bool is_selector_port_enabled(unsigned int port);
@@ -147,13 +147,13 @@ public:
   p25_recorder_sptr create_digital_conventional_recorder(gr::top_block_sptr tb);
   dmr_recorder_sptr create_dmr_conventional_recorder(gr::top_block_sptr tb);
 
-  Recorder *get_digital_recorder(Call *call);
-  Recorder *get_digital_recorder(const std::shared_ptr<Talkgroup> &talkgroup, int priority, Call *call);
-  Recorder *get_analog_recorder(Call *call);
-  Recorder *get_analog_recorder(const std::shared_ptr<Talkgroup> &talkgroup, int priority, Call *call);
-  Recorder *get_debug_recorder();
-  Recorder *get_sigmf_recorder();
-  std::vector<Recorder *> get_recorders();
+  std::shared_ptr<Recorder> get_digital_recorder(Call *call);
+  std::shared_ptr<Recorder> get_digital_recorder(const std::shared_ptr<Talkgroup> &talkgroup, int priority, Call *call);
+  std::shared_ptr<Recorder> get_analog_recorder(Call *call);
+  std::shared_ptr<Recorder> get_analog_recorder(const std::shared_ptr<Talkgroup> &talkgroup, int priority, Call *call);
+  std::shared_ptr<Recorder> get_debug_recorder();
+  std::shared_ptr<Recorder> get_sigmf_recorder();
+  std::vector<std::shared_ptr<Recorder>> get_recorders();
 
   std::unique_ptr<AutotuneManager> autotune_manager;
   void set_autotune_source(bool m);

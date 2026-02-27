@@ -34,7 +34,7 @@ time_t Call_conventional::get_start_time() {
   return start_time = stop_time - final_length;
 }
 
-void Call_conventional::set_recorder(Recorder *r) {
+void Call_conventional::set_recorder(const std::shared_ptr<Recorder> &r) {
   recorder = r;
   BOOST_LOG_TRIVIAL(info) << "[" << sys->get_short_name() << "]\tTG: " << this->get_talkgroup_display() << "\tFreq: " << format_freq(this->get_freq());
 }

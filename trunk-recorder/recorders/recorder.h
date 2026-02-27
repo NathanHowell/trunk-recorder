@@ -101,4 +101,6 @@ protected:
   int autotune_offset = 0;
 };
 
+typedef std::shared_ptr<Recorder> Recorder_sptr;
+
 #endif

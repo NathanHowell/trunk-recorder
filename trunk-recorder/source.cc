@@ -432,35 +432,26 @@ bool Source::get_autotune_source() {
 
 /* -- Recorders -- */
 
-std::vector<Recorder *> Source::find_conventional_recorders_by_freq(Detected_Signal signal) {
+std::vector<std::shared_ptr<Recorder>> Source::find_conventional_recorders_by_freq(Detected_Signal signal) {
   double freq = center + signal.center_freq;
 
-  std::vector<Recorder *> recorders;
+  std::vector<std::shared_ptr<Recorder>> recorders;
   long max_freq_diff = 12500;
-  for (std::vector<p25_recorder_sptr>::iterator it = digital_conv_recorders.begin(); it != digital_conv_recorders.end(); it++) {
-    p25_recorder_sptr rx = *it;
-    double recorder_freq = rx->get_freq();
-
-    if (std::abs(freq - recorder_freq) < max_freq_diff) {
-      recorders.push_back((Recorder *)rx.get());
+  for (auto &rx : digital_conv_recorders) {
+    if (std::abs(freq - rx->get_freq()) < max_freq_diff) {
+      recorders.push_back(rx);
     }
   }
 
-  for (std::vector<dmr_recorder_sptr>::iterator it = dmr_conv_recorders.begin(); it != dmr_conv_recorders.end(); it++) {
-    dmr_recorder_sptr rx = *it;
-    double recorder_freq = rx->get_freq();
-
-    if (std::abs(freq - recorder_freq) < max_freq_diff) {
-      recorders.push_back((Recorder *)rx.get());
+  for (auto &rx : dmr_conv_recorders) {
+    if (std::abs(freq - rx->get_freq()) < max_freq_diff) {
+      recorders.push_back(rx);
     }
   }
 
-  for (std::vector<analog_recorder_sptr>::iterator it = analog_conv_recorders.begin(); it != analog_conv_recorders.end(); it++) {
-    analog_recorder_sptr rx = *it;
-    double recorder_freq = rx->get_freq();
-
-    if (std::abs(freq - recorder_freq) < max_freq_diff) {
-      recorders.push_back((Recorder *)rx.get());
+  for (auto &rx : analog_conv_recorders) {
+    if (std::abs(freq - rx->get_freq()) < max_freq_diff) {
+      recorders.push_back(rx);
     }
   }
 
@@ -476,9 +467,8 @@ void Source::enable_detected_recorders() {
     float rssi = signal.max_rssi;
     float threshold = signal.threshold;
 
-    std::vector<Recorder *> recorders = find_conventional_recorders_by_freq(signal);
-    for (std::vector<Recorder *>::iterator it = recorders.begin(); it != recorders.end(); it++) {
-      Recorder *recorder = *it;
+    auto recorders = find_conventional_recorders_by_freq(signal);
+    for (auto &recorder : recorders) {
       if (!recorder->is_enabled()) {
         recorder->set_enabled(true);
         BOOST_LOG_TRIVIAL(info) << "\t[ " << recorder->get_num() << " ] " << recorder->get_type_string() << "\tEnabled - Freq: " << format_freq(recorder->get_freq()) << "\t Detected Signal: " << floor(rssi) << "dBM (Threshold: " << floor(threshold) << "dBM)";
@@ -614,43 +604,38 @@ void Source::create_debug_recorder(gr::top_block_sptr tb, int source_num) {
   tb->connect(source_block, 0, log, 0);
 }
 
-Recorder *Source::get_analog_recorder(const std::shared_ptr<Talkgroup> &talkgroup, int priority, Call *call) {
+std::shared_ptr<Recorder> Source::get_analog_recorder(const std::shared_ptr<Talkgroup> &talkgroup, int priority, Call *call) {
   int num_available_recorders = get_num_available_analog_recorders();
   std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup_display(), call->get_freq());
   if (talkgroup && (priority == -1)) {
     call->set_state(MONITORING);
     call->set_monitoring_state(IGNORED_TG);
     BOOST_LOG_TRIVIAL(info) << loghdr << "Not recording talkgroup - Priority is -1 (Disabled).";
-    return NULL;
+    return nullptr;
   }
 
   if (talkgroup && priority > num_available_recorders) { // a high priority is bad. You need at least the number of availalbe recorders to your priority
     call->set_state(MONITORING);
     call->set_monitoring_state(NO_RECORDER);
     BOOST_LOG_TRIVIAL(error) << loghdr << "Not recording talkgroup. Priority is " << priority << " but only " << num_available_recorders << " recorders are available.";
-    return NULL;
+    return nullptr;
   }
 
   return get_analog_recorder(call);
 }
 
-Recorder *Source::get_analog_recorder(Call *call) {
-  for (std::vector<analog_recorder_sptr>::iterator it = analog_recorders.begin();
-       it != analog_recorders.end(); it++) {
-    analog_recorder_sptr rx = *it;
-
+std::shared_ptr<Recorder> Source::get_analog_recorder(Call *call) {
+  for (auto &rx : analog_recorders) {
     if (rx->get_state() == AVAILABLE) {
-      return (Recorder *)rx.get();
-
-      break;
+      return rx;
     }
   }
   std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup_display(), call->get_freq());
   BOOST_LOG_TRIVIAL(error) << loghdr << "[ " << device << " ] No Analog Recorders Available.";
-  return NULL;
+  return nullptr;
 }
 
-Recorder *Source::get_digital_recorder(const std::shared_ptr<Talkgroup> &talkgroup, int priority, Call *call) {
+std::shared_ptr<Recorder> Source::get_digital_recorder(const std::shared_ptr<Talkgroup> &talkgroup, int priority, Call *call) {
   int num_available_recorders = get_num_available_digital_recorders();
   std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup_display(), call->get_freq());
 
@@ -658,71 +643,54 @@ Recorder *Source::get_digital_recorder(const std::shared_ptr<Talkgroup> &talkgro
     call->set_state(MONITORING);
     call->set_monitoring_state(IGNORED_TG);
     BOOST_LOG_TRIVIAL(info) << loghdr << "Not recording talkgroup - Priority is -1 (Disabled).";
-    return NULL;
+    return nullptr;
   }
 
   if (talkgroup && priority > num_available_recorders) { // a high priority is bad. You need at least the number of availalbe recorders to your priority
     call->set_state(MONITORING);
     call->set_monitoring_state(NO_RECORDER);
     BOOST_LOG_TRIVIAL(error) << loghdr << "Not recording talkgroup. Priority is " << priority << " but only " << num_available_recorders << " recorders are available.";
-    return NULL;
+    return nullptr;
   }
 
   return get_digital_recorder(call);
 }
 
-Recorder *Source::get_digital_recorder(Call *call) {
-  for (std::vector<p25_recorder_sptr>::iterator it = digital_recorders.begin();
-       it != digital_recorders.end(); it++) {
-    p25_recorder_sptr rx = *it;
-
+std::shared_ptr<Recorder> Source::get_digital_recorder(Call *call) {
+  for (auto &rx : digital_recorders) {
     if (rx->get_state() == AVAILABLE) {
-      return (Recorder *)rx.get();
-
-      break;
+      return rx;
     }
   }
   std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup_display(), call->get_freq());
   BOOST_LOG_TRIVIAL(error) << loghdr << "[ " << device << " ] No Digital Recorders Available.";
 
-  for (std::vector<p25_recorder_sptr>::iterator it = digital_recorders.begin();
-       it != digital_recorders.end(); it++) {
-    p25_recorder_sptr rx = *it;
+  for (auto &rx : digital_recorders) {
     BOOST_LOG_TRIVIAL(info) << "[ " << rx->get_num() << " ] State: " << format_state(rx->get_state()) << " Freq: " << rx->get_freq();
   }
-  return NULL;
+  return nullptr;
 }
 
-Recorder *Source::get_debug_recorder() {
-  for (std::vector<debug_recorder_sptr>::iterator it = debug_recorders.begin();
-       it != debug_recorders.end(); it++) {
-    debug_recorder_sptr rx = *it;
-
+std::shared_ptr<Recorder> Source::get_debug_recorder() {
+  for (auto &rx : debug_recorders) {
     if (rx->get_state() == INACTIVE) {
-      return (Recorder *)rx.get();
-
-      break;
+      return rx;
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 int Source::get_debug_recorder_port() {
   return debug_recorder_port;
 }
 
-Recorder *Source::get_sigmf_recorder() {
-  for (std::vector<sigmf_recorder_sptr>::iterator it = sigmf_recorders.begin();
-       it != sigmf_recorders.end(); it++) {
-    sigmf_recorder_sptr rx = *it;
-
+std::shared_ptr<Recorder> Source::get_sigmf_recorder() {
+  for (auto &rx : sigmf_recorders) {
     if (rx->get_state() == INACTIVE) {
-      return (Recorder *)rx.get();
-
-      break;
+      return rx;
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 void Source::print_recorders() {
@@ -813,43 +781,17 @@ int Source::get_num_available_analog_recorders() {
   return num_available_recorders;
 }
 
-std::vector<Recorder *> Source::get_recorders() {
+std::vector<std::shared_ptr<Recorder>> Source::get_recorders() {
 
-  std::vector<Recorder *> recorders;
+  std::vector<std::shared_ptr<Recorder>> recorders;
 
-  for (std::vector<p25_recorder_sptr>::iterator it = digital_recorders.begin(); it != digital_recorders.end(); it++) {
-    p25_recorder_sptr rx = *it;
-    recorders.push_back((Recorder *)rx.get());
-  }
+  for (auto &rx : digital_recorders) recorders.push_back(rx);
+  for (auto &rx : digital_conv_recorders) recorders.push_back(rx);
+  for (auto &rx : dmr_conv_recorders) recorders.push_back(rx);
+  for (auto &rx : analog_recorders) recorders.push_back(rx);
+  for (auto &rx : analog_conv_recorders) recorders.push_back(rx);
+  for (auto &rx : debug_recorders) recorders.push_back(rx);
+  for (auto &rx : sigmf_recorders) recorders.push_back(rx);
 
-  for (std::vector<p25_recorder_sptr>::iterator it = digital_conv_recorders.begin(); it != digital_conv_recorders.end(); it++) {
-    p25_recorder_sptr rx = *it;
-    recorders.push_back((Recorder *)rx.get());
-  }
-
-  for (std::vector<dmr_recorder_sptr>::iterator it = dmr_conv_recorders.begin(); it != dmr_conv_recorders.end(); it++) {
-    dmr_recorder_sptr rx = *it;
-    recorders.push_back((Recorder *)rx.get());
-  }
-
-  for (std::vector<analog_recorder_sptr>::iterator it = analog_recorders.begin(); it != analog_recorders.end(); it++) {
-    analog_recorder_sptr rx = *it;
-    recorders.push_back((Recorder *)rx.get());
-  }
-
-  for (std::vector<analog_recorder_sptr>::iterator it = analog_conv_recorders.begin(); it != analog_conv_recorders.end(); it++) {
-    analog_recorder_sptr rx = *it;
-    recorders.push_back((Recorder *)rx.get());
-  }
-
-  for (std::vector<debug_recorder_sptr>::iterator it = debug_recorders.begin(); it != debug_recorders.end(); it++) {
-    debug_recorder_sptr rx = *it;
-    recorders.push_back((Recorder *)rx.get());
-  }
-
-  for (std::vector<sigmf_recorder_sptr>::iterator it = sigmf_recorders.begin(); it != sigmf_recorders.end(); it++) {
-    sigmf_recorder_sptr rx = *it;
-    recorders.push_back((Recorder *)rx.get());
-  }
   return recorders;
 }

@@ -28,12 +28,12 @@ public:
   virtual void restart_call();
   void stop_call();
   void conclude_call();
-  void set_sigmf_recorder(Recorder *r);
-  Recorder *get_sigmf_recorder();
-  void set_debug_recorder(Recorder *r);
-  Recorder *get_debug_recorder();
-  virtual void set_recorder(Recorder *r);
-  Recorder *get_recorder();
+  void set_sigmf_recorder(const std::shared_ptr<Recorder> &r);
+  std::shared_ptr<Recorder> get_sigmf_recorder();
+  void set_debug_recorder(const std::shared_ptr<Recorder> &r);
+  std::shared_ptr<Recorder> get_debug_recorder();
+  virtual void set_recorder(const std::shared_ptr<Recorder> &r);
+  std::shared_ptr<Recorder> get_recorder();
   double get_freq();
   int get_sys_num();
   std::string get_short_name();
@@ -134,9 +134,9 @@ protected:
   double final_length;
 
   Config config;
-  Recorder *recorder;
-  Recorder *debug_recorder;
-  Recorder *sigmf_recorder;
+  std::shared_ptr<Recorder> recorder;
+  std::shared_ptr<Recorder> debug_recorder;
+  std::shared_ptr<Recorder> sigmf_recorder;
   bool add_source(long src);
   std::string talkgroup_display;
   std::string talkgroup_tag;

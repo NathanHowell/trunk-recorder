@@ -5,6 +5,7 @@
 #include <boost/log/trivial.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
+#include <memory>
 #include <string>
 #include <sys/time.h>
 #include <vector>
@@ -25,12 +26,12 @@ public:
   virtual void restart_call() = 0;
   virtual void stop_call() = 0;
   virtual void conclude_call() = 0;
-  virtual void set_sigmf_recorder(Recorder *r) = 0;
-  virtual Recorder *get_sigmf_recorder() = 0;
-  virtual void set_debug_recorder(Recorder *r) = 0;
-  virtual Recorder *get_debug_recorder() = 0;
-  virtual void set_recorder(Recorder *r) = 0;
-  virtual Recorder *get_recorder() = 0;
+  virtual void set_sigmf_recorder(const std::shared_ptr<Recorder> &r) = 0;
+  virtual std::shared_ptr<Recorder> get_sigmf_recorder() = 0;
+  virtual void set_debug_recorder(const std::shared_ptr<Recorder> &r) = 0;
+  virtual std::shared_ptr<Recorder> get_debug_recorder() = 0;
+  virtual void set_recorder(const std::shared_ptr<Recorder> &r) = 0;
+  virtual std::shared_ptr<Recorder> get_recorder() = 0;
   virtual double get_freq() = 0;
   virtual int get_sys_num() = 0;
   virtual std::string get_short_name() = 0;

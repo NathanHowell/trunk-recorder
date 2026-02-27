@@ -14,7 +14,7 @@ public:
   time_t get_start_time();
   bool is_conventional() { return true; }
   void restart_call();
-  void set_recorder(Recorder *r);
+  void set_recorder(const std::shared_ptr<Recorder> &r);
   void recording_started();
   double get_squelch_db();
   bool get_signal_detection();

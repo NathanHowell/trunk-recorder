@@ -22,9 +22,9 @@ bool start_recorder(Call *call, TrunkMessage message, Config &config, System *sy
   bool recorder_found = false;
   bool override_record_unknown = false;
 
-  Recorder *recorder;
-  Recorder *debug_recorder;
-  Recorder *sigmf_recorder;
+  std::shared_ptr<Recorder> recorder;
+  std::shared_ptr<Recorder> debug_recorder;
+  std::shared_ptr<Recorder> sigmf_recorder;
 
   if (!talkgroup){
     for (auto &TGID : sys->get_talkgroup_patch(call->get_talkgroup())) {  //for each talkgroup in the patch
@@ -179,7 +179,7 @@ void print_status(std::vector<Source *> &sources, std::vector<System *> &systems
 
   for (vector<Call *>::iterator it = calls.begin(); it != calls.end(); it++) {
     Call *call = *it;
-    Recorder *recorder = call->get_recorder();
+    auto recorder = call->get_recorder();
     std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup_display(), call->get_freq());
     if (call->get_state() == MONITORING) {
       BOOST_LOG_TRIVIAL(info) << loghdr << "Elapsed: " << std::setw(4) << call->elapsed() << " State: " << format_state(call->get_state(), call->get_monitoring_state());
@@ -250,25 +250,25 @@ void manage_conventional_call(Call *call, Config &config) {
 
       // if no additional recording has happened in the past X periods, stop and open new file
       if (call->get_idle_count() > config.call_timeout) {
-        Recorder *recorder = call->get_recorder();
+        auto recorder = call->get_recorder();
         call->conclude_call();
         call->restart_call();
-        if (recorder != NULL) {
+        if (recorder) {
           config.event_sink->setup_recorder(recorder);
           config.event_sink->call_start(call);
         }
       } else if ((call->get_current_length() > call->get_system()->get_max_duration()) && (call->get_system()->get_max_duration() > 0)) {
-        Recorder *recorder = call->get_recorder();
+        auto recorder = call->get_recorder();
         call->conclude_call();
         call->restart_call();
-        if (recorder != NULL) {
+        if (recorder) {
           config.event_sink->setup_recorder(recorder);
           config.event_sink->call_start(call);
         }
       }
     } else if (!call->get_recorder()->is_active()) {
       // P25 Conventional and DMR Recorders need a have the graph unlocked before they can start recording.
-      Recorder *recorder = call->get_recorder();
+      auto recorder = call->get_recorder();
       recorder->start(call);
       call->set_state(RECORDING);
       config.event_sink->call_start(call);
@@ -300,7 +300,7 @@ void manage_calls(Config &config, std::vector<Call *> &calls) {
     }
 
     if (state == RECORDING) {
-      Recorder *recorder = call->get_recorder();
+      auto recorder = call->get_recorder();
 
       // Stop the call if:
       // - there hasn't been an UPDATE for it on the Control Channel in X seconds AND the recorder hasn't written anything in X seconds
@@ -311,7 +311,7 @@ void manage_calls(Config &config, std::vector<Call *> &calls) {
         call->conclude_call();
         // The State of the Recorders has changed, so lets send an update
         ended_call = true;
-        if (recorder != NULL) {
+        if (recorder) {
           config.event_sink->setup_recorder(recorder);
         }
         it = calls.erase(it);
@@ -319,9 +319,13 @@ void manage_calls(Config &config, std::vector<Call *> &calls) {
         continue;
       }
     } else if (call->since_last_update() > config.call_timeout) {
-      Recorder *recorder = call->get_recorder();
+      auto recorder = call->get_recorder();
       std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup_display(), call->get_freq());
-      BOOST_LOG_TRIVIAL(trace) << loghdr << "\u001b[36m  Call UPDATEs has been inactive for more than " << config.call_timeout << " Sec \u001b[0m Rec last write: " << recorder->since_last_write() << " State: " << format_state(recorder->get_state());
+      if (recorder) {
+        BOOST_LOG_TRIVIAL(trace) << loghdr << "\u001b[36m  Call UPDATEs has been inactive for more than " << config.call_timeout << " Sec \u001b[0m Rec last write: " << recorder->since_last_write() << " State: " << format_state(recorder->get_state());
+      } else {
+        BOOST_LOG_TRIVIAL(trace) << loghdr << "\u001b[36m  Call UPDATEs has been inactive for more than " << config.call_timeout << " Sec \u001b[0m (no recorder)";
+      }
     }
     ++it;
   } // foreach loggers
@@ -475,9 +479,9 @@ void handle_call_grant(TrunkMessage message, System *sys, bool grant_message, Co
     // There is an existing call on freq and slot that the new call will be started on. We should stop the older call. The older recorder will
     // keep writing to the file until it hits a termination flag, so no packets should be dropped.
     if ((call->get_state() == RECORDING) && (call->get_talkgroup() != message.talkgroup) && (call->get_sys_num() == message.sys_num) && (call->get_freq() == message.freq) && (call->get_tdma_slot() == message.tdma_slot) && (call->get_phase2_tdma() == message.phase2_tdma)) {
-      Recorder *recorder = call->get_recorder();
+      auto recorder = call->get_recorder();
       string recorder_state = "UNKNOWN";
-      if (recorder != NULL) {
+      if (recorder) {
         recorder_state = format_state(recorder->get_state());
       }
       std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup_display(), call->get_freq());
@@ -827,9 +831,9 @@ void process_recorder_message_queues(std::vector<Call *> &calls) {
   for (vector<Call *>::iterator it = calls.begin(); it != calls.end(); ++it) {
     Call *call = *it;
     if (call->get_state() == RECORDING) {
-      Recorder *recorder = call->get_recorder();
+      auto recorder = call->get_recorder();
       if (recorder && (recorder->get_type() == P25 || recorder->get_type() == P25C)) {
-        p25_recorder *p25_rec = dynamic_cast<p25_recorder *>(recorder);
+        auto p25_rec = std::dynamic_pointer_cast<p25_recorder>(recorder);
         // Verify recorder status as conventionals calls may be in a RECORDING:IDLE state
         if (p25_rec && (p25_rec->is_active())) {
           p25_rec->process_message_queues();
@@ -862,6 +866,10 @@ int monitor_messages(TrunkContext &ctx) {
 
   signal(SIGINT, exit_interupt);
 
+  if (systems.empty()) {
+    BOOST_LOG_TRIVIAL(error) << "No systems configured, cannot start monitoring.";
+    return 1;
+  }
   smartnet_parser = new SmartnetParser(systems.front()); // this has to eventually be generic;
   p25_parser = new P25Parser();
 

@@ -45,11 +45,11 @@ bool setup_conventional_channel(System *system, double frequency, long channel_i
         rec->start(call);
         rec->set_tau(system->get_tau()); //set the tau value for the recorder from the system config
         call->set_is_analog(true);
-        call->set_recorder((Recorder *)rec.get());
+        call->set_recorder(rec);
         call->set_state(RECORDING);
         system->add_conventional_recorder(rec);
         calls.push_back(call);
-        config.event_sink->setup_recorder((Recorder *)rec.get());
+        config.event_sink->setup_recorder(rec);
         config.event_sink->call_start(call);
       } else if (system->get_system_type() == "conventionalDMR") {
         // Because of dynamic mod assignment we can not start the recorder until the graph has been unlocked.
@@ -57,7 +57,7 @@ bool setup_conventional_channel(System *system, double frequency, long channel_i
         // the manage_conventional_calls() function handles adding and starting the P25 Recorder
         dmr_recorder_sptr rec;
         rec = source->create_dmr_conventional_recorder(tb);
-        call->set_recorder((Recorder *)rec.get());
+        call->set_recorder(rec);
         system->add_conventionalDMR_recorder(rec);
         calls.push_back(call);
       } else if (system->get_system_type() == "conventionalP25") { // has to be "conventional P25"
@@ -66,13 +66,13 @@ bool setup_conventional_channel(System *system, double frequency, long channel_i
         // the manage_conventional_calls() function handles adding and starting the P25 Recorder
         p25_recorder_sptr rec;
         rec = source->create_digital_conventional_recorder(tb);
-        call->set_recorder((Recorder *)rec.get());
+        call->set_recorder(rec);
         system->add_conventionalP25_recorder(rec);
         calls.push_back(call);
       } else if (system->get_system_type() == "conventionalSIGMF") {
         sigmf_recorder_sptr rec;
         rec = source->create_sigmf_conventional_recorder(tb);
-        call->set_recorder((Recorder *)rec.get());
+        call->set_recorder(rec);
         system->add_conventionalSIGMF_recorder(rec);
         calls.push_back(call);
       } else {

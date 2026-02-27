@@ -4,7 +4,6 @@
 #include "../formatter.h"
 #include "../gr_blocks/decoder_wrapper_impl.h"
 #include "../gr_blocks/plugin_wrapper_impl.h"
-#include "../recorder_globals.h"
 
 using namespace std;
 
