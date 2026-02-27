@@ -70,8 +70,6 @@ public:
   virtual std::shared_ptr<Source> get_source() { return nullptr; };
   virtual std::vector<Transmission> get_transmission_list() { return {}; };
   virtual void set_source(long src){};
-  virtual Call_Source *get_source_list() { return nullptr; };
-  virtual long get_source_count() { return 0; };
   virtual long get_wav_hz() { return 8000; };
   virtual long get_talkgroup() { return 0; };
   virtual State get_state() { return INACTIVE; };

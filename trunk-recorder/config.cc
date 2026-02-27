@@ -121,16 +121,6 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
 
     BOOST_LOG_TRIVIAL(info) << "Temporary Transmission Directory: " << config.temp_dir;
 
-    config.upload_server = data.value("uploadServer", "");
-    BOOST_LOG_TRIVIAL(info) << "Upload Server: " << config.upload_server;
-    config.bcfy_calls_server = data.value("broadcastifyCallsServer", "");
-    BOOST_LOG_TRIVIAL(info) << "Broadcastify Calls Server: " << config.bcfy_calls_server;
-    config.status_server = data.value("statusServer", "");
-    BOOST_LOG_TRIVIAL(info) << "Status Server: " << config.status_server;
-    config.instance_key = data.value("instanceKey", "");
-    BOOST_LOG_TRIVIAL(info) << "Instance Key: " << config.instance_key;
-    config.instance_id = data.value("instanceId", "");
-    BOOST_LOG_TRIVIAL(info) << "Instance Id: " << config.instance_id;
     config.broadcast_signals = data.value("broadcastSignals", false);
     BOOST_LOG_TRIVIAL(info) << "Broadcast Signals: " << config.broadcast_signals;
     config.default_mode = data.value("defaultMode", "digital");
@@ -286,12 +276,6 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
         BOOST_LOG_TRIVIAL(info) << "Filter Width: " << filter_width;
         BOOST_LOG_TRIVIAL(info) << "Squelch: " << element.value("squelch", -160);
         BOOST_LOG_TRIVIAL(info) << "De-emphasis Tau: " << tau;
-        system->set_api_key(element.value("apiKey", ""));
-        BOOST_LOG_TRIVIAL(info) << "API Key: " << system->get_api_key();
-        system->set_bcfy_api_key(element.value("broadcastifyApiKey", ""));
-        BOOST_LOG_TRIVIAL(info) << "Broadcastify API Key: " << system->get_bcfy_api_key();
-        system->set_bcfy_system_id(element.value("broadcastifySystemId", 0));
-        BOOST_LOG_TRIVIAL(info) << "Broadcastify Calls System ID: " << system->get_bcfy_system_id();
         system->set_unit_tags_file(element.value("unitTagsFile", ""));
         BOOST_LOG_TRIVIAL(info) << "Unit Tags File: " << system->get_unit_tags_file();
         system->set_unit_tags_ota_file(element.value("unitTagsOTA", ""));

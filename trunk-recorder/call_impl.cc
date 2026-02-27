@@ -209,10 +209,6 @@ int Call_impl::get_freq_error() {
   return freq_error;
 }
 
-double Call_impl::get_final_length() {
-  return final_length;
-}
-
 double Call_impl::get_current_length() {
   if (state == RECORDING) {
     auto rec = recorder.lock();
@@ -245,11 +241,6 @@ long Call_impl::get_talkgroup() {
 
 std::vector<Transmission> Call_impl::get_transmissions() {
   return transmission_list;
-}
-
-void Call_impl::clear_transmission_list() {
-  transmission_list.clear();
-  transmission_list.shrink_to_fit();
 }
 
 void Call_impl::set_debug_recording(bool m) {
@@ -404,16 +395,6 @@ std::chrono::duration<double> Call_impl::since_last_update() {
   return std::chrono::steady_clock::now() - last_update;
 }
 
-std::chrono::duration<double> Call_impl::since_last_voice_update() {
-  if (state == RECORDING) {
-    auto rec = this->get_recorder();
-    if (rec) {
-      return rec->since_last_write();
-    }
-  }
-  return std::chrono::duration<double>(-1);
-}
-
 std::chrono::duration<double> Call_impl::elapsed() {
   return std::chrono::system_clock::now() - start_time;
 }
@@ -428,10 +409,6 @@ void Call_impl::reset_idle_count() {
 
 void Call_impl::increase_idle_count() {
   idle_count++;
-}
-
-long Call_impl::get_stop_time() {
-  return std::chrono::system_clock::to_time_t(stop_time);
 }
 
 SystemType Call_impl::get_system_type() {

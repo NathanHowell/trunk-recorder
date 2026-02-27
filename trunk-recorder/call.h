@@ -42,11 +42,9 @@ public:
   virtual void increase_idle_count() = 0;
   virtual void reset_idle_count() = 0;
   virtual std::chrono::duration<double> since_last_update() = 0;
-  virtual std::chrono::duration<double> since_last_voice_update() = 0;
   virtual std::chrono::duration<double> elapsed() = 0;
 
   virtual double get_current_length() = 0;
-  virtual long get_stop_time() = 0;
   virtual void set_debug_recording(bool m) = 0;
   virtual bool get_debug_recording() = 0;
   virtual void set_sigmf_recording(bool m) = 0;
@@ -78,11 +76,8 @@ public:
   virtual void set_noise(double n) = 0;
   virtual std::string get_talkgroup_display() = 0;
   virtual void set_talkgroup_tag(std::string tag) = 0;
-  virtual void clear_transmission_list() = 0;
-
   virtual std::string get_talkgroup_tag() = 0;
   virtual SystemType get_system_type() = 0;
-  virtual double get_final_length() = 0;
   virtual long get_current_source_id() = 0;
   virtual bool get_conversation_mode() = 0;
   virtual std::shared_ptr<System> get_system() = 0;

@@ -78,8 +78,6 @@ public:
   int lastupdate();
   long elapsed();
   std::shared_ptr<Source> get_source();
-  long get_source_count();
-  Call_Source *get_source_list();
   void initialize_prefilter();
   DecimSettings get_decim(long speed);
   void generate_arb_taps();

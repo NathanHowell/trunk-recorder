@@ -46,12 +46,10 @@ public:
   int get_idle_count();
   void increase_idle_count();
   void reset_idle_count();
-  std::chrono::duration<double> since_last_voice_update();
   std::chrono::duration<double> since_last_update();
   std::chrono::duration<double> elapsed();
 
   double get_current_length();
-  long get_stop_time();
   void set_debug_recording(bool m);
   bool get_debug_recording();
   void set_sigmf_recording(bool m);
@@ -83,11 +81,9 @@ public:
   void set_noise(double n);
   std::string get_talkgroup_display();
   void set_talkgroup_tag(std::string tag);
-  void clear_transmission_list();
 
   std::string get_talkgroup_tag();
   SystemType get_system_type();
-  double get_final_length();
   long get_current_source_id();
   bool get_conversation_mode();
   std::shared_ptr<System> get_system();

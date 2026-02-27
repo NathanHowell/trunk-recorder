@@ -49,8 +49,6 @@ public:
   virtual int lastupdate() = 0;
   virtual long elapsed() = 0;
   virtual std::shared_ptr<Source> get_source() = 0;
-  virtual long get_source_count() = 0;
-  virtual Call_Source *get_source_list() = 0;
   virtual void initialize_prefilter() = 0;
   virtual DecimSettings get_decim(long speed) = 0;
   virtual void generate_arb_taps() = 0;

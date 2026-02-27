@@ -56,11 +56,8 @@ public:
   std::string unit_tags_mode;
   std::string custom_freq_table_file;
   std::string short_name;
-  std::string api_key;
-  std::string bcfy_api_key;
   std::string default_mode;
   SystemType system_type;
-  int bcfy_system_id;
   int message_count;
   int decode_rate;
   int retune_attempts;
@@ -100,12 +97,6 @@ public:
 
   std::string get_short_name() override;
   void set_short_name(std::string short_name) override;
-  std::string get_api_key() override;
-  void set_api_key(std::string api_key) override;
-  std::string get_bcfy_api_key() override;
-  void set_bcfy_api_key(std::string bcfy_api_key) override;
-  int get_bcfy_system_id() override;
-  void set_bcfy_system_id(int bcfy_system_id) override;
   double get_min_duration() override;
   void set_min_duration(double duration) override;
   double get_max_duration() override;

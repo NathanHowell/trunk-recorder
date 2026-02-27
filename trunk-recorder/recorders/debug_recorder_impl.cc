@@ -166,14 +166,6 @@ debug_recorder_impl::debug_recorder_impl(const std::shared_ptr<Source> &src, std
   connect(arb_resampler, 0, udp_sink, 0);
 }
 
-long debug_recorder_impl::get_source_count() {
-  return 0;
-}
-
-Call_Source *debug_recorder_impl::get_source_list() {
-  return nullptr; // wav_sink->get_source_list();
-}
-
 std::shared_ptr<Source> debug_recorder_impl::get_source() {
   return source;
 }
