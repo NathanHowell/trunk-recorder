@@ -177,6 +177,10 @@ void Call_impl::conclude_call() {
       config.event_sink->conclude_call(this, sys, config);
    }
 
+  } else if (state == MONITORING) {
+    // Monitored-only calls (encrypted, no source, etc.) never got a recorder,
+    // but plugins still need to know the call ended.
+    config.event_sink->conclude_call(this, sys, config);
   }
 }
 void Call_impl::set_sigmf_recorder(Recorder *r) {

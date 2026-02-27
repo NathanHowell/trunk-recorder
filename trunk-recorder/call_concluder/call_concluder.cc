@@ -336,12 +336,20 @@ Call_Data_t Call_Concluder::create_call_data(Call *call, System *sys, Config con
   call_info.retry_attempt = 0;
   call_info.error_count = 0;
   call_info.spike_count = 0;
+  call_info.start_time = call->get_start_time();
+  call_info.stop_time = call->get_stop_time();
+  call_info.length = 0;
   call_info.freq = call->get_freq();
   call_info.freq_error = call->get_freq_error();
   call_info.signal = call->get_signal();
   call_info.noise = call->get_noise();
-  call_info.recorder_num = call->get_recorder()->get_num();
-  call_info.source_num = call->get_recorder()->get_source()->get_num();
+  if (call->get_recorder()) {
+    call_info.recorder_num = call->get_recorder()->get_num();
+    call_info.source_num = call->get_recorder()->get_source()->get_num();
+  } else {
+    call_info.recorder_num = -1;
+    call_info.source_num = -1;
+  }
   call_info.encrypted = call->get_encrypted();
   call_info.emergency = call->get_emergency();
   call_info.priority = call->get_priority();

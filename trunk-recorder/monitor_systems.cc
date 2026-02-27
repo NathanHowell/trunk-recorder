@@ -303,6 +303,7 @@ void manage_calls(Config &config, std::vector<Call *> &calls) {
     // Handle Trunked Calls
 
     if ((state == MONITORING) && (call->since_last_update() > config.call_timeout)) {
+      call->conclude_call();
       ended_call = true;
       it = calls.erase(it);
       delete call;
