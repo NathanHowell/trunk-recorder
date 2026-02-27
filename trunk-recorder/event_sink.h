@@ -8,6 +8,7 @@
 #include "global_structs.h"
 #include "gr_blocks/decoder_wrapper.h"
 #include "systems/parser.h"
+#include "unit_tags_ota.h"
 
 class Call;
 class System;
@@ -44,6 +45,8 @@ public:
                                    long talkgroup) = 0;
   virtual void unit_location(const std::shared_ptr<System> &system, long source_id,
                              long talkgroup_num) = 0;
+  virtual void unit_alias_discovered(const std::shared_ptr<System> &system,
+                                     const OTAAlias &alias) = 0;
 };
 
 #endif // EVENT_SINK_H

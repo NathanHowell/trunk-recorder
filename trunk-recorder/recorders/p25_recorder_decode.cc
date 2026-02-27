@@ -277,6 +277,9 @@ void p25_recorder_decode::handle_alias_message(const nlohmann::json& j) {
       if (sys->add_ota_unit_tag(result)) {
         BOOST_LOG_TRIVIAL(info) << loghdr << Color::BMAG << "New " << result.source << " alias: " << Color::RST
                                 << result.radio_id << " (" << Color::BLU << result.alias << Color::RST << ")";
+        if (d_config.event_sink) {
+          d_config.event_sink->unit_alias_discovered(sys, result);
+        }
       } else {
         BOOST_LOG_TRIVIAL(debug) << loghdr << "Alias for " << result.radio_id << " already exists";
       }
