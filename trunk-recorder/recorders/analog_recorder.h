@@ -49,7 +49,11 @@ class analog_recorder;
 #include "../gr_blocks/decoder_wrapper.h"
 #include "../gr_blocks/freq_xlating_fft_filter.h"
 #include "../gr_blocks/plugin_wrapper.h"
+#ifdef TR_HEADLESS
+#include "../gr_blocks/headless_sink.h"
+#else
 #include "../gr_blocks/transmission_sink.h"
+#endif
 #include "../gr_blocks/xlat_channelizer.h"
 #include "../systems/system.h"
 #include "../call_conventional.h"
@@ -158,7 +162,11 @@ private:
   gr::analog::quadrature_demod_cf::sptr demod;
   gr::blocks::float_to_short::sptr converter;
 
+#ifdef TR_HEADLESS
+  gr::blocks::headless_sink::sptr wav_sink;
+#else
   gr::blocks::transmission_sink::sptr wav_sink;
+#endif
   gr::blocks::decoder_wrapper::sptr decoder_sink;
   gr::blocks::plugin_wrapper::sptr plugin_sink;
 

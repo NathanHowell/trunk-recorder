@@ -5,9 +5,6 @@
 #include "../formatter.h"
 #include "../gr_blocks/plugin_wrapper_impl.h"
 #include <boost/log/trivial.hpp>
-#ifdef TR_HEADLESS
-#include <gnuradio/blocks/null_sink.h>
-#endif
 
 dmr_recorder_sptr make_dmr_recorder(Source *src, Recorder_Type type) {
   dmr_recorder *recorder = new dmr_recorder_impl(src, type);
@@ -94,7 +91,10 @@ void dmr_recorder_impl::initialize(Source *src) {
   const int debug = 0;
   std::vector<float> slices(l, l + sizeof(l) / sizeof(l[0]));
   slicer = gr::op25_repeater::fsk4_slicer_fb::make(msgq_id, debug, slices);
-#ifndef TR_HEADLESS
+#ifdef TR_HEADLESS
+  wav_sink_slot0 = gr::blocks::headless_sink::make(1, 8000, 16);
+  wav_sink_slot1 = gr::blocks::headless_sink::make(1, 8000, 16);
+#else
   wav_sink_slot0 = gr::blocks::transmission_sink::make(1, 8000, 16);
   wav_sink_slot1 = gr::blocks::transmission_sink::make(1, 8000, 16);
 #endif
@@ -117,17 +117,8 @@ void dmr_recorder_impl::initialize(Source *src) {
   connect(sym_filter, 0, fsk4_demod, 0);
   connect(fsk4_demod, 0, slicer, 0);
   connect(slicer, 0, framer, 0);
-#ifndef TR_HEADLESS
   connect(framer, 0, wav_sink_slot0, 0);
   connect(framer, 1, wav_sink_slot1, 0);
-#else
-  if (!use_streaming) {
-    auto null_sink_slot0 = gr::blocks::null_sink::make(sizeof(int16_t));
-    auto null_sink_slot1 = gr::blocks::null_sink::make(sizeof(int16_t));
-    connect(framer, 0, null_sink_slot0, 0);
-    connect(framer, 1, null_sink_slot1, 0);
-  }
-#endif
 
   if (use_streaming) {
     connect(framer, 0, plugin_sink_slot0, 0);
@@ -157,20 +148,12 @@ int dmr_recorder_impl::get_num() {
 }
 
 double dmr_recorder_impl::since_last_write() {
-#ifndef TR_HEADLESS
   time_t now = time(NULL);
   return now - wav_sink_slot0->get_stop_time();
-#else
-  return 0.0;
-#endif
 }
 
 State dmr_recorder_impl::get_state() {
-#ifndef TR_HEADLESS
   return wav_sink_slot0->get_state();
-#else
-  return state;
-#endif
 }
 
 bool dmr_recorder_impl::is_active() {
@@ -221,11 +204,7 @@ int dmr_recorder_impl::get_freq_error() { // get frequency error from FLL and co
 }
 
 double dmr_recorder_impl::get_current_length() {
-#ifndef TR_HEADLESS
   return wav_sink_slot0->total_length_in_seconds();
-#else
-  return 0.0;
-#endif
 }
 
 int dmr_recorder_impl::lastupdate() {
@@ -247,7 +226,6 @@ bool compareTransmissions(Transmission t1, Transmission t2) {
 }
 
 std::vector<Transmission> dmr_recorder_impl::get_transmission_list() {
-#ifndef TR_HEADLESS
   std::vector<Transmission> return_list = wav_sink_slot0->get_transmission_list();
   std::vector<Transmission> second_list = wav_sink_slot1->get_transmission_list();
   BOOST_LOG_TRIVIAL(info) << "Slot 0: " << return_list.size() << " Slot 1: " << second_list.size();
@@ -256,13 +234,9 @@ std::vector<Transmission> dmr_recorder_impl::get_transmission_list() {
   sort(return_list.begin(), return_list.end(), compareTransmissions);
   BOOST_LOG_TRIVIAL(info) << "Sorted: " << return_list.size();
   return return_list;
-#else
-  return std::vector<Transmission>();
-#endif
 }
 
 std::vector<Transmission> dmr_recorder_impl::get_transmission_list(int slot) {
-#ifndef TR_HEADLESS
   std::vector<Transmission> return_list;
   if (slot == 0) {
     return_list = wav_sink_slot0->get_transmission_list();
@@ -271,27 +245,16 @@ std::vector<Transmission> dmr_recorder_impl::get_transmission_list(int slot) {
   }
   BOOST_LOG_TRIVIAL(info) << "Slot " << slot << ": " << return_list.size();
   return return_list;
-#else
-  return std::vector<Transmission>();
-#endif
 }
 
 void dmr_recorder_impl::stop() {
   if (state == ACTIVE) {
-
-#ifndef TR_HEADLESS
     recording_duration += wav_sink_slot0->total_length_in_seconds();
-#endif
-
-    //std::string loghdr = log_header(this->call->get_short_name(),this->call->get_call_num(),this->call->get_talkgroup_display(),chan_freq);
-    // BOOST_LOG_TRIVIAL(info) << loghdr << "Stopping P25 Recorder Num [" << rec_num << "]\tTDMA: " << d_phase2_tdma << "\tSlot: " << tdma_slot;
 
     state = INACTIVE;
     set_enabled(false);
-#ifndef TR_HEADLESS
     wav_sink_slot0->stop_recording();
     wav_sink_slot1->stop_recording();
-#endif
   } else {
     BOOST_LOG_TRIVIAL(error) << "dmr_recorder.cc: Trying to Stop an Inactive Logger!!!";
   }
@@ -320,10 +283,8 @@ bool dmr_recorder_impl::start(Call *call) {
 
     prefilter->tune_offset(offset_amount);
     levels->set_k(call->get_system()->get_digital_levels());
-#ifndef TR_HEADLESS
     wav_sink_slot0->start_recording(call, 0);
     wav_sink_slot1->start_recording(call, 1);
-#endif
     state = ACTIVE;
 
   if (conventional) {

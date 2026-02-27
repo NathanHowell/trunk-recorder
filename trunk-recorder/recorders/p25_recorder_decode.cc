@@ -6,9 +6,6 @@
 #include "../formatter.h"
 #include "../unit_tags_ota.h"
 #include <chrono>
-#ifdef TR_HEADLESS
-#include <gnuradio/blocks/null_sink.h>
-#endif
 
 p25_recorder_decode_sptr make_p25_recorder_decode(Recorder *recorder, Config *config, int silence_frames, bool d_soft_vocoder) {
   p25_recorder_decode *decoder = new p25_recorder_decode(recorder, config);
@@ -19,8 +16,7 @@ p25_recorder_decode_sptr make_p25_recorder_decode(Recorder *recorder, Config *co
 p25_recorder_decode::p25_recorder_decode(Recorder *recorder, Config *config)
     : gr::hier_block2("p25_recorder_decode",
                       gr::io_signature::make(1, 1, sizeof(float)),
-                      gr::io_signature::make(0, 0, sizeof(float))),
-      d_state(AVAILABLE) {
+                      gr::io_signature::make(0, 0, sizeof(float))) {
   d_recorder = recorder;
   d_config = config;
 }
@@ -29,26 +25,18 @@ p25_recorder_decode::~p25_recorder_decode() {
 }
 
 void p25_recorder_decode::stop() {
-#ifndef TR_HEADLESS
   wav_sink->stop_recording();
-#else
-  d_state = AVAILABLE;
-#endif
   d_call = NULL;
 }
 
 void p25_recorder_decode::start(Call *call) {
   levels->set_k(call->get_system()->get_digital_levels());
 
-#ifndef TR_HEADLESS
   if(call->get_phase2_tdma()){
     wav_sink->start_recording(call, call->get_tdma_slot());
   } else {
     wav_sink->start_recording(call);
   }
-#else
-  d_state = IDLE;
-#endif
 
   d_call = call;
 }
@@ -58,17 +46,11 @@ void p25_recorder_decode::set_xor_mask(const char *mask) {
 }
 
 void p25_recorder_decode::set_source(long src) {
-#ifndef TR_HEADLESS
   wav_sink->set_source(src);
-#endif
 }
 
 std::vector<Transmission> p25_recorder_decode::get_transmission_list() {
-#ifndef TR_HEADLESS
   return wav_sink->get_transmission_list();
-#else
-  return std::vector<Transmission>();
-#endif
 }
 
 void p25_recorder_decode::set_tdma_slot(int slot) {
@@ -77,29 +59,17 @@ void p25_recorder_decode::set_tdma_slot(int slot) {
   op25_frame_assembler->set_slotid(tdma_slot);
 }
 double p25_recorder_decode::get_current_length() {
-#ifndef TR_HEADLESS
   return wav_sink->total_length_in_seconds();
-#else
-  return 0.0;
-#endif
 }
 
 State p25_recorder_decode::get_state() {
-#ifndef TR_HEADLESS
   return wav_sink->get_state();
-#else
-  return d_state;
-#endif
 }
 
 double p25_recorder_decode::since_last_write() {
-#ifndef TR_HEADLESS
   auto end = std::chrono::steady_clock::now();
   std::chrono::duration<double> diff = end - wav_sink->get_last_write_time();
   return diff.count();
-#else
-  return 0.0;
-#endif
 }
 
 void p25_recorder_decode::switch_tdma(bool phase2_tdma) {
@@ -113,7 +83,9 @@ void p25_recorder_decode::initialize(int silence_frames, bool d_soft_vocoder) {
   const int msgq_id = 0;
   const int debug = 0;
   slicer = gr::op25_repeater::fsk4_slicer_fb::make(msgq_id, debug, slices);
-#ifndef TR_HEADLESS
+#ifdef TR_HEADLESS
+  wav_sink = gr::blocks::headless_sink::make(1, 8000, 16);
+#else
   wav_sink = gr::blocks::transmission_sink::make(1, 8000, 16);
 #endif
   // recorder->initialize(src);
@@ -148,14 +120,7 @@ void p25_recorder_decode::initialize(int silence_frames, bool d_soft_vocoder) {
   if (use_streaming) {
     connect(levels, 0, plugin_sink, 0);
   }
-#ifndef TR_HEADLESS
   connect(levels, 0, wav_sink, 0);
-#else
-  if (!use_streaming) {
-    auto audio_null_sink = gr::blocks::null_sink::make(sizeof(int16_t));
-    connect(levels, 0, audio_null_sink, 0);
-  }
-#endif
 }
 
 void p25_recorder_decode::plugin_callback_handler(int16_t *samples, int sampleCount) {

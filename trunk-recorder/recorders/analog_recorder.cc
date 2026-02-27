@@ -4,12 +4,8 @@
 #include "../formatter.h"
 #include "../gr_blocks/decoder_wrapper_impl.h"
 #include "../gr_blocks/plugin_wrapper_impl.h"
-#include "../gr_blocks/transmission_sink.h"
 #include "../plugin_manager/plugin_manager.h"
 #include "../recorder_globals.h"
-#ifdef TR_HEADLESS
-#include <gnuradio/blocks/null_sink.h>
-#endif
 
 using namespace std;
 
@@ -172,8 +168,10 @@ analog_recorder::analog_recorder(Source *src, System *system, Recorder_Type type
 
   // tm *ltm = localtime(&starttime);
 
-#ifndef TR_HEADLESS
-  wav_sink = gr::blocks::transmission_sink::make(1, wav_sample_rate, 16); //  Configurable
+#ifdef TR_HEADLESS
+  wav_sink = gr::blocks::headless_sink::make(1, wav_sample_rate, 16);
+#else
+  wav_sink = gr::blocks::transmission_sink::make(1, wav_sample_rate, 16);
 #endif
 
   if (use_streaming) {
@@ -219,12 +217,7 @@ analog_recorder::analog_recorder(Source *src, System *system, Recorder_Type type
   connect(low_f, 0, squelch_two, 0);
   connect(squelch_two, 0, levels, 0);
   connect(levels, 0, converter, 0);
-#ifndef TR_HEADLESS
   connect(converter, 0, wav_sink, 0);
-#else
-  auto audio_null_sink = gr::blocks::null_sink::make(sizeof(int16_t));
-  connect(converter, 0, audio_null_sink, 0);
-#endif
 
   if (use_streaming) {
     connect(converter, 0, plugin_sink, 0);
@@ -236,20 +229,12 @@ analog_recorder::~analog_recorder() {}
 long analog_recorder::get_wav_hz() { return wav_sample_rate; };
 
 State analog_recorder::get_state() {
-#ifndef TR_HEADLESS
   return wav_sink->get_state();
-#else
-  return state;
-#endif
 }
 
 double analog_recorder::since_last_write() {
-#ifndef TR_HEADLESS
   time_t now = time(NULL);
   return now - wav_sink->get_stop_time();
-#else
-  return 0.0;
-#endif
 }
 
 int analog_recorder::get_num() {
@@ -257,23 +242,15 @@ int analog_recorder::get_num() {
 }
 
 std::vector<Transmission> analog_recorder::get_transmission_list() {
-#ifndef TR_HEADLESS
   return wav_sink->get_transmission_list();
-#else
-  return std::vector<Transmission>();
-#endif
 }
 
 void analog_recorder::stop() {
   if (state == ACTIVE) {
-#ifndef TR_HEADLESS
     recording_duration += wav_sink->length_in_seconds();
-#endif
     state = INACTIVE;
     set_enabled(false);
-#ifndef TR_HEADLESS
     wav_sink->stop_recording();
-#endif
   } else {
 
     BOOST_LOG_TRIVIAL(error) << "analog_recorder.cc: Stopping an inactive Logger \t[ " << rec_num << " ] - freq[ " << format_freq(chan_freq) << "] \t talkgroup[ " << talkgroup << " ]";
@@ -337,9 +314,7 @@ int analog_recorder::get_freq_error() { // get frequency error from FLL and conv
 }
 
 void analog_recorder::set_source(long src) {
-#ifndef TR_HEADLESS
   wav_sink->set_source(src);
-#endif
 }
 
 Source *analog_recorder::get_source() {
@@ -359,11 +334,7 @@ time_t analog_recorder::get_start_time() {
 }
 
 double analog_recorder::get_current_length() {
-#ifndef TR_HEADLESS
   return wav_sink->total_length_in_seconds();
-#else
-  return 0.0;
-#endif
 }
 
 void analog_recorder::tune_freq(double f) {
@@ -375,9 +346,7 @@ void analog_recorder::tune_freq(double f) {
 
 void analog_recorder::decoder_callback_handler(long unitId, const char *signaling_type, gr::blocks::SignalType signal) {
   if (call != NULL) {
-#ifndef TR_HEADLESS
     wav_sink->set_source(unitId);
-#endif
     plugman_signal(unitId, signaling_type, signal, call, call->get_system(), this);
   } else {
     plugman_signal(unitId, signaling_type, signal, NULL, NULL, this);
@@ -417,9 +386,7 @@ bool analog_recorder::start(Call *call) {
   int offset_amount = (center_freq - chan_freq);
   prefilter->tune_offset(offset_amount);
 
-#ifndef TR_HEADLESS
   wav_sink->start_recording(call);
-#endif
 
   state = ACTIVE;
   if (conventional) {

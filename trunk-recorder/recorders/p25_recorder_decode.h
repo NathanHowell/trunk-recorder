@@ -24,7 +24,11 @@
 #endif
 
 #include "../gr_blocks/plugin_wrapper.h"
+#ifdef TR_HEADLESS
+#include "../gr_blocks/headless_sink.h"
+#else
 #include "../gr_blocks/transmission_sink.h"
+#endif
 #include "recorder.h"
 
 class p25_recorder_decode;
@@ -51,9 +55,12 @@ protected:
   gr::op25_repeater::fsk4_slicer_fb::sptr slicer;
   gr::blocks::short_to_float::sptr converter;
   gr::blocks::multiply_const_ss::sptr levels;
+#ifdef TR_HEADLESS
+  gr::blocks::headless_sink::sptr wav_sink;
+#else
   gr::blocks::transmission_sink::sptr wav_sink;
+#endif
   gr::blocks::plugin_wrapper::sptr plugin_sink;
-  State d_state;
 
 public:
   p25_recorder_decode(Recorder *recorder, Config *config);

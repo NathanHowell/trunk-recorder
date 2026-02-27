@@ -273,6 +273,7 @@ list(APPEND trunk_recorder_sources
   #lib/gr-latency-manager/lib/tag_to_msg_impl.cc
   trunk-recorder/gr_blocks/freq_xlating_fft_filter.cc
   trunk-recorder/gr_blocks/transmission_sink.cc
+  trunk-recorder/gr_blocks/headless_sink.cc
   trunk-recorder/gr_blocks/decoders/fsync_decode.cc
   trunk-recorder/gr_blocks/decoders/mdc_decode.cc
   trunk-recorder/gr_blocks/decoders/star_decode.cc
