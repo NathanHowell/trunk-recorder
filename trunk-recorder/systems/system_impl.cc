@@ -96,7 +96,7 @@ void System_impl::set_xor_mask(unsigned long sys_id, unsigned long wacn, unsigne
     this->nac = nac;
     BOOST_LOG_TRIVIAL(info) << "Setting XOR Mask: System_impl ID " << std::dec << sys_id << " WACN: " << wacn << " NAC: " << nac << std::dec;
     if (sys_id && wacn && nac) {
-      lfsr = new p25p2_lfsr(nac, sys_id, wacn);
+      lfsr = std::make_unique<p25p2_lfsr>(nac, sys_id, wacn);
       xor_mask = lfsr->getXorChars(xor_mask_len);
 
       BOOST_LOG_TRIVIAL(info) << "XOR Mask len: " << xor_mask_len;
@@ -115,7 +115,7 @@ bool System_impl::update_status(TrunkMessage message) {
                             << std::hex << std::uppercase << message.sys_id << " WACN: "
                             << std::hex << std::uppercase << message.wacn << " NAC: " << std::hex << std::uppercase << message.nac;
     if (sys_id && wacn && nac) {
-      lfsr = new p25p2_lfsr(nac, sys_id, wacn);
+      lfsr = std::make_unique<p25p2_lfsr>(nac, sys_id, wacn);
       xor_mask = lfsr->getXorChars(xor_mask_len);
       /*
      BOOST_LOG_TRIVIAL(info) << "XOR Mask len: " << xor_mask_len;

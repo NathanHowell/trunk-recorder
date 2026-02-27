@@ -4,6 +4,7 @@
 #include "../unit_tags.h"
 #include <boost/foreach.hpp>
 #include <boost/log/trivial.hpp>
+#include <memory>
 #include <stdio.h>
 //#include "../source.h"
 #include "p25_trunking.h"
@@ -55,7 +56,7 @@ class System_impl : public System {
 public:
   Talkgroups *talkgroups;
   UnitTags *unit_tags;
-  p25p2_lfsr *lfsr;
+  std::unique_ptr<p25p2_lfsr> lfsr;
   Source *source;
   std::string talkgroups_file;
   std::string channel_file;
