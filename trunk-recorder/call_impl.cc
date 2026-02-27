@@ -4,7 +4,6 @@
 #include "formatter.h"
 #include "recorders/recorder.h"
 #include "source.h"
-#include <boost/algorithm/string.hpp>
 #include <signal.h>
 #include <stdio.h>
 
@@ -45,7 +44,6 @@ Call_impl::Call_impl(long t, double f, const std::shared_ptr<System> &s, Config 
   was_update = false;
   priority = 0;
   set_freq(f);
-  this->update_talkgroup_display();
 }
 
 Call_impl::Call_impl(TrunkMessage message, const std::shared_ptr<System> &s, Config c) {
@@ -82,7 +80,6 @@ Call_impl::Call_impl(TrunkMessage message, const std::shared_ptr<System> &s, Con
   }
   set_freq(message.freq);
   add_source(message.source);
-  this->update_talkgroup_display();
 }
 /*
 Call_impl::~Call_impl() {
@@ -98,7 +95,7 @@ void Call_impl::stop_call() {
     // If the call is being recorded, check to see if the recorder is currently in an INACTIVE state. This means that the recorder is not
     // doing anything and can be stopped.
     if ((state == RECORDING) && this->get_recorder()->is_idle()) {
-      std::string loghdr = log_header( sys->get_short_name(), this->get_call_num(), this->get_talkgroup_display(), this->get_freq());
+      std::string loghdr = log_header( sys->get_short_name(), this->get_call_num(), this->get_talkgroup(), this->get_freq());
       BOOST_LOG_TRIVIAL(info) << loghdr << "Stopping Recorded Call_impl - Last Update: " << this->since_last_update().count() << "s";
     }
   }
@@ -126,14 +123,14 @@ void Call_impl::conclude_call() {
         } else {
           this->set_signal(rec->get_pwr());
         }
-          std::string loghdr = log_header( sys->get_short_name(), this->get_call_num(), this->get_talkgroup_display(), this->get_freq());
+          std::string loghdr = log_header( sys->get_short_name(), this->get_call_num(), this->get_talkgroup(), this->get_freq());
           BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[33mConcluding Recorded Call\u001b[0m - Last Update: " << this->since_last_update().count() << "s\tRecorder last write:" << rec->since_last_write().count() << "s\tCall Elapsed: " << this->elapsed().count() << "s\t Signal: " << floor(this->get_signal()) << "dBm\t Noise: " << floor(this->get_noise()) << "dBm";
       } else {
-          std::string loghdr = log_header( sys->get_short_name(), this->get_call_num(), this->get_talkgroup_display(), this->get_freq());
+          std::string loghdr = log_header( sys->get_short_name(), this->get_call_num(), this->get_talkgroup(), this->get_freq());
           BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[33mConcluding Recorded Call\u001b[0m - Last Update: " << this->since_last_update().count() << "s\tRecorder last write:" << rec->since_last_write().count() << "s\tCall Elapsed: " << this->elapsed().count() << "s";
       }
       if (was_update) {
-        std::string loghdr = log_header( sys->get_short_name(), this->get_call_num(), this->get_talkgroup_display(), this->get_freq());
+        std::string loghdr = log_header( sys->get_short_name(), this->get_call_num(), this->get_talkgroup(), this->get_freq());
         BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[33mCall was UPDATE not GRANT\u001b[0m";
       }
       freq_error = rec->get_freq_error();
@@ -284,10 +281,7 @@ MonitoringState Call_impl::get_monitoring_state() {
 }
 
 void Call_impl::set_encrypted(bool m) {
-  if (encrypted != m) {
-    encrypted = m;
-    update_talkgroup_display();
-  }
+  encrypted = m;
 }
 
 bool Call_impl::get_encrypted() {
@@ -383,7 +377,7 @@ bool Call_impl::add_source(long src) {
 bool Call_impl::update(TrunkMessage message) {
   last_update = std::chrono::steady_clock::now();
   if ((message.freq != this->curr_freq) || (message.talkgroup != this->talkgroup)) {
-    std::string loghdr = log_header( sys->get_short_name(), this->get_call_num(), this->get_talkgroup_display(), this->get_freq());
+    std::string loghdr = log_header( sys->get_short_name(), this->get_call_num(), this->get_talkgroup(), this->get_freq());
     BOOST_LOG_TRIVIAL(error) << loghdr << "C\033[0m\tCall_impl Update, message mismatch - \ttMsg Tg: " << message.talkgroup << "\tMsg Freq: " << message.freq;
   } else {
     return add_source(message.source);
@@ -415,18 +409,6 @@ SystemType Call_impl::get_system_type() {
   return sys->get_system_type();
 }
 
-void Call_impl::set_talkgroup_tag(std::string tag) {
-  talkgroup_tag = tag;
-  update_talkgroup_display();
-}
-
-std::string Call_impl::get_talkgroup_display() {
-  return talkgroup_display;
-}
-
-std::string Call_impl::get_talkgroup_tag() {
-  return talkgroup_tag;
-}
 
 bool Call_impl::get_conversation_mode() {
   if (!sys) {
@@ -435,24 +417,5 @@ bool Call_impl::get_conversation_mode() {
   }
   return sys->get_conversation_mode();
 }
-
-void Call_impl::update_talkgroup_display() {
-  boost::trim(talkgroup_tag);
-  if (talkgroup_tag.empty()) {
-    talkgroup_tag = "-";
-  }
-
-  char formattedTalkgroup[62];
-  int color = encrypted ? 31 : 35; // Red for encrypted, magenta for normal
-  if (this->sys->get_talkgroup_display_format() == talkGroupDisplayFormat_id_tag) {
-    snprintf(formattedTalkgroup, 61, "%10ld (%c[%dm%23s%c[0m)", talkgroup, 0x1B, color, talkgroup_tag.c_str(), 0x1B);
-  } else if (this->sys->get_talkgroup_display_format() == talkGroupDisplayFormat_tag_id) {
-    snprintf(formattedTalkgroup, 61, "%c[%dm%23s%c[0m (%10ld)", 0x1B, color, talkgroup_tag.c_str(), 0x1B, talkgroup);
-  } else {
-    snprintf(formattedTalkgroup, 61, "%c[%dm%10ld%c[0m", 0x1B, color, talkgroup, 0x1B);
-  }
-  talkgroup_display = boost::lexical_cast<std::string>(formattedTalkgroup);
-}
-
 
 long Call_impl::call_counter = 0;

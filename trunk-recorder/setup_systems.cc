@@ -29,7 +29,6 @@ bool setup_conventional_channel(const std::shared_ptr<System> &system, double fr
           call = std::make_shared<Call_conventional>(tg->number, tg->freq, system, config, system->get_squelch_db(), tg->signal_detection);
         }
 
-        call->set_talkgroup_tag(tg->alpha_tag);
       } else {
         call = std::make_shared<Call_conventional>(channel_index, frequency, system, config, system->get_squelch_db(), true);  // signal detection is always true when a channel file is not used
       }

@@ -364,7 +364,7 @@ bool analog_recorder::start(const std::shared_ptr<Call> &call) {
     set_enabled(true);
   }
   
-  std::string loghdr = log_header(call->get_short_name(),call->get_call_num(),this->call->get_talkgroup_display(),chan_freq);
+  std::string loghdr = log_header(call->get_short_name(),call->get_call_num(),this->call->get_talkgroup(),chan_freq);
   BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[32mStarting Analog Recorder Num [" << rec_num << "]\u001b[0m \tSquelch: " << squelch_db << " Max Dev: " << d_max_dev << " Gain: " << quad_gain;
   prefilter->set_squelch_db(squelch_db);
   return true;

@@ -97,6 +97,7 @@ public:
   virtual std::shared_ptr<Talkgroup> find_talkgroup(long tg) = 0;
   virtual std::shared_ptr<Talkgroup> find_talkgroup_by_freq(double freq) = 0;
   virtual std::string find_unit_tag(long unitID) = 0;
+  virtual void add_unit_tag(std::string pattern, std::string tag) = 0;
   virtual void set_talkgroups_file(std::string) = 0;
   virtual void set_channel_file(std::string channel_file) = 0;
   virtual bool has_channel_file() = 0;
@@ -128,6 +129,7 @@ public:
   virtual std::vector<dmr_recorder_sptr> get_conventionalDMR_recorders() = 0;
   virtual std::vector<double> get_channels() = 0;
   virtual std::vector<double> get_control_channels() = 0;
+  virtual void add_talkgroup(std::shared_ptr<Talkgroup> tg) = 0;
   virtual std::vector<std::shared_ptr<Talkgroup>> get_talkgroups() = 0;
   virtual void set_bandplan(std::string) = 0;
   virtual std::string get_bandplan() = 0;

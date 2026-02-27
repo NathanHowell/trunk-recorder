@@ -1,13 +1,9 @@
 #include "talkgroup.h"
 
-Talkgroup::Talkgroup(int sys_num, long num, std::string mode, std::string alpha_tag, std::string description, std::string tag, std::string group, int priority, unsigned long preferredNAC) {
+Talkgroup::Talkgroup(int sys_num, long num, std::string mode, int priority, unsigned long preferredNAC) {
   this->sys_num = sys_num;
   this->number = num;
   this->mode = mode;
-  this->alpha_tag = alpha_tag;
-  this->description = description;
-  this->tag = tag;
-  this->group = group;
   this->priority = priority;
   this->active = false;
   this->preferredNAC = preferredNAC;
@@ -20,14 +16,10 @@ Talkgroup::Talkgroup(int sys_num, long num, std::string mode, std::string alpha_
 
 }
 
-Talkgroup::Talkgroup(int sys_num, long num, double freq, double tone, std::string alpha_tag, std::string description, std::string tag, std::string group, double squelch_db, bool signal_detection) {
+Talkgroup::Talkgroup(int sys_num, long num, double freq, double tone, double squelch_db, bool signal_detection) {
   this->sys_num = sys_num;
   this->number = num;
   this->mode = "Z";
-  this->alpha_tag = alpha_tag;
-  this->description = description;
-  this->tag = tag;
-  this->group = group;
   this->active = false;
   this->freq = freq;
   this->tone = tone;
@@ -44,9 +36,7 @@ std::string Talkgroup::menu_string() {
 
   // std::ostringstream oss;
 
-  snprintf(buff, 150, "%5lu - %-15s %-20s %-15s %-40s", number, alpha_tag.c_str(), tag.c_str(), group.c_str(), description.c_str());
-
-  // sprintf(buff, "%5lu - %s", number, alpha_tag.c_str());
+  snprintf(buff, 150, "%5lu - %s", number, mode.c_str());
 
   std::string buffAsStdStr = buff;
 

@@ -56,9 +56,9 @@ std::string format_state(State state, MonitoringState monitoringState) {
   return std::to_string(static_cast<int>(state));
 }
 
-std::string log_header(std::string short_name,long call_num, std::string talkgroup_display, double freq) {
+std::string log_header(std::string short_name,long call_num, long talkgroup, double freq) {
   std::stringstream ss;
-  ss << "[" << short_name << "]\t" << Color::BLU << call_num << "C" << Color::RST 
-     << "\tTG: " << talkgroup_display << "\tFreq: " << format_freq(freq) << "\t";
+  ss << "[" << short_name << "]\t" << Color::BLU << call_num << "C" << Color::RST
+     << "\tTG: " << Color::MAG << talkgroup << Color::RST << "\tFreq: " << format_freq(freq) << "\t";
   return ss.str();
 }

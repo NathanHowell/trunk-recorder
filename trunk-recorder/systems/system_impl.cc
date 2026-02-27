@@ -324,8 +324,16 @@ std::string System_impl::find_unit_tag(long unitID) {
   return unit_tags->find_unit_tag(unitID);
 }
 
+void System_impl::add_unit_tag(std::string pattern, std::string tag) {
+  unit_tags->add(std::move(pattern), std::move(tag));
+}
+
 std::vector<double> System_impl::get_channels() {
   return channels;
+}
+
+void System_impl::add_talkgroup(std::shared_ptr<Talkgroup> tg) {
+  talkgroups->add_talkgroup(std::move(tg));
 }
 
 std::vector<std::shared_ptr<Talkgroup>> System_impl::get_talkgroups() {

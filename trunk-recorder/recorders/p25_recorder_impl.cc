@@ -256,7 +256,7 @@ void p25_recorder_impl::stop() {
       // Send last tuning measurements to autotune manager
       source->add_autotune_error_measurement(this->get_freq_error(), autotune_offset);
     }
-    std::string loghdr = log_header(this->call->get_short_name(),this->call->get_call_num(),this->call->get_talkgroup_display(),chan_freq);
+    std::string loghdr = log_header(this->call->get_short_name(),this->call->get_call_num(),this->call->get_talkgroup(),chan_freq);
     BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[33mStopping P25 Recorder Num [" << rec_num << "]\u001b[0m\tTDMA: " << d_phase2_tdma << "\tSlot: " << tdma_slot << "\tTuningErr: " << std::showpos << this->get_freq_error() << std::noshowpos << " Hz";
 
     state = INACTIVE;
@@ -311,7 +311,7 @@ bool p25_recorder_impl::start(const std::shared_ptr<Call> &call) {
     chan_freq = call->get_freq();
     this->call = call;
 
-    std::string loghdr = log_header(this->call->get_short_name(),this->call->get_call_num(),this->call->get_talkgroup_display(),chan_freq);
+    std::string loghdr = log_header(this->call->get_short_name(),this->call->get_call_num(),this->call->get_talkgroup(),chan_freq);
     autotune_offset = 0;
     std::ostringstream autotune_info;
 

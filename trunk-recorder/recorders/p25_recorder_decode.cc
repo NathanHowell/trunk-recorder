@@ -268,7 +268,7 @@ void p25_recorder_decode::handle_alias_message(const nlohmann::json& j) {
   }
   
   if (result.success && !result.alias.empty()) {
-    std::string loghdr = log_header(d_call->get_short_name(),d_call->get_call_num(),d_call->get_talkgroup_display(),d_call->get_freq());
+    std::string loghdr = log_header(d_call->get_short_name(),d_call->get_call_num(),d_call->get_talkgroup(),d_call->get_freq());
     
     BOOST_LOG_TRIVIAL(debug) << loghdr << "Alias OTA: " << result.radio_id << " = \"" << result.alias << "\" [" << result.source << "]";
     

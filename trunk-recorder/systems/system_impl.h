@@ -150,6 +150,7 @@ public:
   std::shared_ptr<Talkgroup> find_talkgroup(long tg) override;
   std::shared_ptr<Talkgroup> find_talkgroup_by_freq(double freq) override;
   std::string find_unit_tag(long unitID) override;
+  void add_unit_tag(std::string pattern, std::string tag) override;
   void set_talkgroups_file(std::string) override;
   void set_channel_file(std::string channel_file) override;
   bool has_channel_file() override;
@@ -181,6 +182,7 @@ public:
   std::vector<dmr_recorder_sptr> get_conventionalDMR_recorders() override;
   std::vector<double> get_channels() override;
   std::vector<double> get_control_channels() override;
+  void add_talkgroup(std::shared_ptr<Talkgroup> tg) override;
   std::vector<std::shared_ptr<Talkgroup>> get_talkgroups() override;
   gr::msg_queue::sptr msg_queue;
   System_impl(int sys_id);

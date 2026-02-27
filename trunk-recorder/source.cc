@@ -607,7 +607,7 @@ void Source::create_debug_recorder(gr::top_block_sptr tb, int source_num) {
 
 std::shared_ptr<Recorder> Source::get_analog_recorder(const std::shared_ptr<Talkgroup> &talkgroup, int priority, const std::shared_ptr<Call> &call) {
   int num_available_recorders = get_num_available_analog_recorders();
-  std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup_display(), call->get_freq());
+  std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup(), call->get_freq());
   if (talkgroup && (priority == -1)) {
     call->set_state(MONITORING);
     call->set_monitoring_state(IGNORED_TG);
@@ -631,14 +631,14 @@ std::shared_ptr<Recorder> Source::get_analog_recorder(const std::shared_ptr<Call
       return rx;
     }
   }
-  std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup_display(), call->get_freq());
+  std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup(), call->get_freq());
   BOOST_LOG_TRIVIAL(error) << loghdr << "[ " << device << " ] No Analog Recorders Available.";
   return nullptr;
 }
 
 std::shared_ptr<Recorder> Source::get_digital_recorder(const std::shared_ptr<Talkgroup> &talkgroup, int priority, const std::shared_ptr<Call> &call) {
   int num_available_recorders = get_num_available_digital_recorders();
-  std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup_display(), call->get_freq());
+  std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup(), call->get_freq());
 
   if (talkgroup && (priority == -1)) {
     call->set_state(MONITORING);
@@ -663,7 +663,7 @@ std::shared_ptr<Recorder> Source::get_digital_recorder(const std::shared_ptr<Cal
       return rx;
     }
   }
-  std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup_display(), call->get_freq());
+  std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup(), call->get_freq());
   BOOST_LOG_TRIVIAL(error) << loghdr << "[ " << device << " ] No Digital Recorders Available.";
 
   for (auto &rx : digital_recorders) {

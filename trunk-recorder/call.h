@@ -74,9 +74,6 @@ public:
   virtual int get_freq_error() = 0;
   virtual void set_signal(double s) = 0;
   virtual void set_noise(double n) = 0;
-  virtual std::string get_talkgroup_display() = 0;
-  virtual void set_talkgroup_tag(std::string tag) = 0;
-  virtual std::string get_talkgroup_tag() = 0;
   virtual SystemType get_system_type() = 0;
   virtual long get_current_source_id() = 0;
   virtual bool get_conversation_mode() = 0;

@@ -79,10 +79,6 @@ public:
   int get_freq_error();
   void set_signal(double s);
   void set_noise(double n);
-  std::string get_talkgroup_display();
-  void set_talkgroup_tag(std::string tag);
-
-  std::string get_talkgroup_tag();
   SystemType get_system_type();
   long get_current_source_id();
   bool get_conversation_mode();
@@ -134,9 +130,6 @@ protected:
   std::weak_ptr<Recorder> debug_recorder;
   std::weak_ptr<Recorder> sigmf_recorder;
   bool add_source(long src);
-  std::string talkgroup_display;
-  std::string talkgroup_tag;
-  void update_talkgroup_display();
 };
 
 #endif

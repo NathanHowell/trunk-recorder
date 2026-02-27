@@ -99,7 +99,7 @@ void Talkgroups::load_talkgroups(int sys_num, std::string filename) {
     if ((reader.index_of("Preferred NAC") >= 0) && row["Preferred NAC"].is_int()) {
       preferredNAC = row["Preferred NAC"].get<unsigned long>();
     }
-    talkgroups.push_back(std::make_shared<Talkgroup>(sys_num, tg_number, mode, alpha_tag, description, tag, group, priority, preferredNAC));
+    talkgroups.push_back(std::make_shared<Talkgroup>(sys_num, tg_number, mode, priority, preferredNAC));
     lines_pushed++;
   }
 
@@ -205,12 +205,16 @@ void Talkgroups::load_channels(int sys_num, std::string filename) {
       }
     }
     if (enable) {
-      talkgroups.push_back(std::make_shared<Talkgroup>(sys_num, tg_number, freq, tone, alpha_tag, description, tag, group, squelch_db, signal_detector));
+      talkgroups.push_back(std::make_shared<Talkgroup>(sys_num, tg_number, freq, tone, squelch_db, signal_detector));
       lines_pushed++;
     }
 
     BOOST_LOG_TRIVIAL(info) << "Read " << lines_pushed << " channels.";
   }
+}
+
+void Talkgroups::add_talkgroup(std::shared_ptr<Talkgroup> tg) {
+  talkgroups.push_back(std::move(tg));
 }
 
 std::shared_ptr<Talkgroup> Talkgroups::find_talkgroup(int sys_num, long tg_number) {
