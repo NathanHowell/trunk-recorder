@@ -153,13 +153,17 @@ void Call_impl::conclude_call() {
 
       if (this->sys->get_system_type() == "conventionalDMR") {
         auto dmr_rec = std::dynamic_pointer_cast<dmr_recorder>(rec);
-        // Conventional DMR is recorded on two slots, so we need to conclude the call for each slot
-        transmission_list = dmr_rec->get_transmission_list(0);
-        tdma_slot = 0;
-        config.event_sink->conclude_call(shared_from_this(), sys, config);
-        transmission_list = dmr_rec->get_transmission_list(1);
-        tdma_slot = 1;
-        config.event_sink->conclude_call(shared_from_this(), sys, config);
+        if (!dmr_rec) {
+          BOOST_LOG_TRIVIAL(error) << "Call_impl::conclude_call() conventionalDMR system but recorder is not a dmr_recorder!";
+        } else {
+          // Conventional DMR is recorded on two slots, so we need to conclude the call for each slot
+          transmission_list = dmr_rec->get_transmission_list(0);
+          tdma_slot = 0;
+          config.event_sink->conclude_call(shared_from_this(), sys, config);
+          transmission_list = dmr_rec->get_transmission_list(1);
+          tdma_slot = 1;
+          config.event_sink->conclude_call(shared_from_this(), sys, config);
+        }
       } else {
         // All other system types do not have multiple recorders
         transmission_list = rec->get_transmission_list();
