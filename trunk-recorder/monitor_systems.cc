@@ -297,7 +297,7 @@ void manage_calls(Config &config, std::vector<std::shared_ptr<Call>> &calls) {
       // Stop the call if:
       // - there hasn't been an UPDATE for it on the Control Channel in X seconds AND the recorder hasn't written anything in X seconds
 
-      if ((recorder->since_last_write() > config.call_timeout) && (call->since_last_update() > config.call_timeout)) {
+      if (recorder && (recorder->since_last_write() > config.call_timeout) && (call->since_last_update() > config.call_timeout)) {
         std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup_display(), call->get_freq());
         BOOST_LOG_TRIVIAL(trace) << loghdr << "\u001b[36m Stopping Call because of Recorder \u001b[0m Rec last write: " << recorder->since_last_write() << " State: " << format_state(recorder->get_state());
         call->conclude_call();
