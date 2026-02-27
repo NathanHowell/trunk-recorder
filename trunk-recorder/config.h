@@ -27,7 +27,6 @@
 #include "git.h"
 
 #include "./global_structs.h"
-#include "plugin_manager/plugin_manager.h"
 #include "source.h"
 #include "systems/system.h"
 

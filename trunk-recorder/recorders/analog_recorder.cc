@@ -4,7 +4,6 @@
 #include "../formatter.h"
 #include "../gr_blocks/decoder_wrapper_impl.h"
 #include "../gr_blocks/plugin_wrapper_impl.h"
-#include "../plugin_manager/plugin_manager.h"
 #include "../recorder_globals.h"
 
 using namespace std;
@@ -343,9 +342,9 @@ void analog_recorder::tune_freq(double f) {
 void analog_recorder::decoder_callback_handler(long unitId, const char *signaling_type, gr::blocks::SignalType signal) {
   if (call != NULL) {
     wav_sink->set_source(unitId);
-    plugman_signal(unitId, signaling_type, signal, call, call->get_system(), this);
+    config->event_sink->signal(unitId, signaling_type, signal, call, call->get_system(), this);
   } else {
-    plugman_signal(unitId, signaling_type, signal, NULL, NULL, this);
+    config->event_sink->signal(unitId, signaling_type, signal, NULL, NULL, this);
   }
 }
 

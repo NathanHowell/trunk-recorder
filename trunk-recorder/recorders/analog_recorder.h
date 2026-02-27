@@ -63,8 +63,6 @@ typedef std::shared_ptr<analog_recorder> analog_recorder_sptr;
 
 #include "../source.h"
 
-int plugman_signal(long unitId, const char *signaling_type, gr::blocks::SignalType sig_type, Call *call, System *system, Recorder *recorder);
-
 analog_recorder_sptr make_analog_recorder(Source *src, Recorder_Type type);
 analog_recorder_sptr make_analog_recorder(Source *src, Recorder_Type type, float tone_freq);
 class analog_recorder : public gr::hier_block2, public Recorder {

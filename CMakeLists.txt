@@ -261,9 +261,6 @@ list(APPEND trunk_recorder_sources
   trunk-recorder/unit_tag.cc
   trunk-recorder/unit_tags.cc
   trunk-recorder/unit_tags_ota.cc
-  trunk-recorder/plugin_manager/plugin_manager.cc
-  trunk-recorder/plugin_manager/plugin_event_sink.cc
-  trunk-recorder/call_concluder/call_concluder.cc
   trunk-recorder/autotune.cc
 
   lib/lfsr/lfsr.cxx
@@ -294,7 +291,6 @@ list(APPEND trunk_recorder_sources
 
   list(APPEND trunk_recorder_headers
     trunk-recorder/call.h
-    trunk-recorder/plugin_manager/plugin_api.h
     #lib/nlohmann/json.hpp
   )
 

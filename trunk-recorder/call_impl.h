@@ -143,6 +143,4 @@ protected:
   void update_talkgroup_display();
 };
 
-int plugman_signal(long unitId, const char *signaling_type, gr::blocks::SignalType sig_type, Call *call, System *system, Recorder *recorder);
-
 #endif
