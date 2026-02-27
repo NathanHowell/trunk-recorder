@@ -574,25 +574,6 @@ void System_impl::set_autotune_offset(int offset) {
   }
 }
 
-boost::property_tree::ptree System_impl::get_stats() {
-  boost::property_tree::ptree system_node;
-  system_node.put("id", this->get_sys_num());
-  system_node.put("name", this->get_short_name());
-  system_node.put("type", this->get_system_type());
-  system_node.put("sysid", this->get_sys_id());
-  system_node.put("wacn", this->get_wacn());
-  system_node.put("nac", this->get_nac());
-
-  return system_node;
-}
-
-boost::property_tree::ptree System_impl::get_stats_current(float timeDiff) {
-  boost::property_tree::ptree system_node;
-  system_node.put("id", this->get_sys_num());
-  system_node.put("decoderate", this->message_count / timeDiff);
-
-  return system_node;
-}
 
 std::vector<unsigned long> System_impl::get_talkgroup_patch(unsigned long talkgroup) {
   // Given a single TGID, return a vector of TGIDs that are part of the same patch

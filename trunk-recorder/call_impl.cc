@@ -473,45 +473,5 @@ void Call_impl::update_talkgroup_display() {
   talkgroup_display = boost::lexical_cast<std::string>(formattedTalkgroup);
 }
 
-boost::property_tree::ptree Call_impl::get_stats() {
-  boost::property_tree::ptree call_node;
-  boost::property_tree::ptree freq_list_node;
-  boost::property_tree::ptree source_list_node;
-  call_node.put("id", boost::lexical_cast<std::string>(this->get_sys_num()) + "_" + boost::lexical_cast<std::string>(this->get_talkgroup()) + "_" + boost::lexical_cast<std::string>(this->get_start_time()));
-  call_node.put("callNum", this->get_call_num());
-  call_node.put("freq", this->get_freq());
-  call_node.put("sysNum", this->get_sys_num());
-  call_node.put("shortName", this->get_short_name());
-  call_node.put("talkgroup", this->get_talkgroup());
-  call_node.put("talkgrouptag", this->get_talkgroup_tag());
-  call_node.put("elapsed", this->elapsed().count());
-  if (get_state() == RECORDING)
-    call_node.put("length", this->get_current_length());
-  else
-    call_node.put("length", this->get_final_length());
-  call_node.put("state", this->get_state());
-  call_node.put("monState", this->get_monitoring_state());
-  call_node.put("phase2", this->get_phase2_tdma());
-  call_node.put("conventional", this->is_conventional());
-  call_node.put("encrypted", this->get_encrypted());
-  call_node.put("emergency", this->get_emergency());
-  call_node.put("priority", this->get_priority());
-  call_node.put("mode", this->get_mode());
-  call_node.put("duplex", this->get_duplex());
-  call_node.put("startTime", this->get_start_time());
-  call_node.put("stopTime", this->get_stop_time());
-  call_node.put("srcId", this->get_current_source_id());
-
-  auto recorder = this->get_recorder();
-
-  if (recorder) {
-    call_node.put("recNum", recorder->get_num());
-    call_node.put("srcNum", recorder->get_source()->get_num());
-    call_node.put("recState", recorder->get_state());
-    call_node.put("analog", recorder->is_analog());
-  }
-
-  return call_node;
-}
 
 long Call_impl::call_counter = 0;

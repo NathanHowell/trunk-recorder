@@ -84,7 +84,6 @@ public:
   std::string get_talkgroup_display();
   void set_talkgroup_tag(std::string tag);
   void clear_transmission_list();
-  boost::property_tree::ptree get_stats();
 
   std::string get_talkgroup_tag();
   std::string get_system_type();

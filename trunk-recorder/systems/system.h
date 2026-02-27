@@ -22,7 +22,6 @@
 #pragma GCC diagnostic pop
 #endif
 
-#include <boost/property_tree/ptree.hpp>
 
 class Source;
 class analog_recorder;
@@ -164,8 +163,6 @@ public:
   virtual int get_autotune_offset() = 0;
   virtual void set_autotune_offset(int offset) = 0;
 
-  virtual boost::property_tree::ptree get_stats() = 0;
-  virtual boost::property_tree::ptree get_stats_current(float timeDiff) = 0;
 
   virtual std::vector<unsigned long> get_talkgroup_patch(unsigned long talkgroup) = 0;
   virtual void update_active_talkgroup_patches(PatchData f_data) = 0;

@@ -3,8 +3,6 @@
 
 #include "./global_structs.h"
 #include <boost/log/trivial.hpp>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
 #include <memory>
 #include <string>
 #include <sys/time.h>
@@ -81,7 +79,6 @@ public:
   virtual std::string get_talkgroup_display() = 0;
   virtual void set_talkgroup_tag(std::string tag) = 0;
   virtual void clear_transmission_list() = 0;
-  virtual boost::property_tree::ptree get_stats() = 0;
 
   virtual std::string get_talkgroup_tag() = 0;
   virtual std::string get_system_type() = 0;

@@ -84,7 +84,7 @@ public:
   virtual double get_current_length() { return 0; };
   virtual std::chrono::duration<double> since_last_write() = 0;
   virtual void clear(){};
-  virtual boost::property_tree::ptree get_stats();
+
   virtual int get_recording_count() { return recording_count; }
   virtual double get_recording_duration() { return recording_duration; }
   virtual void process_message_queues(void){};
