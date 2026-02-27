@@ -391,7 +391,7 @@ void handle_call_grant(TrunkMessage message, System *sys, bool grant_message, Co
   bool superseding_grant = false;
   bool recording_started [[maybe_unused]] = false;
 
-  Call *original_call;
+  Call *original_call = nullptr;
 
   /* Notes: it is possible for 2 Calls to exist for the same talkgroup on different freq. This happens when a Talkgroup starts on a freq
   that current recorder can't retune to. In this case, the current orig Talkgroup reocrder will keep going on the old freq, while a new
