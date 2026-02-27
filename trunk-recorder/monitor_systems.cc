@@ -769,7 +769,7 @@ int monitor_messages(TrunkContext &ctx) {
   TimePoint management_timestamp = now;
   TimePoint last_conventional_channel_detection_check = now;
   std::vector<TrunkMessage> trunk_messages;
-  std::unique_ptr<SmartnetParser> smartnet_parser;
+  std::map<int, std::unique_ptr<SmartnetParser>> smartnet_parsers;
   std::unique_ptr<P25Parser> p25_parser;
 
   signal(SIGINT, exit_interupt);
@@ -778,8 +778,11 @@ int monitor_messages(TrunkContext &ctx) {
     BOOST_LOG_TRIVIAL(error) << "No systems configured, cannot start monitoring.";
     return 1;
   }
-  // TODO: SmartnetParser blindly takes the first system regardless of type — should find a smartnet system
-  smartnet_parser = std::make_unique<SmartnetParser>(systems.front());
+  for (auto &system : systems) {
+    if (system->get_system_type() == "smartnet") {
+      smartnet_parsers[system->get_sys_num()] = std::make_unique<SmartnetParser>(system);
+    }
+  }
   p25_parser = std::make_unique<P25Parser>();
 
   while (1) {
@@ -813,6 +816,7 @@ int monitor_messages(TrunkContext &ctx) {
           system->set_message_count(system->get_message_count() + 1);
 
           if (system->get_system_type() == "smartnet") {
+            auto &smartnet_parser = smartnet_parsers[system->get_sys_num()];
             trunk_messages = smartnet_parser->parse_message(msg, system);
             handle_message(trunk_messages, system, config, sources, calls, tb);
             config.event_sink->trunk_message(trunk_messages, system);
