@@ -358,7 +358,7 @@ bool Call_impl::get_phase2_tdma() {
   return phase2_tdma;
 }
 
-const char *Call_impl::get_xor_mask() {
+const std::string& Call_impl::get_xor_mask() {
   return sys->get_xor_mask();
 }
 

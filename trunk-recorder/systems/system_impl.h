@@ -83,8 +83,7 @@ public:
   double analog_levels;
   double digital_levels;
 
-  unsigned xor_mask_len;
-  const char *xor_mask;
+  std::string xor_mask;
   std::vector<double> control_channels;
   unsigned int current_control_channel;
   std::vector<double> channels;
@@ -149,7 +148,7 @@ public:
   int get_sys_rfss() override;
   int get_sys_site_id() override;
   void set_xor_mask(unsigned long sys_id, unsigned long wacn, unsigned long nac) override;
-  const char *get_xor_mask() override;
+  const std::string& get_xor_mask() override;
   bool update_status(TrunkMessage message) override;
   bool update_sysid(TrunkMessage message) override;
   int get_sys_num() override;

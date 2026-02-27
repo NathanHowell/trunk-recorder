@@ -61,7 +61,7 @@ public:
   virtual int get_tdma_slot() = 0;
   virtual bool get_is_analog() = 0;
   virtual void set_is_analog(bool a) = 0;
-  virtual const char *get_xor_mask() = 0;
+  virtual const std::string& get_xor_mask() = 0;
   virtual time_t get_start_time() = 0;
   virtual bool is_conventional() = 0;
   virtual void set_encrypted(bool m) = 0;

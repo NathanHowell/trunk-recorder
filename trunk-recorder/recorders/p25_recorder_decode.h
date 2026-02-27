@@ -51,7 +51,7 @@ public:
   void set_tdma_slot(int slot);
   std::vector<Transmission> get_transmission_list();
   void set_source(long src);
-  void set_xor_mask(const char *mask);
+  void set_xor_mask(const std::string &mask);
   void switch_tdma(bool phase2_tdma);
   void start(const std::shared_ptr<Call> &call);
   std::chrono::duration<double> since_last_write();

@@ -40,8 +40,8 @@ void p25_recorder_decode::start(const std::shared_ptr<Call> &call) {
   d_call = call;
 }
 
-void p25_recorder_decode::set_xor_mask(const char *mask) {
-  op25_frame_assembler->set_xormask(mask);
+void p25_recorder_decode::set_xor_mask(const std::string &mask) {
+  op25_frame_assembler->set_xormask(mask.data());
 }
 
 void p25_recorder_decode::set_source(long src) {

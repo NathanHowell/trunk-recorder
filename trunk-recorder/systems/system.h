@@ -91,7 +91,7 @@ public:
   virtual int get_sys_rfss() = 0;
   virtual int get_sys_site_id() = 0;
   virtual void set_xor_mask(unsigned long sys_id, unsigned long wacn, unsigned long nac) = 0;
-  virtual const char *get_xor_mask() = 0;
+  virtual const std::string& get_xor_mask() = 0;
   virtual bool update_status(TrunkMessage message) = 0;
   virtual bool update_sysid(TrunkMessage message) = 0;
   virtual int get_sys_num() = 0;

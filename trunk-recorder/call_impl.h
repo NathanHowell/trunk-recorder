@@ -66,7 +66,7 @@ public:
   int get_tdma_slot();
   bool get_is_analog();
   void set_is_analog(bool a);
-  const char *get_xor_mask();
+  const std::string& get_xor_mask();
   virtual time_t get_start_time() { return std::chrono::system_clock::to_time_t(start_time); }
   bool is_conventional() { return false; }
   void set_encrypted(bool m);

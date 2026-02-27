@@ -15,8 +15,7 @@
  *************************************************/
 
 
-p25p2_lfsr::p25p2_lfsr(unsigned nac, unsigned sysid, unsigned wacn) :
-  xor_chars(new std::string)
+p25p2_lfsr::p25p2_lfsr(unsigned nac, unsigned sysid, unsigned wacn)
 {
 
   // Initialize M
@@ -32,39 +31,37 @@ p25p2_lfsr::p25p2_lfsr(unsigned nac, unsigned sysid, unsigned wacn) :
     if ( i<msize-34 ) M(i, i+34) = 1;
   }
 
-  Eigen::VectorXi *xorbits = mk_xor_bits(nac,sysid,wacn);
+  Eigen::VectorXi xorbits = mk_xor_bits(nac,sysid,wacn);
 
 
-  xorsyms = new Eigen::VectorXi(xorbits->size( )/2);
-  for (unsigned i=0; i<xorsyms->size(); i++) {
-    (*xorsyms)(i) = ((*xorbits)(i*2) << 1) + (*xorbits)(i*2+1);
-    (*xor_chars) += (char)((*xorsyms)(i)%(1<<8));
+  xorsyms = Eigen::VectorXi(xorbits.size()/2);
+  for (unsigned i=0; i<xorsyms.size(); i++) {
+    xorsyms(i) = (xorbits(i*2) << 1) + xorbits(i*2+1);
+    xor_chars += (char)(xorsyms(i)%(1<<8));
   }
 
 
 }
 
 
-const char * p25p2_lfsr::getXorChars(unsigned &len) const {
-
-  len = xor_chars->size();
-  return xor_chars->c_str();
+const std::string& p25p2_lfsr::getXorChars() const {
+  return xor_chars;
 }
 
 
-Eigen::VectorXi * p25p2_lfsr::mk_xor_bits(unsigned long nac, unsigned long sysid, unsigned long wacn) {
+Eigen::VectorXi p25p2_lfsr::mk_xor_bits(unsigned long nac, unsigned long sysid, unsigned long wacn) {
 
   unsigned long long int n = 16777216ULL*wacn + 4096*sysid + nac;
-  Eigen::VectorXi *reg = mk_array(n, 44);
+  Eigen::VectorXi reg = mk_array(n, 44);
 
-  Eigen::VectorXi product = reg->transpose()*M;
+  Eigen::VectorXi product = reg.transpose()*M;
 
   unsigned long long sreg = mk_int(product);
 
   const unsigned ssize = 4320;
-  Eigen::VectorXi *s = new Eigen::VectorXi(ssize);
+  Eigen::VectorXi s(ssize);
   for (unsigned i=0; i<ssize; i++) {
-    (*s)(i) = (sreg >> 43) & 1;
+    s(i) = (sreg >> 43) & 1;
     sreg = cyc_reg(sreg);
   }
 
@@ -84,9 +81,9 @@ unsigned long long p25p2_lfsr::asm_reg(unsigned long long s[6] ) {
   return (s[0]<<40)+(s[1]<<35)+(s[2]<<29)+(s[3]<<24)+(s[4]<<10)+s[5];
 }
 
-unsigned long long * p25p2_lfsr::disasm_reg(unsigned long long r) {
+std::array<unsigned long long, 6> p25p2_lfsr::disasm_reg(unsigned long long r) {
 
-  unsigned long long *s = new unsigned long long[6];
+  std::array<unsigned long long, 6> s;
   s[0] = (r>>40) & 0xfULL;
   s[1] = (r>>35) & 0x1fULL;
   s[2] = (r>>29) & 0x3fULL;
@@ -99,7 +96,7 @@ unsigned long long * p25p2_lfsr::disasm_reg(unsigned long long r) {
 
 unsigned long long p25p2_lfsr::cyc_reg(unsigned long long reg) {
 
-  unsigned long long *s = disasm_reg(reg);
+  auto s = disasm_reg(reg);
   unsigned long long cy1 = (s[0] >> 3) & 1L;
   unsigned long long cy2 = (s[1] >> 4) & 1L;
   unsigned long long cy3 = (s[2] >> 5) & 1L;
@@ -124,5 +121,5 @@ unsigned long long p25p2_lfsr::cyc_reg(unsigned long long reg) {
   s[4] = s[4] | (x5 & 1ULL);
   s[5] = s[5] | (cy1 & 1ULL);
 
-  return asm_reg(s);
+  return asm_reg(s.data());
 }

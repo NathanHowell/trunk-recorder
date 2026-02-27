@@ -311,7 +311,7 @@ bool p25_recorder_impl::start(const std::shared_ptr<Call> &call) {
       }
       set_tdma_slot(call->get_tdma_slot());
 
-      if (call->get_xor_mask()) {
+      if (!call->get_xor_mask().empty()) {
         qpsk_p25_decode->set_xor_mask(call->get_xor_mask());
       } else {
         BOOST_LOG_TRIVIAL(info) << "Error - can't set XOR Mask for TDMA";
