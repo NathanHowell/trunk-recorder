@@ -391,7 +391,7 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
           string sigmf_data = element.value("sigmfData", "");
           string sigmf_meta = element.value("sigmfMeta", "");
           bool repeat = element.value("repeat", false);
-          source = std::make_shared<Source>(sigmf_meta, sigmf_data, repeat, &config);
+          source = std::make_shared<Source>(sigmf_meta, sigmf_data, repeat, config);
           source->init_shared();
         } else if (driver == "iqfile") {
           string iq_file = element.value("iqFile", "");
@@ -403,7 +403,7 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
             BOOST_LOG_TRIVIAL(error) << "IQ Type specified in config.json not recognized, needs to be complex or float";
             return false;
           }
-          source = std::make_shared<Source>(iq_file, center, rate, repeat, &config);
+          source = std::make_shared<Source>(iq_file, center, rate, repeat, config);
           source->init_shared();
         } else {
 
@@ -460,7 +460,7 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
             BOOST_LOG_TRIVIAL(info) << "Both PPM and Error should not be set at the same time. Setting Error to 0.";
             error = 0;
           }
-          source = std::make_shared<Source>(center, rate, error, driver, device, &config);
+          source = std::make_shared<Source>(center, rate, error, driver, device, config);
           source->init_shared();
 
           // SoapySDRPlay3 quirk: autogain must be disabled before any of the gains can be set

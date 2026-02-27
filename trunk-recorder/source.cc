@@ -17,7 +17,7 @@ void Source::init_shared() {
   autotune_manager = std::make_unique<AutotuneManager>(weak_from_this());
 }
 
-Config *Source::get_config() {
+const Config &Source::get_config() {
   return config;
 }
 
@@ -46,14 +46,14 @@ void Source::set_min_max() {
   max_hz = center + ((rate / 2) - (if1 / 2));
 }
 
-Source::Source(double c, double r, double e, std::string drv, std::string dev, Config *cfg) {
+Source::Source(double c, double r, double e, std::string drv, std::string dev, const Config &cfg)
+    : config(cfg) {
   rate = r;
   center = c;
   error = e;
   set_min_max();
   driver = drv;
   device = dev;
-  config = cfg;
   gain = 0;
   lna_gain = 0;
   tia_gain = 0;
@@ -186,7 +186,8 @@ void Source::set_iq_source(std::string iq_file, bool repeat, double center, doub
   source_block = iq_file_src;
 }
 
-Source::Source(std::string sigmf_meta, std::string sigmf_data, bool repeat, Config *cfg) {
+Source::Source(std::string sigmf_meta, std::string sigmf_data, bool repeat, const Config &cfg)
+    : config(cfg) {
   json data;
   std::cout << sigmf_meta << std::endl;
   try {
@@ -201,8 +202,6 @@ Source::Source(std::string sigmf_meta, std::string sigmf_data, bool repeat, Conf
 
   std::cout << data.dump(4) << std::endl;
   json global = data["global"];
-
-  config = cfg;
   this->rate = global["core:sample_rate"];
 
   json capture = data["captures"][0];
@@ -211,8 +210,8 @@ Source::Source(std::string sigmf_meta, std::string sigmf_data, bool repeat, Conf
   set_iq_source(sigmf_data, repeat, center, rate);
 }
 
-Source::Source(std::string iq_file, bool repeat, double center, double rate, Config *cfg) {
-  config = cfg;
+Source::Source(std::string iq_file, bool repeat, double center, double rate, const Config &cfg)
+    : config(cfg) {
   set_iq_source(iq_file, repeat, center, rate);
 }
 
@@ -600,8 +599,8 @@ dmr_recorder_sptr Source::create_dmr_conventional_recorder(gr::top_block_sptr tb
 
 void Source::create_debug_recorder(gr::top_block_sptr tb, int source_num) {
   max_debug_recorders = 1;
-  debug_recorder_port = config->debug_recorder_port + source_num;
-  debug_recorder_sptr log = make_debug_recorder(shared_from_this(), config->debug_recorder_address, debug_recorder_port);
+  debug_recorder_port = config.debug_recorder_port + source_num;
+  debug_recorder_sptr log = make_debug_recorder(shared_from_this(), config.debug_recorder_address, debug_recorder_port);
   debug_recorders.push_back(log);
   tb->connect(source_block, 0, log, 0);
 }

@@ -144,11 +144,11 @@ debug_recorder_impl::debug_recorder_impl(const std::shared_ptr<Source> &src, std
     : gr::hier_block2("debug_recorder",
                       gr::io_signature::make(1, 1, sizeof(gr_complex)),
                       gr::io_signature::make(0, 0, sizeof(float))),
-      Recorder(DEBUG) {
+      Recorder(DEBUG),
+      config(src->get_config()) {
   source = src;
   chan_freq = source->get_center();
   center_freq = source->get_center();
-  config = source->get_config();
   input_rate = source->get_rate();
   talkgroup = 0;
 

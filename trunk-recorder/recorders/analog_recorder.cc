@@ -75,14 +75,14 @@ analog_recorder::analog_recorder(const std::shared_ptr<Source> &src, const std::
     : gr::hier_block2("analog_recorder",
                       gr::io_signature::make(1, 1, sizeof(gr_complex)),
                       gr::io_signature::make(0, 0, sizeof(float))),
-      Recorder(type) {
+      Recorder(type),
+      config(src->get_config()) {
   // int nchars;
 
   source = src;
   this->system = system;
   chan_freq = source->get_center();
   center_freq = source->get_center();
-  config = source->get_config();
   input_rate = source->get_rate();
   squelch_db = 0;
   talkgroup = 0;
@@ -105,9 +105,7 @@ analog_recorder::analog_recorder(const std::shared_ptr<Source> &src, const std::
     this->tone_freq = 0;
   }
 
-  if (config != nullptr) {
-    use_streaming = config->enable_audio_streaming;
-  }
+  use_streaming = config.enable_audio_streaming;
 
   if (type == ANALOGC) {
     conventional = true;
@@ -327,15 +325,15 @@ void analog_recorder::decoder_callback_handler(long unitId, const char *signalin
   auto self = std::dynamic_pointer_cast<Recorder>(shared_from_this());
   if (call != nullptr) {
     wav_sink->set_source(unitId);
-    config->event_sink->signal(unitId, signaling_type, signal, call, call->get_system(), self);
+    config.event_sink->signal(unitId, signaling_type, signal, call, call->get_system(), self);
   } else {
-    config->event_sink->signal(unitId, signaling_type, signal, nullptr, nullptr, self);
+    config.event_sink->signal(unitId, signaling_type, signal, nullptr, nullptr, self);
   }
 }
 
 void analog_recorder::plugin_callback_handler(int16_t *samples, int sampleCount) {
   auto self = std::dynamic_pointer_cast<Recorder>(shared_from_this());
-  config->event_sink->audio_callback(call, self, samples, sampleCount);
+  config.event_sink->audio_callback(call, self, samples, sampleCount);
 }
 
 void analog_recorder::setup_decoders_for_system(const std::shared_ptr<System> &system) {

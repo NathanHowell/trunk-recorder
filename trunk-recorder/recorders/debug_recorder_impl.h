@@ -90,7 +90,7 @@ private:
   time_t timestamp;
   time_t starttime;
 
-  Config *config;
+  const Config &config;
   std::shared_ptr<Source> source;
 
   // int num;

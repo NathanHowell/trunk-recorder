@@ -120,7 +120,7 @@ private:
   float d_tau;                 /*! De-emphasis time constant. */
 
   Call *call;
-  Config *config;
+  const Config &config;
   std::shared_ptr<Source> source;
   std::shared_ptr<System> system;
   void calculate_iir_taps(float tau);

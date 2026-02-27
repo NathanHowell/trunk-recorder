@@ -54,7 +54,7 @@ class Source : public std::enable_shared_from_this<Source> {
   int debug_recorder_port;
   int next_selector_port;
   int silence_frames;
-  Config *config;
+  const Config &config;
   bool autotune_source;
 
   std::vector<p25_recorder_sptr> digital_recorders;
@@ -77,10 +77,10 @@ class Source : public std::enable_shared_from_this<Source> {
 
 public:
   int get_num();
-  Config *get_config();
-  Source(double c, double r, double e, std::string driver, std::string device, Config *cfg);
-  Source(std::string sigmf_meta, std::string sigmf_data, bool repeat, Config *cfg);
-  Source(std::string iq_file, bool repeat, double center, double rate, Config *cfg);
+  const Config &get_config();
+  Source(double c, double r, double e, std::string driver, std::string device, const Config &cfg);
+  Source(std::string sigmf_meta, std::string sigmf_data, bool repeat, const Config &cfg);
+  Source(std::string iq_file, bool repeat, double center, double rate, const Config &cfg);
   void init_shared();
   void set_iq_source(std::string iq_file, bool repeat, double center, double rate);
   gr::basic_block_sptr get_src_block();

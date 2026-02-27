@@ -16,7 +16,8 @@ dmr_recorder_impl::dmr_recorder_impl(const std::shared_ptr<Source> &src, Recorde
     : gr::hier_block2("dmr_recorder",
                       gr::io_signature::make(1, 1, sizeof(gr_complex)),
                       gr::io_signature::make(0, 0, sizeof(float))),
-      Recorder(type) {
+      Recorder(type),
+      config(src->get_config()) {
   conventional = true;
   initialize(src);
 }
@@ -25,8 +26,7 @@ void dmr_recorder_impl::initialize(const std::shared_ptr<Source> &src) {
   source = src;
   chan_freq = source->get_center();
   center_freq = source->get_center();
-  config = source->get_config();
-  d_soft_vocoder = config->soft_vocoder;
+  d_soft_vocoder = config.soft_vocoder;
   input_rate = source->get_rate();
   silence_frames = source->get_silence_frames();
   squelch_db = 0;
@@ -39,9 +39,7 @@ void dmr_recorder_impl::initialize(const std::shared_ptr<Source> &src) {
 
   bool use_streaming = false;
 
-  if (config != nullptr) {
-    use_streaming = config->enable_audio_streaming;
-  }
+  use_streaming = config.enable_audio_streaming;
 
   state = INACTIVE;
 
@@ -119,7 +117,7 @@ void dmr_recorder_impl::initialize(const std::shared_ptr<Source> &src) {
 
 void dmr_recorder_impl::plugin_callback_handler(int16_t *samples, int sampleCount) {
   auto self = std::dynamic_pointer_cast<Recorder>(shared_from_this());
-  config->event_sink->audio_callback(call, self, samples, sampleCount);
+  config.event_sink->audio_callback(call, self, samples, sampleCount);
 }
 
 void dmr_recorder_impl::switch_tdma(bool phase2) {

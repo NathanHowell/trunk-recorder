@@ -6,18 +6,18 @@
 #include "../unit_tags_ota.h"
 #include <chrono>
 
-p25_recorder_decode_sptr make_p25_recorder_decode(const std::shared_ptr<Recorder> &recorder, Config *config, int silence_frames, bool d_soft_vocoder) {
+p25_recorder_decode_sptr make_p25_recorder_decode(const std::shared_ptr<Recorder> &recorder, const Config &config, int silence_frames, bool d_soft_vocoder) {
   auto decoder = new p25_recorder_decode(recorder, config);
   decoder->initialize(silence_frames, d_soft_vocoder);
   return gnuradio::get_initial_sptr(decoder);
 }
 
-p25_recorder_decode::p25_recorder_decode(const std::shared_ptr<Recorder> &recorder, Config *config)
+p25_recorder_decode::p25_recorder_decode(const std::shared_ptr<Recorder> &recorder, const Config &config)
     : gr::hier_block2("p25_recorder_decode",
                       gr::io_signature::make(1, 1, sizeof(float)),
-                      gr::io_signature::make(0, 0, sizeof(float))) {
+                      gr::io_signature::make(0, 0, sizeof(float))),
+      d_config(config) {
   d_recorder = recorder;
-  d_config = config;
 }
 
 p25_recorder_decode::~p25_recorder_decode() {
@@ -120,7 +120,7 @@ void p25_recorder_decode::initialize(int silence_frames, bool d_soft_vocoder) {
 
 void p25_recorder_decode::plugin_callback_handler(int16_t *samples, int sampleCount) {
   if (d_call) {
-    d_config->event_sink->audio_callback(d_call, d_recorder, samples, sampleCount);
+    d_config.event_sink->audio_callback(d_call, d_recorder, samples, sampleCount);
   }
 }
 

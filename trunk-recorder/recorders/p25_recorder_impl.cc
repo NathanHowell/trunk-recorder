@@ -15,7 +15,8 @@ p25_recorder_impl::p25_recorder_impl(const std::shared_ptr<Source> &src, Recorde
     : gr::hier_block2("p25_recorder",
                       gr::io_signature::make(1, 1, sizeof(gr_complex)),
                       gr::io_signature::make(0, 0, sizeof(float))),
-      Recorder(type) {
+      Recorder(type),
+      config(src->get_config()) {
   if (type == P25C) {
     conventional = true;
   } else {
@@ -28,8 +29,7 @@ void p25_recorder_impl::initialize(const std::shared_ptr<Source> &src) {
   source = src;
   chan_freq = source->get_center();
   center_freq = source->get_center();
-  config = source->get_config();
-  d_soft_vocoder = config->soft_vocoder;
+  d_soft_vocoder = config.soft_vocoder;
   input_rate = source->get_rate();
   qpsk_mod = true;
   silence_frames = source->get_silence_frames();
@@ -45,11 +45,7 @@ void p25_recorder_impl::initialize(const std::shared_ptr<Source> &src) {
   timestamp = time(nullptr);
   starttime = time(nullptr);
 
-  if (config == nullptr) {
-    this->set_enable_audio_streaming(false);
-  } else {
-    this->set_enable_audio_streaming(config->enable_audio_streaming);
-  }
+  this->set_enable_audio_streaming(config.enable_audio_streaming);
 
   prefilter = xlat_channelizer::make(input_rate, channelizer::phase1_samples_per_symbol, channelizer::phase1_symbol_rate, xlat_channelizer::channel_bandwidth, center_freq, conventional);
 

@@ -17,7 +17,8 @@ sigmf_recorder_impl::sigmf_recorder_impl(const std::shared_ptr<Source> &src, Rec
     : gr::hier_block2("sigmf_recorder",
                       gr::io_signature::make(1, 1, sizeof(gr_complex)),
                       gr::io_signature::make(0, 0, sizeof(float))),
-      Recorder(type) {
+      Recorder(type),
+      config(src->get_config()) {
 
         if (type == SIGMFC) {
           conventional = true;
@@ -29,7 +30,6 @@ sigmf_recorder_impl::sigmf_recorder_impl(const std::shared_ptr<Source> &src, Rec
   source = src;
   freq = source->get_center();
   center = source->get_center();
-  config = source->get_config();
   silence_frames = source->get_silence_frames();
   squelch_db = 0;
   input_rate = source->get_rate();

@@ -104,7 +104,7 @@ protected:
   long talkgroup;
   std::string short_name;
   Call *call;
-  Config *config;
+  const Config &config;
   std::shared_ptr<Source> source;
   double chan_freq;
   double center_freq;
