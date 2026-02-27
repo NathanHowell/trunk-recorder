@@ -788,6 +788,7 @@ int monitor_messages(TrunkContext &ctx) {
     BOOST_LOG_TRIVIAL(error) << "No systems configured, cannot start monitoring.";
     return 1;
   }
+  // TODO: SmartnetParser blindly takes the first system regardless of type — should find a smartnet system
   smartnet_parser = std::make_unique<SmartnetParser>(systems.front());
   p25_parser = std::make_unique<P25Parser>();
 
