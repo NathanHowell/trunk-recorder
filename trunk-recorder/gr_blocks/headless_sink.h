@@ -11,6 +11,7 @@
 #ifndef INCLUDED_HEADLESS_SINK_H
 #define INCLUDED_HEADLESS_SINK_H
 
+#include <atomic>
 #include <chrono>
 #include <vector>
 
@@ -28,11 +29,11 @@ namespace blocks {
 class BLOCKS_API headless_sink : virtual public sync_block {
 private:
   unsigned d_sample_rate;
-  State d_state;
-  std::chrono::time_point<std::chrono::steady_clock> d_last_write_time;
+  std::atomic<State> d_state;
+  std::atomic<std::chrono::time_point<std::chrono::steady_clock>> d_last_write_time;
   time_t d_start_time;
-  time_t d_stop_time;
-  long d_sample_count;
+  std::atomic<time_t> d_stop_time;
+  std::atomic<long> d_sample_count;
   long d_talkgroup;
   double d_freq;
 
