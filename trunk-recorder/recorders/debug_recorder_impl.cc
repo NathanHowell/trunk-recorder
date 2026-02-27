@@ -250,7 +250,7 @@ void debug_recorder_impl::stop() {
   }
 }
 
-bool debug_recorder_impl::start(Call *call) {
+bool debug_recorder_impl::start(const std::shared_ptr<Call> &call) {
   if (state == INACTIVE) {
     timestamp = time(nullptr);
     starttime = time(nullptr);

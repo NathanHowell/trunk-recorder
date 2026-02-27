@@ -12,8 +12,8 @@ std::string Call_impl::get_temp_dir() {
   return this->config.temp_dir;
 }
 
-Call *Call::make(TrunkMessage message, const std::shared_ptr<System> &s, Config c) {
-  return (Call *)new Call_impl(message, s, c);
+std::shared_ptr<Call> Call::make(TrunkMessage message, const std::shared_ptr<System> &s, Config c) {
+  return std::make_shared<Call_impl>(message, s, c);
 }
 
 Call_impl::Call_impl(long t, double f, const std::shared_ptr<System> &s, Config c) {
@@ -112,60 +112,65 @@ void Call_impl::conclude_call() {
   stop_time = time(nullptr);
 
   if (state == RECORDING || (state == MONITORING && monitoringState == SUPERSEDED)) {
-    if (!recorder) {
+    auto rec = recorder.lock();
+    if (!rec) {
       BOOST_LOG_TRIVIAL(error) << "Call_impl::end_call() State is recording, but no recorder assigned!";
     } else {
-      final_length = recorder->get_current_length();
+      final_length = rec->get_current_length();
 
       if (this->is_conventional()) {
         // Update the signal and noise levels for the call
         // the squelch could be open if the program is being forced to stop
-        if (recorder->is_idle()) {
-          this->set_noise(recorder->get_pwr());
+        if (rec->is_idle()) {
+          this->set_noise(rec->get_pwr());
         } else {
-          this->set_signal(recorder->get_pwr());
+          this->set_signal(rec->get_pwr());
         }
           std::string loghdr = log_header( sys->get_short_name(), this->get_call_num(), this->get_talkgroup_display(), this->get_freq());
-          BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[33mConcluding Recorded Call\u001b[0m - Last Update: " << this->since_last_update() << "s\tRecorder last write:" << recorder->since_last_write() << "\tCall Elapsed: " << this->elapsed() << "\t Signal: " << floor(this->get_signal()) << "dBm\t Noise: " << floor(this->get_noise()) << "dBm";
+          BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[33mConcluding Recorded Call\u001b[0m - Last Update: " << this->since_last_update() << "s\tRecorder last write:" << rec->since_last_write() << "\tCall Elapsed: " << this->elapsed() << "\t Signal: " << floor(this->get_signal()) << "dBm\t Noise: " << floor(this->get_noise()) << "dBm";
       } else {
           std::string loghdr = log_header( sys->get_short_name(), this->get_call_num(), this->get_talkgroup_display(), this->get_freq());
-          BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[33mConcluding Recorded Call\u001b[0m - Last Update: " << this->since_last_update() << "s\tRecorder last write:" << recorder->since_last_write() << "\tCall Elapsed: " << this->elapsed();
+          BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[33mConcluding Recorded Call\u001b[0m - Last Update: " << this->since_last_update() << "s\tRecorder last write:" << rec->since_last_write() << "\tCall Elapsed: " << this->elapsed();
       }
       if (was_update) {
         std::string loghdr = log_header( sys->get_short_name(), this->get_call_num(), this->get_talkgroup_display(), this->get_freq());
         BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[33mCall was UPDATE not GRANT\u001b[0m";
       }
-      freq_error = recorder->get_freq_error();
-      recorder->stop();
+      freq_error = rec->get_freq_error();
+      rec->stop();
 
-      if (this->get_sigmf_recording() == true && sigmf_recorder) {
-        sigmf_recorder->stop();
+      if (auto sigmf_rec = sigmf_recorder.lock()) {
+        if (this->get_sigmf_recording()) {
+          sigmf_rec->stop();
+        }
       }
 
-      if (this->get_debug_recording() == true && debug_recorder) {
-        debug_recorder->stop();
+      if (auto debug_rec = debug_recorder.lock()) {
+        if (this->get_debug_recording()) {
+          debug_rec->stop();
+        }
       }
 
       if (this->sys->get_system_type() == "conventionalDMR") {
-        auto dmr_rec = std::dynamic_pointer_cast<dmr_recorder>(recorder);
+        auto dmr_rec = std::dynamic_pointer_cast<dmr_recorder>(rec);
         // Conventional DMR is recorded on two slots, so we need to conclude the call for each slot
         transmission_list = dmr_rec->get_transmission_list(0);
         tdma_slot = 0;
-        config.event_sink->conclude_call(this, sys, config);
+        config.event_sink->conclude_call(shared_from_this(), sys, config);
         transmission_list = dmr_rec->get_transmission_list(1);
         tdma_slot = 1;
-        config.event_sink->conclude_call(this, sys, config);
+        config.event_sink->conclude_call(shared_from_this(), sys, config);
       } else {
         // All other system types do not have multiple recorders
-        transmission_list = recorder->get_transmission_list();
-        config.event_sink->conclude_call(this, sys, config);
+        transmission_list = rec->get_transmission_list();
+        config.event_sink->conclude_call(shared_from_this(), sys, config);
       }
     }
 
   } else if (state == MONITORING) {
     // Monitored-only calls (encrypted, no source, etc.) never got a recorder,
     // but plugins still need to know the call ended.
-    config.event_sink->conclude_call(this, sys, config);
+    config.event_sink->conclude_call(shared_from_this(), sys, config);
   }
 }
 void Call_impl::set_sigmf_recorder(const std::shared_ptr<Recorder> &r) {
@@ -173,7 +178,7 @@ void Call_impl::set_sigmf_recorder(const std::shared_ptr<Recorder> &r) {
 }
 
 std::shared_ptr<Recorder> Call_impl::get_sigmf_recorder() {
-  return sigmf_recorder;
+  return sigmf_recorder.lock();
 }
 
 void Call_impl::set_debug_recorder(const std::shared_ptr<Recorder> &r) {
@@ -181,7 +186,7 @@ void Call_impl::set_debug_recorder(const std::shared_ptr<Recorder> &r) {
 }
 
 std::shared_ptr<Recorder> Call_impl::get_debug_recorder() {
-  return debug_recorder;
+  return debug_recorder.lock();
 }
 
 void Call_impl::set_recorder(const std::shared_ptr<Recorder> &r) {
@@ -189,7 +194,7 @@ void Call_impl::set_recorder(const std::shared_ptr<Recorder> &r) {
 }
 
 std::shared_ptr<Recorder> Call_impl::get_recorder() {
-  return recorder;
+  return recorder.lock();
 }
 
 double Call_impl::get_freq() {
@@ -205,8 +210,11 @@ double Call_impl::get_final_length() {
 }
 
 double Call_impl::get_current_length() {
-  if ((state == RECORDING) && recorder) {
-    return recorder->get_current_length();
+  if (state == RECORDING) {
+    auto rec = recorder.lock();
+    if (rec) {
+      return rec->get_current_length();
+    }
   }
   return 0;
 }
@@ -372,7 +380,7 @@ bool Call_impl::add_source(long src) {
     }
   }
 
-  config.event_sink->signal(src, nullptr, gr::blocks::SignalType::Normal, this, this->get_system(), nullptr);
+  config.event_sink->signal(src, nullptr, gr::blocks::SignalType::Normal, shared_from_this(), this->get_system(), nullptr);
 
   return true;
 }

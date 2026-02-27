@@ -36,7 +36,7 @@ protected:
   virtual void initialize(int silence_frames, bool d_soft_vocoder);
   std::shared_ptr<Recorder> d_recorder;
   const Config &d_config;
-  Call *d_call;
+  std::shared_ptr<Call> d_call;
   gr::op25_repeater::p25_frame_assembler::sptr op25_frame_assembler;
   gr::msg_queue::sptr traffic_queue;
   gr::msg_queue::sptr rx_queue;
@@ -53,7 +53,7 @@ public:
   void set_source(long src);
   void set_xor_mask(const char *mask);
   void switch_tdma(bool phase2_tdma);
-  void start(Call *call);
+  void start(const std::shared_ptr<Call> &call);
   double since_last_write();
   void stop();
   void reset();

@@ -17,10 +17,10 @@ class System;
 #include "systems/parser.h"
 #include "systems/system.h"
 
-class Call {
+class Call : public std::enable_shared_from_this<Call> {
 public:
   // static Call * make(long t, double f, const std::shared_ptr<System> &s, Config c);
-  static Call *make(TrunkMessage message, const std::shared_ptr<System> &s, Config c);
+  static std::shared_ptr<Call> make(TrunkMessage message, const std::shared_ptr<System> &s, Config c);
   virtual ~Call(){};
   virtual long get_call_num() = 0;
   virtual void restart_call() = 0;

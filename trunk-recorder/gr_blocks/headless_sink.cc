@@ -36,7 +36,7 @@ headless_sink::headless_sink(int n_channels, unsigned int sample_rate, int /*bit
       d_talkgroup(0),
       d_freq(0.0) {}
 
-bool headless_sink::start_recording(Call *call) {
+bool headless_sink::start_recording(const std::shared_ptr<Call> &call) {
   d_state = IDLE;
   d_start_time = time(nullptr);
   d_stop_time = 0;
@@ -49,7 +49,7 @@ bool headless_sink::start_recording(Call *call) {
   return true;
 }
 
-bool headless_sink::start_recording(Call *call, int /*slot*/) {
+bool headless_sink::start_recording(const std::shared_ptr<Call> &call, int /*slot*/) {
   return start_recording(call);
 }
 

@@ -28,7 +28,7 @@ void p25_recorder_decode::stop() {
   d_call = nullptr;
 }
 
-void p25_recorder_decode::start(Call *call) {
+void p25_recorder_decode::start(const std::shared_ptr<Call> &call) {
   levels->set_k(call->get_system()->get_digital_levels());
 
   if(call->get_phase2_tdma()){

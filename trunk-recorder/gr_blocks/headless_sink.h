@@ -48,8 +48,8 @@ public:
                 unsigned int sample_rate,
                 int bits_per_sample);
 
-  bool start_recording(Call *call);
-  bool start_recording(Call *call, int slot);
+  bool start_recording(const std::shared_ptr<Call> &call);
+  bool start_recording(const std::shared_ptr<Call> &call, int slot);
   void stop_recording();
 
   void set_source(long src);

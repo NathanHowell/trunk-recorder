@@ -605,7 +605,7 @@ void Source::create_debug_recorder(gr::top_block_sptr tb, int source_num) {
   tb->connect(source_block, 0, log, 0);
 }
 
-std::shared_ptr<Recorder> Source::get_analog_recorder(const std::shared_ptr<Talkgroup> &talkgroup, int priority, Call *call) {
+std::shared_ptr<Recorder> Source::get_analog_recorder(const std::shared_ptr<Talkgroup> &talkgroup, int priority, const std::shared_ptr<Call> &call) {
   int num_available_recorders = get_num_available_analog_recorders();
   std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup_display(), call->get_freq());
   if (talkgroup && (priority == -1)) {
@@ -625,7 +625,7 @@ std::shared_ptr<Recorder> Source::get_analog_recorder(const std::shared_ptr<Talk
   return get_analog_recorder(call);
 }
 
-std::shared_ptr<Recorder> Source::get_analog_recorder(Call *call) {
+std::shared_ptr<Recorder> Source::get_analog_recorder(const std::shared_ptr<Call> &call) {
   for (auto &rx : analog_recorders) {
     if (rx->get_state() == AVAILABLE) {
       return rx;
@@ -636,7 +636,7 @@ std::shared_ptr<Recorder> Source::get_analog_recorder(Call *call) {
   return nullptr;
 }
 
-std::shared_ptr<Recorder> Source::get_digital_recorder(const std::shared_ptr<Talkgroup> &talkgroup, int priority, Call *call) {
+std::shared_ptr<Recorder> Source::get_digital_recorder(const std::shared_ptr<Talkgroup> &talkgroup, int priority, const std::shared_ptr<Call> &call) {
   int num_available_recorders = get_num_available_digital_recorders();
   std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup_display(), call->get_freq());
 
@@ -657,7 +657,7 @@ std::shared_ptr<Recorder> Source::get_digital_recorder(const std::shared_ptr<Tal
   return get_digital_recorder(call);
 }
 
-std::shared_ptr<Recorder> Source::get_digital_recorder(Call *call) {
+std::shared_ptr<Recorder> Source::get_digital_recorder(const std::shared_ptr<Call> &call) {
   for (auto &rx : digital_recorders) {
     if (rx->get_state() == AVAILABLE) {
       return rx;

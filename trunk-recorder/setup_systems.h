@@ -13,8 +13,8 @@
 #include "source.h"
 #include "systems/system.h"
 
-bool setup_conventional_channel(const std::shared_ptr<System> &system, double frequency, long channel_index, Config &config, gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources, std::vector<Call *> &calls);
-bool setup_conventional_system(const std::shared_ptr<System> &system, Config &config, gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources, std::vector<Call *> &calls);
-bool setup_systems(Config &config, gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources, std::vector<std::shared_ptr<System>> &systems, std::vector<Call *> &calls);
+bool setup_conventional_channel(const std::shared_ptr<System> &system, double frequency, long channel_index, Config &config, gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources, std::vector<std::shared_ptr<Call>> &calls);
+bool setup_conventional_system(const std::shared_ptr<System> &system, Config &config, gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources, std::vector<std::shared_ptr<Call>> &calls);
+bool setup_systems(Config &config, gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources, std::vector<std::shared_ptr<System>> &systems, std::vector<std::shared_ptr<Call>> &calls);
 
 #endif

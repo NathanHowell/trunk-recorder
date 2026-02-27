@@ -1,7 +1,7 @@
 #include "./setup_systems.h"
 #include "event_sink.h"
 using namespace std;
-bool setup_conventional_channel(const std::shared_ptr<System> &system, double frequency, long channel_index, Config &config, gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources, std::vector<Call *> &calls) {
+bool setup_conventional_channel(const std::shared_ptr<System> &system, double frequency, long channel_index, Config &config, gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources, std::vector<std::shared_ptr<Call>> &calls) {
   bool channel_added = false;
   std::shared_ptr<Source> source;
   float tone_freq = 0.0;
@@ -17,21 +17,21 @@ bool setup_conventional_channel(const std::shared_ptr<System> &system, double fr
         channel_added = true;
       }
 
-      Call_conventional *call = nullptr;
+      std::shared_ptr<Call_conventional> call;
       if (system->has_channel_file()) {
         auto tg = system->find_talkgroup_by_freq(frequency);
         tone_freq = tg->tone;
 
         // If there is a per channel squelch setting, use it, otherwise use the system squelch setting
         if (tg->squelch_db != DB_UNSET) {
-          call = new Call_conventional(tg->number, tg->freq, system, config, tg->squelch_db, tg->signal_detection);
+          call = std::make_shared<Call_conventional>(tg->number, tg->freq, system, config, tg->squelch_db, tg->signal_detection);
         } else {
-          call = new Call_conventional(tg->number, tg->freq, system, config, system->get_squelch_db(), tg->signal_detection);
+          call = std::make_shared<Call_conventional>(tg->number, tg->freq, system, config, system->get_squelch_db(), tg->signal_detection);
         }
-        
+
         call->set_talkgroup_tag(tg->alpha_tag);
       } else {
-        call = new Call_conventional(channel_index, frequency, system, config, system->get_squelch_db(), true);  // signal detection is always true when a channel file is not used
+        call = std::make_shared<Call_conventional>(channel_index, frequency, system, config, system->get_squelch_db(), true);  // signal detection is always true when a channel file is not used
       }
 
       BOOST_LOG_TRIVIAL(info) << "[" << system->get_short_name() << "]\tMonitoring " << system->get_system_type() << " channel: " << format_freq(frequency) << " Talkgroup: " << channel_index;
@@ -86,7 +86,7 @@ bool setup_conventional_channel(const std::shared_ptr<System> &system, double fr
   return channel_added;
 }
 
-bool setup_conventional_system(const std::shared_ptr<System> &system, Config &config, gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources, std::vector<Call *> &calls) {
+bool setup_conventional_system(const std::shared_ptr<System> &system, Config &config, gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources, std::vector<std::shared_ptr<Call>> &calls) {
   bool system_added = false;
 
   if (system->has_channel_file()) {
@@ -122,7 +122,7 @@ bool setup_conventional_system(const std::shared_ptr<System> &system, Config &co
   return system_added;
 }
 
-bool setup_systems(Config &config, gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources, std::vector<std::shared_ptr<System>> &systems, std::vector<Call *> &calls) {
+bool setup_systems(Config &config, gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources, std::vector<std::shared_ptr<System>> &systems, std::vector<std::shared_ptr<Call>> &calls) {
 
   for (auto &system : systems) {
     bool system_added = false;

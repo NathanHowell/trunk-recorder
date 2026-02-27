@@ -129,7 +129,7 @@ void sigmf_recorder_impl::stop() {
   }
 }
 
-bool sigmf_recorder_impl::start(Call *call) {
+bool sigmf_recorder_impl::start(const std::shared_ptr<Call> &call) {
   if (state == INACTIVE) {
     timestamp = time(nullptr);
     starttime = time(nullptr);
@@ -163,7 +163,7 @@ bool sigmf_recorder_impl::start(Call *call) {
     state = ACTIVE;
 
   if (conventional) {
-    Call_conventional *conventional_call = dynamic_cast<Call_conventional *>(call);
+    auto conventional_call = std::dynamic_pointer_cast<Call_conventional>(call);
     squelch_db = conventional_call->get_squelch_db();
     if (conventional_call->get_signal_detection()) {
       set_enabled(false);

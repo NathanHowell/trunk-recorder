@@ -299,7 +299,7 @@ void p25_recorder_impl::set_tdma_slot(int slot) {
   tdma_slot = slot;
 }
 
-bool p25_recorder_impl::start(Call *call) {
+bool p25_recorder_impl::start(const std::shared_ptr<Call> &call) {
   if (state == INACTIVE) {
     auto system = call->get_system();
     qpsk_mod = system->get_qpsk_mod();
@@ -355,7 +355,7 @@ bool p25_recorder_impl::start(Call *call) {
     state = ACTIVE;
 
     if (conventional) {
-      Call_conventional *conventional_call = dynamic_cast<Call_conventional *>(call);
+      auto conventional_call = std::dynamic_pointer_cast<Call_conventional>(call);
       squelch_db = conventional_call->get_squelch_db();
       if (conventional_call->get_signal_detection()) {
         set_enabled(false);

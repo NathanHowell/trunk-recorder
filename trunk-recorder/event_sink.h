@@ -18,17 +18,17 @@ class EventSink {
 public:
   virtual ~EventSink() = default;
 
-  virtual void audio_callback(Call *call, const std::shared_ptr<Recorder> &recorder,
+  virtual void audio_callback(const std::shared_ptr<Call> &call, const std::shared_ptr<Recorder> &recorder,
                               int16_t *samples, int sampleCount) = 0;
   virtual void poll_one() = 0;
   virtual int signal(long unitId, const char *signaling_type,
-                     gr::blocks::SignalType sig_type, Call *call,
+                     gr::blocks::SignalType sig_type, const std::shared_ptr<Call> &call,
                      const std::shared_ptr<System> &system, const std::shared_ptr<Recorder> &recorder) = 0;
   virtual void trunk_message(std::vector<TrunkMessage> messages,
                              const std::shared_ptr<System> &system) = 0;
-  virtual void call_start(Call *call) = 0;
-  virtual void conclude_call(Call *call, const std::shared_ptr<System> &sys, Config config) = 0;
-  virtual void calls_active(std::vector<Call *> calls) = 0;
+  virtual void call_start(const std::shared_ptr<Call> &call) = 0;
+  virtual void conclude_call(const std::shared_ptr<Call> &call, const std::shared_ptr<System> &sys, Config config) = 0;
+  virtual void calls_active(std::vector<std::shared_ptr<Call>> calls) = 0;
   virtual void setup_recorder(const std::shared_ptr<Recorder> &recorder) = 0;
   virtual void setup_system(const std::shared_ptr<System> &system) = 0;
   virtual void setup_config(std::vector<std::shared_ptr<Source>> sources,

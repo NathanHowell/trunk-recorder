@@ -15,7 +15,7 @@ uint64_t time_since_epoch_millisec() {
   return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 }
 
-bool start_recorder(Call *call, TrunkMessage message, Config &config, const std::shared_ptr<System> &sys, std::vector<std::shared_ptr<Source>> &sources) {
+bool start_recorder(const std::shared_ptr<Call> &call, TrunkMessage message, Config &config, const std::shared_ptr<System> &sys, std::vector<std::shared_ptr<Source>> &sources) {
   auto talkgroup = sys->find_talkgroup(call->get_talkgroup());
 
   bool source_found = false;
@@ -173,11 +173,10 @@ bool start_recorder(Call *call, TrunkMessage message, Config &config, const std:
   return false;
 }
 
-void print_status(std::vector<std::shared_ptr<Source>> &sources, std::vector<std::shared_ptr<System>> &systems, std::vector<Call *> &calls) {
+void print_status(std::vector<std::shared_ptr<Source>> &sources, std::vector<std::shared_ptr<System>> &systems, std::vector<std::shared_ptr<Call>> &calls) {
   BOOST_LOG_TRIVIAL(info) << "Active Calls: " << calls.size();
 
-  for (vector<Call *>::iterator it = calls.begin(); it != calls.end(); it++) {
-    Call *call = *it;
+  for (auto &call : calls) {
     auto recorder = call->get_recorder();
     std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup_display(), call->get_freq());
     if (call->get_state() == MONITORING) {
@@ -220,7 +219,7 @@ void print_status(std::vector<std::shared_ptr<Source>> &sources, std::vector<std
   }
 }
 
-void manage_conventional_call(Call *call, Config &config) {
+void manage_conventional_call(const std::shared_ptr<Call> &call, Config &config) {
 
   if (call->get_recorder()) {
     // if any recording has happened
@@ -271,10 +270,10 @@ void manage_conventional_call(Call *call, Config &config) {
   }
 }
 
-void manage_calls(Config &config, std::vector<Call *> &calls) {
+void manage_calls(Config &config, std::vector<std::shared_ptr<Call>> &calls) {
   bool ended_call = false;
-  for (vector<Call *>::iterator it = calls.begin(); it != calls.end();) {
-    Call *call = *it;
+  for (auto it = calls.begin(); it != calls.end();) {
+    auto &call = *it;
     State state = call->get_state();
     // Handle Conventional Calls
     if (call->is_conventional()) {
@@ -289,7 +288,6 @@ void manage_calls(Config &config, std::vector<Call *> &calls) {
       call->conclude_call();
       ended_call = true;
       it = calls.erase(it);
-      delete call;
       continue;
     }
 
@@ -309,7 +307,6 @@ void manage_calls(Config &config, std::vector<Call *> &calls) {
           config.event_sink->setup_recorder(recorder);
         }
         it = calls.erase(it);
-        delete call;
         continue;
       }
     } else if (call->since_last_update() > config.call_timeout) {
@@ -374,13 +371,13 @@ void unit_location(const std::shared_ptr<System> &sys, long source_id, long talk
 
 
 
-void handle_call_grant(TrunkMessage message, const std::shared_ptr<System> &sys, bool grant_message, Config &config, std::vector<std::shared_ptr<Source>> &sources, std::vector<Call *> &calls) {
+void handle_call_grant(TrunkMessage message, const std::shared_ptr<System> &sys, bool grant_message, Config &config, std::vector<std::shared_ptr<Source>> &sources, std::vector<std::shared_ptr<Call>> &calls) {
   bool call_found = false;
   bool duplicate_grant = false;
   bool superseding_grant = false;
   bool recording_started [[maybe_unused]] = false;
 
-  Call *original_call = nullptr;
+  std::shared_ptr<Call> original_call;
 
   /* Notes: it is possible for 2 Calls to exist for the same talkgroup on different freq. This happens when a Talkgroup starts on a freq
   that current recorder can't retune to. In this case, the current orig Talkgroup reocrder will keep going on the old freq, while a new
@@ -401,8 +398,7 @@ void handle_call_grant(TrunkMessage message, const std::shared_ptr<System> &sys,
     message_preferredNAC = message_talkgroup->get_preferredNAC();
   }
 
-  for (vector<Call *>::iterator it = calls.begin(); it != calls.end();) {
-    Call *call = *it;
+  for (auto &call : calls) {
 
     /* This is for Multi-Site support */
     // Find candidate duplicate calls with the same talkgroup and different multisite-enabled systems
@@ -482,11 +478,10 @@ void handle_call_grant(TrunkMessage message, const std::shared_ptr<System> &sys,
       BOOST_LOG_TRIVIAL(trace) << loghdr << "\u001b[36mShould be Stopping RECORDING call, Recorder State: " << recorder_state << " RX overlapping TG message Freq, TG:" << message.talkgroup << "\u001b[0m";
     }
 
-    it++;
   }
 
   if (!call_found) {
-    Call *call = Call::make(message, sys, config);
+    auto call = Call::make(message, sys, config);
 
     auto talkgroup = sys->find_talkgroup(call->get_talkgroup());
 
@@ -542,7 +537,7 @@ void handle_call_grant(TrunkMessage message, const std::shared_ptr<System> &sys,
   }
 }
 
-void handle_call_update(TrunkMessage message, const std::shared_ptr<System> &sys, std::vector<Call *> &calls, Config &config) {
+void handle_call_update(TrunkMessage message, const std::shared_ptr<System> &sys, std::vector<std::shared_ptr<Call>> &calls, Config &config) {
   bool call_found = false;
 
   /* Notes: it is possible for 2 Calls to exist for the same talkgroup on different freq. This happens when a Talkgroup starts on a freq
@@ -553,8 +548,7 @@ void handle_call_update(TrunkMessage message, const std::shared_ptr<System> &sys
   going until it gets a termination flag.
   */
 
-  for (vector<Call *>::iterator it = calls.begin(); it != calls.end(); ++it) {
-    Call *call = *it;
+  for (auto &call : calls) {
 
     // BOOST_LOG_TRIVIAL(info) << "TG: " << call->get_talkgroup() << " | " << message.talkgroup << " sys num: " << call->get_sys_num() << " | " << message.sys_num << " freq: " << call->get_freq() << " | " << message.freq << " TDMA Slot" << call->get_tdma_slot() << " | " << message.tdma_slot << " TDMA: " << call->get_phase2_tdma() << " | " << message.phase2_tdma;
     if ((call->get_talkgroup() == message.talkgroup) && (call->get_sys_num() == message.sys_num) && (call->get_freq() == message.freq) && (call->get_tdma_slot() == message.tdma_slot) && (call->get_phase2_tdma() == message.phase2_tdma)) {
@@ -582,7 +576,7 @@ void handle_call_update(TrunkMessage message, const std::shared_ptr<System> &sys
   }
 }
 
-void handle_message(std::vector<TrunkMessage> messages, const std::shared_ptr<System> &sys, Config &config, std::vector<std::shared_ptr<Source>> &sources, std::vector<Call *> &calls, gr::top_block_sptr &tb) {
+void handle_message(std::vector<TrunkMessage> messages, const std::shared_ptr<System> &sys, Config &config, std::vector<std::shared_ptr<Source>> &sources, std::vector<std::shared_ptr<Call>> &calls, gr::top_block_sptr &tb) {
   for (std::vector<TrunkMessage>::iterator it = messages.begin(); it != messages.end(); it++) {
     TrunkMessage message = *it;
 
@@ -745,9 +739,8 @@ void process_message_queues(std::vector<std::shared_ptr<System>> &systems) {
 }
 
 // Process message queues for recorders associated with Calls
-void process_recorder_message_queues(std::vector<Call *> &calls) {
-  for (vector<Call *>::iterator it = calls.begin(); it != calls.end(); ++it) {
-    Call *call = *it;
+void process_recorder_message_queues(std::vector<std::shared_ptr<Call>> &calls) {
+  for (auto &call : calls) {
     if (call->get_state() == RECORDING) {
       auto recorder = call->get_recorder();
       if (recorder && (recorder->get_type() == P25 || recorder->get_type() == P25C)) {
@@ -768,7 +761,7 @@ int monitor_messages(TrunkContext &ctx) {
   gr::top_block_sptr &tb = ctx.tb;
   std::vector<std::shared_ptr<Source>> &sources = ctx.sources;
   std::vector<std::shared_ptr<System>> &systems = ctx.systems;
-  std::vector<Call *> &calls = ctx.calls;
+  std::vector<std::shared_ptr<Call>> &calls = ctx.calls;
 
   gr::message::sptr msg;
 
@@ -796,16 +789,12 @@ int monitor_messages(TrunkContext &ctx) {
 
     if (ctx.exit_flag) { // my action when signal set it 1
       BOOST_LOG_TRIVIAL(info) << "Caught an Exit Signal...";
-      for (vector<Call *>::iterator it = calls.begin(); it != calls.end();) {
-        Call *call = *it;
-
+      for (auto &call : calls) {
         if (call->get_state() != MONITORING) {
           call->conclude_call();
         }
-
-        it = calls.erase(it);
-        delete call;
       }
+      calls.clear();
 
       BOOST_LOG_TRIVIAL(info) << "Cleaning up & Exiting...";
 

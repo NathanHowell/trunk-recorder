@@ -27,7 +27,7 @@ public:
   dmr_recorder(){};
   virtual ~dmr_recorder(){};
   virtual void tune_freq(double f) = 0;
-  virtual bool start(Call *call) = 0;
+  virtual bool start(const std::shared_ptr<Call> &call) = 0;
   virtual void stop() = 0;
   virtual double get_freq() = 0;
   virtual int get_freq_error() = 0;

@@ -134,9 +134,9 @@ protected:
   double final_length;
 
   Config config;
-  std::shared_ptr<Recorder> recorder;
-  std::shared_ptr<Recorder> debug_recorder;
-  std::shared_ptr<Recorder> sigmf_recorder;
+  std::weak_ptr<Recorder> recorder;
+  std::weak_ptr<Recorder> debug_recorder;
+  std::weak_ptr<Recorder> sigmf_recorder;
   bool add_source(long src);
   std::string talkgroup_display;
   std::string talkgroup_tag;

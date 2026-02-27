@@ -27,7 +27,7 @@ class sigmf_recorder : virtual public gr::hier_block2, virtual public Recorder {
 public:
   sigmf_recorder(){};
   virtual ~sigmf_recorder(){};
-  virtual bool start(Call *call) = 0;
+  virtual bool start(const std::shared_ptr<Call> &call) = 0;
   virtual void stop() = 0;
   virtual double get_freq() = 0;
   virtual int get_freq_error() = 0;

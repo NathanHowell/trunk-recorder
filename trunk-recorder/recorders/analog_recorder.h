@@ -62,7 +62,7 @@ protected:
 public:
   ~analog_recorder();
   void tune_freq(double f);
-  bool start(Call *call);
+  bool start(const std::shared_ptr<Call> &call);
   void stop();
   double get_freq();
   int get_freq_error();
@@ -119,7 +119,7 @@ private:
   std::vector<double> d_fbtaps; /*! Feed back taps. */
   float d_tau;                 /*! De-emphasis time constant. */
 
-  Call *call;
+  std::shared_ptr<Call> call;
   const Config &config;
   std::shared_ptr<Source> source;
   std::shared_ptr<System> system;

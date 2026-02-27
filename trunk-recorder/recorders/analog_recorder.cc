@@ -343,7 +343,7 @@ void analog_recorder::setup_decoders_for_system(const std::shared_ptr<System> &s
   decoder_sink->set_tps_enabled(system->get_tps_enabled());
 }
 
-bool analog_recorder::start(Call *call) {
+bool analog_recorder::start(const std::shared_ptr<Call> &call) {
   starttime = time(nullptr);
   auto system = call->get_system();
   this->call = call;
@@ -369,7 +369,7 @@ bool analog_recorder::start(Call *call) {
 
   state = ACTIVE;
   if (conventional) {
-    Call_conventional *conventional_call = dynamic_cast<Call_conventional *>(call);
+    auto conventional_call = std::dynamic_pointer_cast<Call_conventional>(call);
     squelch_db = conventional_call->get_squelch_db();
     if (conventional_call->get_signal_detection()) {
       set_enabled(false);

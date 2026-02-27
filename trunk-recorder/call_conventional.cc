@@ -26,7 +26,10 @@ void Call_conventional::restart_call() {
   encrypted = false;
   emergency = false;
   this->update_talkgroup_display();
-  recorder->start(this);
+  auto rec = recorder.lock();
+  if (rec) {
+    rec->start(shared_from_this());
+  }
 }
 
 time_t Call_conventional::get_start_time() {

@@ -66,7 +66,7 @@ public:
 
   void tune_freq(double f);
   void tune_offset(double f);
-  bool start(Call *call);
+  bool start(const std::shared_ptr<Call> &call);
   void stop();
   double get_freq();
   int get_num();
