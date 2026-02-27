@@ -357,7 +357,7 @@ std::vector<Detected_Signal> signal_detector_cvf_impl::find_signal_edges() {
 }
 
 std::vector<Detected_Signal> signal_detector_cvf_impl::get_detected_signals() {
-  gr::thread::scoped_lock guard(d_mutex);
+  std::lock_guard<std::mutex> guard(d_mutex);
   // BOOST_LOG_TRIVIAL(info) << "get_detected_freqs" << std::endl;
   // BOOST_LOG_TRIVIAL(info) << "d_detected_freqs.size() = " << d_detected_freqs.size() << std::endl;
   std::vector<Detected_Signal> safe_version = d_detected_signals;
@@ -388,7 +388,7 @@ int signal_detector_cvf_impl::work(int noutput_items,
         build_threshold();
       }
 
-      gr::thread::scoped_lock guard(d_mutex);
+      std::lock_guard<std::mutex> guard(d_mutex);
       d_detected_signals = find_signal_edges();
       last_conventional_channel_detection_check = current_time_ms;
     }

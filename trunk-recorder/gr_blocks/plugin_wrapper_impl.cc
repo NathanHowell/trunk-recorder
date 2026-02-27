@@ -48,7 +48,7 @@ plugin_wrapper_impl::plugin_wrapper_impl(plugin_callback callback)
 
 int plugin_wrapper_impl::work(int noutput_items, gr_vector_const_void_star &input_items, gr_vector_void_star &output_items) {
 
-  gr::thread::scoped_lock guard(d_mutex); // hold mutex for duration of this
+  std::lock_guard<std::mutex> guard(d_mutex); // hold mutex for duration of this
 
   return dowork(noutput_items, input_items, output_items);
 }

@@ -170,7 +170,7 @@ bool signal_decoder_sink_impl::get_star_enabled() { return d_star_enabled; };
 
 int signal_decoder_sink_impl::work(int noutput_items, gr_vector_const_void_star &input_items, gr_vector_void_star &output_items) {
 
-  gr::thread::scoped_lock guard(d_mutex); // hold mutex for duration of this
+  std::lock_guard<std::mutex> guard(d_mutex); // hold mutex for duration of this
 
   return dowork(noutput_items, input_items, output_items);
 }
