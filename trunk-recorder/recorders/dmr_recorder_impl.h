@@ -67,10 +67,10 @@
 class dmr_recorder_impl : public dmr_recorder {
 
 protected:
-  void initialize(Source *src);
+  void initialize(const std::shared_ptr<Source> &src);
 
 public:
-  dmr_recorder_impl(Source *src, Recorder_Type type);
+  dmr_recorder_impl(const std::shared_ptr<Source> &src, Recorder_Type type);
   void tune_freq(double f);
   bool start(Call *call);
   void stop();
@@ -93,7 +93,7 @@ public:
   State get_state();
   int lastupdate();
   long elapsed();
-  Source *get_source();
+  std::shared_ptr<Source> get_source();
 
   void plugin_callback_handler(int16_t *samples, int sampleCount);
 
@@ -105,7 +105,7 @@ protected:
   std::string short_name;
   Call *call;
   Config *config;
-  Source *source;
+  std::shared_ptr<Source> source;
   double chan_freq;
   double center_freq;
   double squelch_db;

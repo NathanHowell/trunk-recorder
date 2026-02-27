@@ -49,7 +49,7 @@ public:
   std::unique_ptr<Talkgroups> talkgroups;
   std::unique_ptr<UnitTags> unit_tags;
   std::unique_ptr<p25p2_lfsr> lfsr;
-  Source *source;
+  std::shared_ptr<Source> source;
   std::string talkgroups_file;
   std::string channel_file;
   std::string unit_tags_file;
@@ -157,8 +157,8 @@ public:
   void set_system_type(std::string) override;
   std::string get_talkgroups_file() override;
   std::string get_unit_tags_file() override;
-  Source *get_source() override;
-  void set_source(Source *) override;
+  std::shared_ptr<Source> get_source() override;
+  void set_source(const std::shared_ptr<Source> &) override;
   std::shared_ptr<Talkgroup> find_talkgroup(long tg) override;
   std::shared_ptr<Talkgroup> find_talkgroup_by_freq(double freq) override;
   std::string find_unit_tag(long unitID) override;
@@ -244,8 +244,8 @@ public:
   int get_retune_attempts() override;
   void set_retune_attempts(int attempts) override;
   bool add_ota_unit_tag(const OTAAlias &ota_alias) override;
-  void setup_trunking(Source *source, gr::top_block_sptr &tb) override;
-  void retune_trunking(gr::top_block_sptr &tb, std::vector<Source *> &sources) override;
+  void setup_trunking(const std::shared_ptr<Source> &source, gr::top_block_sptr &tb) override;
+  void retune_trunking(gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources) override;
 
 private:
   TalkgroupDisplayFormat talkgroup_display_format;

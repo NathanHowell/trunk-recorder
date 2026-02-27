@@ -1,11 +1,11 @@
 #include "./setup_systems.h"
 #include "event_sink.h"
 using namespace std;
-bool setup_conventional_channel(const std::shared_ptr<System> &system, double frequency, long channel_index, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<Call *> &calls) {
+bool setup_conventional_channel(const std::shared_ptr<System> &system, double frequency, long channel_index, Config &config, gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources, std::vector<Call *> &calls) {
   bool channel_added = false;
-  Source *source = nullptr;
+  std::shared_ptr<Source> source;
   float tone_freq = 0.0;
-  for (std::vector<Source *>::iterator src_it = sources.begin(); src_it != sources.end(); src_it++) {
+  for (auto src_it = sources.begin(); src_it != sources.end(); src_it++) {
     source = *src_it;
 
     if ((source->get_min_hz() <= frequency) && (source->get_max_hz() >= frequency)) {
@@ -86,7 +86,7 @@ bool setup_conventional_channel(const std::shared_ptr<System> &system, double fr
   return channel_added;
 }
 
-bool setup_conventional_system(const std::shared_ptr<System> &system, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<Call *> &calls) {
+bool setup_conventional_system(const std::shared_ptr<System> &system, Config &config, gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources, std::vector<Call *> &calls) {
   bool system_added = false;
 
   if (system->has_channel_file()) {
@@ -122,9 +122,7 @@ bool setup_conventional_system(const std::shared_ptr<System> &system, Config &co
   return system_added;
 }
 
-bool setup_systems(Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<std::shared_ptr<System>> &systems, std::vector<Call *> &calls) {
-
-  Source *source = nullptr;
+bool setup_systems(Config &config, gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources, std::vector<std::shared_ptr<System>> &systems, std::vector<Call *> &calls) {
 
   for (auto &system : systems) {
     bool system_added = false;
@@ -135,7 +133,7 @@ bool setup_systems(Config &config, gr::top_block_sptr &tb, std::vector<Source *>
       double control_channel_freq = system->get_current_control_channel();
       BOOST_LOG_TRIVIAL(info) << "[" << system->get_short_name() << "]\tStarted with Control Channel: " << format_freq(control_channel_freq);
 
-      for (auto *src : sources) {
+      for (auto &src : sources) {
         if ((src->get_min_hz() <= control_channel_freq) &&
             (src->get_max_hz() >= control_channel_freq)) {
           system_added = true;

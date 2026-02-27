@@ -15,7 +15,7 @@ uint64_t time_since_epoch_millisec() {
   return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 }
 
-bool start_recorder(Call *call, TrunkMessage message, Config &config, const std::shared_ptr<System> &sys, std::vector<Source *> &sources) {
+bool start_recorder(Call *call, TrunkMessage message, Config &config, const std::shared_ptr<System> &sys, std::vector<std::shared_ptr<Source>> &sources) {
   auto talkgroup = sys->find_talkgroup(call->get_talkgroup());
 
   bool source_found = false;
@@ -73,8 +73,7 @@ bool start_recorder(Call *call, TrunkMessage message, Config &config, const std:
     }
   }
 
-  for (vector<Source *>::iterator it = sources.begin(); it != sources.end(); it++) {
-    Source *source = *it;
+  for (auto &source : sources) {
 
     if ((source->get_min_hz() <= call->get_freq()) &&
         (source->get_max_hz() >= call->get_freq())) {
@@ -174,7 +173,7 @@ bool start_recorder(Call *call, TrunkMessage message, Config &config, const std:
   return false;
 }
 
-void print_status(std::vector<Source *> &sources, std::vector<std::shared_ptr<System>> &systems, std::vector<Call *> &calls) {
+void print_status(std::vector<std::shared_ptr<Source>> &sources, std::vector<std::shared_ptr<System>> &systems, std::vector<Call *> &calls) {
   BOOST_LOG_TRIVIAL(info) << "Active Calls: " << calls.size();
 
   for (vector<Call *>::iterator it = calls.begin(); it != calls.end(); it++) {
@@ -216,8 +215,7 @@ void print_status(std::vector<Source *> &sources, std::vector<std::shared_ptr<Sy
 
   BOOST_LOG_TRIVIAL(info) << "Recorders: ";
 
-  for (vector<Source *>::iterator it = sources.begin(); it != sources.end(); it++) {
-    Source *source = *it;
+  for (auto &source : sources) {
     source->print_recorders();
   }
 }
@@ -376,7 +374,7 @@ void unit_location(const std::shared_ptr<System> &sys, long source_id, long talk
 
 
 
-void handle_call_grant(TrunkMessage message, const std::shared_ptr<System> &sys, bool grant_message, Config &config, std::vector<Source *> &sources, std::vector<Call *> &calls) {
+void handle_call_grant(TrunkMessage message, const std::shared_ptr<System> &sys, bool grant_message, Config &config, std::vector<std::shared_ptr<Source>> &sources, std::vector<Call *> &calls) {
   bool call_found = false;
   bool duplicate_grant = false;
   bool superseding_grant = false;
@@ -584,7 +582,7 @@ void handle_call_update(TrunkMessage message, const std::shared_ptr<System> &sys
   }
 }
 
-void handle_message(std::vector<TrunkMessage> messages, const std::shared_ptr<System> &sys, Config &config, std::vector<Source *> &sources, std::vector<Call *> &calls, gr::top_block_sptr &tb) {
+void handle_message(std::vector<TrunkMessage> messages, const std::shared_ptr<System> &sys, Config &config, std::vector<std::shared_ptr<Source>> &sources, std::vector<Call *> &calls, gr::top_block_sptr &tb) {
   for (std::vector<TrunkMessage>::iterator it = messages.begin(); it != messages.end(); it++) {
     TrunkMessage message = *it;
 
@@ -686,7 +684,7 @@ void handle_message(std::vector<TrunkMessage> messages, const std::shared_ptr<Sy
 }
 
 
-void check_message_count(float timeDiff, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<std::shared_ptr<System>> &systems) {
+void check_message_count(float timeDiff, Config &config, gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources, std::vector<std::shared_ptr<System>> &systems) {
   config.event_sink->setup_config(sources, systems);
   config.event_sink->system_rates(systems, timeDiff);
 
@@ -731,10 +729,8 @@ void check_message_count(float timeDiff, Config &config, gr::top_block_sptr &tb,
   }
 }
 
-void check_conventional_channel_detection(std::vector<Source *> &sources) {
-  Source *source = nullptr;
-  for (vector<Source *>::iterator src_it = sources.begin(); src_it != sources.end(); src_it++) {
-    source = *src_it;
+void check_conventional_channel_detection(std::vector<std::shared_ptr<Source>> &sources) {
+  for (auto &source : sources) {
     source->enable_detected_recorders();
   }
 }
@@ -770,7 +766,7 @@ int monitor_messages(TrunkContext &ctx) {
 
   Config &config = ctx.config;
   gr::top_block_sptr &tb = ctx.tb;
-  std::vector<Source *> &sources = ctx.sources;
+  std::vector<std::shared_ptr<Source>> &sources = ctx.sources;
   std::vector<std::shared_ptr<System>> &systems = ctx.systems;
   std::vector<Call *> &calls = ctx.calls;
 
@@ -868,8 +864,7 @@ int monitor_messages(TrunkContext &ctx) {
 
     if (decode_rate_check_time_diff >= 3.0) {
       check_message_count(decode_rate_check_time_diff, config, tb, sources, systems);
-      for (vector<Source *>::iterator src_it = sources.begin(); src_it != sources.end(); src_it++) {
-        Source *source = *src_it;
+      for (auto &source : sources) {
         if (!source->got_samples()) {
           BOOST_LOG_TRIVIAL(error) << "Source " << source->get_num() << " has stopped receiving samples - Terminating trunk recorder";
           ctx.exit_flag = 1;

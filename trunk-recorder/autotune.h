@@ -13,7 +13,7 @@ class System;
 
 class AutotuneManager {
 private:
-  Source *parent_source;
+  std::weak_ptr<Source> parent_source;
   std::mutex history_mutex;
 
   std::deque<int> error_history; // Last 20 error measurements (in Hz)
@@ -24,7 +24,7 @@ private:
   static constexpr int SUGGESTED_ERROR_ROUNDING = 10; // Round suggested error to nearest X Hz
 
 public:
-  explicit AutotuneManager(Source *source);
+  explicit AutotuneManager(std::weak_ptr<Source> source);
 
   void add_error_measurement(int observed_error, int current_offset);
   int get_average_error() const;

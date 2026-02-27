@@ -4,14 +4,14 @@
 #include "p25_recorder.h"
 #include <boost/log/trivial.hpp>
 
-p25_recorder_sptr make_p25_recorder(Source *src, Recorder_Type type) {
+p25_recorder_sptr make_p25_recorder(const std::shared_ptr<Source> &src, Recorder_Type type) {
   auto sptr = gnuradio::get_initial_sptr(new p25_recorder_impl(src, type));
   // shared_from_this() is now available — build the decode blocks and wire the graph.
   static_cast<p25_recorder_impl *>(sptr.get())->build_graph();
   return sptr;
 }
 
-p25_recorder_impl::p25_recorder_impl(Source *src, Recorder_Type type)
+p25_recorder_impl::p25_recorder_impl(const std::shared_ptr<Source> &src, Recorder_Type type)
     : gr::hier_block2("p25_recorder",
                       gr::io_signature::make(1, 1, sizeof(gr_complex)),
                       gr::io_signature::make(0, 0, sizeof(float))),
@@ -24,7 +24,7 @@ p25_recorder_impl::p25_recorder_impl(Source *src, Recorder_Type type)
   initialize(src);
 }
 
-void p25_recorder_impl::initialize(Source *src) {
+void p25_recorder_impl::initialize(const std::shared_ptr<Source> &src) {
   source = src;
   chan_freq = source->get_center();
   center_freq = source->get_center();
@@ -151,7 +151,7 @@ int p25_recorder_impl::get_freq_error() { // get frequency error from FLL and co
   return prefilter->get_freq_error();
 }
 
-Source *p25_recorder_impl::get_source() {
+std::shared_ptr<Source> p25_recorder_impl::get_source() {
   return source;
 }
 

@@ -62,7 +62,7 @@ typedef std::shared_ptr<debug_recorder> debug_recorder_sptr;
 class debug_recorder_impl : public debug_recorder {
 
 public:
-  debug_recorder_impl(Source *src, std::string address, int port);
+  debug_recorder_impl(const std::shared_ptr<Source> &src, std::string address, int port);
 
   void tune_freq(double f);
   void tune_offset(double f);
@@ -75,7 +75,7 @@ public:
   State get_state();
   int lastupdate();
   long elapsed();
-  Source *get_source();
+  std::shared_ptr<Source> get_source();
   long get_source_count();
   Call_Source *get_source_list();
   void initialize_prefilter();
@@ -91,7 +91,7 @@ private:
   time_t starttime;
 
   Config *config;
-  Source *source;
+  std::shared_ptr<Source> source;
 
   // int num;
   State state;

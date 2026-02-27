@@ -13,6 +13,10 @@ gr::basic_block_sptr Source::get_src_block() {
   return source_block;
 }
 
+void Source::init_shared() {
+  autotune_manager = std::make_unique<AutotuneManager>(weak_from_this());
+}
+
 Config *Source::get_config() {
   return config;
 }
@@ -66,7 +70,6 @@ Source::Source(double c, double r, double e, std::string drv, std::string dev, C
   attached_selector = false;
   next_selector_port = 0;
   autotune_source = false;
-  autotune_manager = std::make_unique<AutotuneManager>(this);
 
   recorder_selector = gr::blocks::selector::make(sizeof(gr_complex), 0, 0);
 
@@ -172,7 +175,6 @@ void Source::set_iq_source(std::string iq_file, bool repeat, double center, doub
   attached_selector = false;
   next_selector_port = 0;
   autotune_source = false;
-  autotune_manager = std::make_unique<AutotuneManager>(this);
 
   iq_file_source::sptr iq_file_src;
   iq_file_src = iq_file_source::make(iq_file, this->rate, repeat);
@@ -489,7 +491,7 @@ void Source::create_analog_recorders(gr::top_block_sptr tb, int r) {
   max_analog_recorders = r;
 
   for (int i = 0; i < max_analog_recorders; i++) {
-    analog_recorder_sptr log = make_analog_recorder(this, ANALOG);
+    analog_recorder_sptr log = make_analog_recorder(shared_from_this(), ANALOG);
     analog_recorders.push_back(log);
     log->set_selector_port(next_selector_port);
     tb->connect(recorder_selector, next_selector_port, log, 0);
@@ -505,7 +507,7 @@ void Source::create_digital_recorders(gr::top_block_sptr tb, int r) {
   max_digital_recorders = r;
 
   for (int i = 0; i < max_digital_recorders; i++) {
-    p25_recorder_sptr log = make_p25_recorder(this, P25);
+    p25_recorder_sptr log = make_p25_recorder(shared_from_this(), P25);
     digital_recorders.push_back(log);
     log->set_selector_port(next_selector_port);
     tb->connect(recorder_selector, next_selector_port, log, 0);
@@ -520,7 +522,7 @@ void Source::create_sigmf_recorders(gr::top_block_sptr tb, int r) {
     attach_selector(tb);
   }
   for (int i = 0; i < max_sigmf_recorders; i++) {
-    sigmf_recorder_sptr log = make_sigmf_recorder(this, SIGMF);
+    sigmf_recorder_sptr log = make_sigmf_recorder(shared_from_this(), SIGMF);
 
     sigmf_recorders.push_back(log);
     log->set_selector_port(next_selector_port);
@@ -534,7 +536,7 @@ analog_recorder_sptr Source::create_conventional_recorder(gr::top_block_sptr tb,
   attach_detector(tb);
   attach_selector(tb);
 
-  analog_recorder_sptr log = make_analog_recorder(this, ANALOGC, tone_freq);
+  analog_recorder_sptr log = make_analog_recorder(shared_from_this(), ANALOGC, tone_freq);
   analog_conv_recorders.push_back(log);
   log->set_selector_port(next_selector_port);
   tb->connect(recorder_selector, next_selector_port, log, 0);
@@ -548,7 +550,7 @@ analog_recorder_sptr Source::create_conventional_recorder(gr::top_block_sptr tb)
   attach_detector(tb);
   attach_selector(tb);
 
-  analog_recorder_sptr log = make_analog_recorder(this, ANALOGC);
+  analog_recorder_sptr log = make_analog_recorder(shared_from_this(), ANALOGC);
   analog_conv_recorders.push_back(log);
   log->set_selector_port(next_selector_port);
   tb->connect(recorder_selector, next_selector_port, log, 0);
@@ -560,7 +562,7 @@ sigmf_recorder_sptr Source::create_sigmf_conventional_recorder(gr::top_block_spt
   // Conventional recorders are tracked seperately in digital_conv_recorders
   attach_detector(tb);
   attach_selector(tb);
-  sigmf_recorder_sptr log = make_sigmf_recorder(this, SIGMFC);
+  sigmf_recorder_sptr log = make_sigmf_recorder(shared_from_this(), SIGMFC);
   sigmf_conv_recorders.push_back(log);
   log->set_selector_port(next_selector_port);
   tb->connect(recorder_selector, next_selector_port, log, 0);
@@ -574,7 +576,7 @@ p25_recorder_sptr Source::create_digital_conventional_recorder(gr::top_block_spt
   attach_detector(tb);
   attach_selector(tb);
 
-  p25_recorder_sptr log = make_p25_recorder(this, P25C);
+  p25_recorder_sptr log = make_p25_recorder(shared_from_this(), P25C);
   digital_conv_recorders.push_back(log);
   log->set_selector_port(next_selector_port);
   tb->connect(recorder_selector, next_selector_port, log, 0);
@@ -588,7 +590,7 @@ dmr_recorder_sptr Source::create_dmr_conventional_recorder(gr::top_block_sptr tb
   attach_detector(tb);
   attach_selector(tb);
 
-  dmr_recorder_sptr log = make_dmr_recorder(this, DMR);
+  dmr_recorder_sptr log = make_dmr_recorder(shared_from_this(), DMR);
   dmr_conv_recorders.push_back(log);
   log->set_selector_port(next_selector_port);
   tb->connect(recorder_selector, next_selector_port, log, 0);
@@ -599,7 +601,7 @@ dmr_recorder_sptr Source::create_dmr_conventional_recorder(gr::top_block_sptr tb
 void Source::create_debug_recorder(gr::top_block_sptr tb, int source_num) {
   max_debug_recorders = 1;
   debug_recorder_port = config->debug_recorder_port + source_num;
-  debug_recorder_sptr log = make_debug_recorder(this, config->debug_recorder_address, debug_recorder_port);
+  debug_recorder_sptr log = make_debug_recorder(shared_from_this(), config->debug_recorder_address, debug_recorder_port);
   debug_recorders.push_back(log);
   tb->connect(source_block, 0, log, 0);
 }

@@ -99,8 +99,8 @@ public:
   virtual void set_system_type(std::string) = 0;
   virtual std::string get_talkgroups_file() = 0;
   virtual std::string get_unit_tags_file() = 0;
-  virtual Source *get_source() = 0;
-  virtual void set_source(Source *) = 0;
+  virtual std::shared_ptr<Source> get_source() = 0;
+  virtual void set_source(const std::shared_ptr<Source> &) = 0;
   virtual std::shared_ptr<Talkgroup> find_talkgroup(long tg) = 0;
   virtual std::shared_ptr<Talkgroup> find_talkgroup_by_freq(double freq) = 0;
   virtual std::string find_unit_tag(long unitID) = 0;
@@ -186,7 +186,7 @@ public:
   virtual void set_retune_attempts(int attempts) = 0;
   virtual bool add_ota_unit_tag(const OTAAlias &ota_alias) = 0;
 
-  virtual void setup_trunking(Source *source, gr::top_block_sptr &tb) = 0;
-  virtual void retune_trunking(gr::top_block_sptr &tb, std::vector<Source *> &sources) = 0;
+  virtual void setup_trunking(const std::shared_ptr<Source> &source, gr::top_block_sptr &tb) = 0;
+  virtual void retune_trunking(gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources) = 0;
 };
 #endif

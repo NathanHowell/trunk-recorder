@@ -25,11 +25,11 @@ std::vector<float> design_filter(double interpolation, double deci) {
   return result;
 }
 
-analog_recorder_sptr make_analog_recorder(Source *src, Recorder_Type type) {
+analog_recorder_sptr make_analog_recorder(const std::shared_ptr<Source> &src, Recorder_Type type) {
   return gnuradio::get_initial_sptr(new analog_recorder(src, nullptr, type, -1));
 }
 
-analog_recorder_sptr make_analog_recorder(Source *src, Recorder_Type type, float tone_freq) {
+analog_recorder_sptr make_analog_recorder(const std::shared_ptr<Source> &src, Recorder_Type type, float tone_freq) {
   return gnuradio::get_initial_sptr(new analog_recorder(src, nullptr, type, tone_freq));
 }
 
@@ -71,7 +71,7 @@ void analog_recorder::calculate_iir_taps(float tau) {
   d_fbtaps[1] = -p1;
 }
 
-analog_recorder::analog_recorder(Source *src, const std::shared_ptr<System> &system, Recorder_Type type, float tone_freq)
+analog_recorder::analog_recorder(const std::shared_ptr<Source> &src, const std::shared_ptr<System> &system, Recorder_Type type, float tone_freq)
     : gr::hier_block2("analog_recorder",
                       gr::io_signature::make(1, 1, sizeof(gr_complex)),
                       gr::io_signature::make(0, 0, sizeof(float))),
@@ -296,7 +296,7 @@ void analog_recorder::set_source(long src) {
   wav_sink->set_source(src);
 }
 
-Source *analog_recorder::get_source() {
+std::shared_ptr<Source> analog_recorder::get_source() {
   return source;
 }
 

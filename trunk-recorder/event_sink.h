@@ -31,7 +31,7 @@ public:
   virtual void calls_active(std::vector<Call *> calls) = 0;
   virtual void setup_recorder(const std::shared_ptr<Recorder> &recorder) = 0;
   virtual void setup_system(const std::shared_ptr<System> &system) = 0;
-  virtual void setup_config(std::vector<Source *> sources,
+  virtual void setup_config(std::vector<std::shared_ptr<Source>> sources,
                             std::vector<std::shared_ptr<System>> systems) = 0;
   virtual void system_rates(std::vector<std::shared_ptr<System>> systems, float timeDiff) = 0;
   virtual void unit_registration(const std::shared_ptr<System> &system, long source_id) = 0;

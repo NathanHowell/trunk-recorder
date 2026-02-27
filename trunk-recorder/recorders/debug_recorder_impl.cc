@@ -9,7 +9,7 @@
 
 // static int rec_counter=0;
 
-debug_recorder_sptr make_debug_recorder(Source *src, std::string address, int port) {
+debug_recorder_sptr make_debug_recorder(const std::shared_ptr<Source> &src, std::string address, int port) {
   debug_recorder *recorder = new debug_recorder_impl(src, address, port);
 
   return gnuradio::get_initial_sptr(recorder);
@@ -140,7 +140,7 @@ void debug_recorder_impl::initialize_prefilter() {
   connect(lowpass_filter, 0, arb_resampler, 0);
 }
 
-debug_recorder_impl::debug_recorder_impl(Source *src, std::string address, int port)
+debug_recorder_impl::debug_recorder_impl(const std::shared_ptr<Source> &src, std::string address, int port)
     : gr::hier_block2("debug_recorder",
                       gr::io_signature::make(1, 1, sizeof(gr_complex)),
                       gr::io_signature::make(0, 0, sizeof(float))),
@@ -174,7 +174,7 @@ Call_Source *debug_recorder_impl::get_source_list() {
   return nullptr; // wav_sink->get_source_list();
 }
 
-Source *debug_recorder_impl::get_source() {
+std::shared_ptr<Source> debug_recorder_impl::get_source() {
   return source;
 }
 

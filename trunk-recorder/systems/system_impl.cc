@@ -336,11 +336,11 @@ bool System_impl::has_custom_freq_table_file() {
   }
 }
 
-Source *System_impl::get_source() {
+std::shared_ptr<Source> System_impl::get_source() {
   return this->source;
 }
 
-void System_impl::set_source(Source *s) {
+void System_impl::set_source(const std::shared_ptr<Source> &s) {
   this->source = s;
 }
 
@@ -748,7 +748,7 @@ bool System_impl::add_ota_unit_tag(const OTAAlias &ota_alias) {
   return false;
 }
 
-void System_impl::setup_trunking(Source *source, gr::top_block_sptr &tb) {
+void System_impl::setup_trunking(const std::shared_ptr<Source> &source, gr::top_block_sptr &tb) {
   double control_channel_freq = get_current_control_channel();
   set_source(source);
 
@@ -763,8 +763,8 @@ void System_impl::setup_trunking(Source *source, gr::top_block_sptr &tb) {
   }
 }
 
-void System_impl::retune_trunking(gr::top_block_sptr &tb, std::vector<Source *> &sources) {
-  Source *current_source = get_source();
+void System_impl::retune_trunking(gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources) {
+  auto current_source = get_source();
   double control_channel_freq = get_next_control_channel();
 
   BOOST_LOG_TRIVIAL(error) << "[" << short_name << "] Retuning to Control Channel: " << format_freq(control_channel_freq);
@@ -785,7 +785,7 @@ void System_impl::retune_trunking(gr::top_block_sptr &tb, std::vector<Source *> 
     }
   } else {
     bool source_found = false;
-    for (auto *src : sources) {
+    for (auto &src : sources) {
       if ((src->get_min_hz() <= control_channel_freq) &&
           (src->get_max_hz() >= control_channel_freq)) {
         source_found = true;

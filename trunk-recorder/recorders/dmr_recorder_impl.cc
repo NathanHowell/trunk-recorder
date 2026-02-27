@@ -6,13 +6,13 @@
 #include "../gr_blocks/plugin_wrapper_impl.h"
 #include <boost/log/trivial.hpp>
 
-dmr_recorder_sptr make_dmr_recorder(Source *src, Recorder_Type type) {
+dmr_recorder_sptr make_dmr_recorder(const std::shared_ptr<Source> &src, Recorder_Type type) {
   dmr_recorder *recorder = new dmr_recorder_impl(src, type);
 
   return gnuradio::get_initial_sptr(recorder);
 }
 
-dmr_recorder_impl::dmr_recorder_impl(Source *src, Recorder_Type type)
+dmr_recorder_impl::dmr_recorder_impl(const std::shared_ptr<Source> &src, Recorder_Type type)
     : gr::hier_block2("dmr_recorder",
                       gr::io_signature::make(1, 1, sizeof(gr_complex)),
                       gr::io_signature::make(0, 0, sizeof(float))),
@@ -21,7 +21,7 @@ dmr_recorder_impl::dmr_recorder_impl(Source *src, Recorder_Type type)
   initialize(src);
 }
 
-void dmr_recorder_impl::initialize(Source *src) {
+void dmr_recorder_impl::initialize(const std::shared_ptr<Source> &src) {
   source = src;
   chan_freq = source->get_center();
   center_freq = source->get_center();
@@ -131,7 +131,7 @@ void dmr_recorder_impl::set_tdma(bool phase2) {
   }
 }
 
-Source *dmr_recorder_impl::get_source() {
+std::shared_ptr<Source> dmr_recorder_impl::get_source() {
   return source;
 }
 

@@ -50,14 +50,14 @@ typedef std::shared_ptr<analog_recorder> analog_recorder_sptr;
 
 #include "../source.h"
 
-analog_recorder_sptr make_analog_recorder(Source *src, Recorder_Type type);
-analog_recorder_sptr make_analog_recorder(Source *src, Recorder_Type type, float tone_freq);
+analog_recorder_sptr make_analog_recorder(const std::shared_ptr<Source> &src, Recorder_Type type);
+analog_recorder_sptr make_analog_recorder(const std::shared_ptr<Source> &src, Recorder_Type type, float tone_freq);
 class analog_recorder : public gr::hier_block2, public Recorder {
-  friend analog_recorder_sptr make_analog_recorder(Source *src, Recorder_Type type);
-  friend analog_recorder_sptr make_analog_recorder(Source *src, Recorder_Type type, float tone_freq);
+  friend analog_recorder_sptr make_analog_recorder(const std::shared_ptr<Source> &src, Recorder_Type type);
+  friend analog_recorder_sptr make_analog_recorder(const std::shared_ptr<Source> &src, Recorder_Type type, float tone_freq);
 
 protected:
-  analog_recorder(Source *src, const std::shared_ptr<System> &system, Recorder_Type type, float tone_freq);
+  analog_recorder(const std::shared_ptr<Source> &src, const std::shared_ptr<System> &system, Recorder_Type type, float tone_freq);
 
 public:
   ~analog_recorder();
@@ -67,7 +67,7 @@ public:
   double get_freq();
   int get_freq_error();
   void set_source(long src);
-  Source *get_source();
+  std::shared_ptr<Source> get_source();
   long get_talkgroup();
   time_t get_start_time();
   double get_current_length();
@@ -121,7 +121,7 @@ private:
 
   Call *call;
   Config *config;
-  Source *source;
+  std::shared_ptr<Source> source;
   std::shared_ptr<System> system;
   void calculate_iir_taps(float tau);
 

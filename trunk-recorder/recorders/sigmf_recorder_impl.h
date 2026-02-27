@@ -60,7 +60,7 @@
 class sigmf_recorder_impl : public sigmf_recorder {
 
 public:
-  sigmf_recorder_impl(Source *src, Recorder_Type type);
+  sigmf_recorder_impl(const std::shared_ptr<Source> &src, Recorder_Type type);
   bool start(Call *call);
   void stop();
   double get_freq();
@@ -89,7 +89,7 @@ private:
   time_t starttime;
 
   Config *config;
-  Source *source;
+  std::shared_ptr<Source> source;
   Call *call;
   char filename[255];
   // int num;

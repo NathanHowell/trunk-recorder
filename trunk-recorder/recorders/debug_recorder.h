@@ -27,11 +27,11 @@ class debug_recorder;
 
 typedef std::shared_ptr<debug_recorder> debug_recorder_sptr;
 
-debug_recorder_sptr make_debug_recorder(Source *src, std::string address, int port);
+debug_recorder_sptr make_debug_recorder(const std::shared_ptr<Source> &src, std::string address, int port);
 #include "../source.h"
 
 class debug_recorder : virtual public gr::hier_block2, virtual public Recorder {
-  static debug_recorder_sptr make_debug_recorder(Source *src, std::string address, int port);
+  static debug_recorder_sptr make_debug_recorder(const std::shared_ptr<Source> &src, std::string address, int port);
 
 public:
   debug_recorder(){};
@@ -48,7 +48,7 @@ public:
   virtual State get_state() = 0;
   virtual int lastupdate() = 0;
   virtual long elapsed() = 0;
-  virtual Source *get_source() = 0;
+  virtual std::shared_ptr<Source> get_source() = 0;
   virtual long get_source_count() = 0;
   virtual Call_Source *get_source_list() = 0;
   virtual void initialize_prefilter() = 0;

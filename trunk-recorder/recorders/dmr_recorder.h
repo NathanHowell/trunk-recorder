@@ -19,7 +19,7 @@ class dmr_recorder;
 
 typedef std::shared_ptr<dmr_recorder> dmr_recorder_sptr;
 
-dmr_recorder_sptr make_dmr_recorder(Source *src, Recorder_Type type);
+dmr_recorder_sptr make_dmr_recorder(const std::shared_ptr<Source> &src, Recorder_Type type);
 
 class dmr_recorder : virtual public gr::hier_block2, virtual public Recorder {
 
@@ -48,7 +48,7 @@ public:
   virtual State get_state() = 0;
   virtual int lastupdate() = 0;
   virtual long elapsed() = 0;
-  virtual Source *get_source() = 0;
+  virtual std::shared_ptr<Source> get_source() = 0;
 };
 
 #endif // ifndef dmr_recorder_H

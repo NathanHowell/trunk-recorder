@@ -25,7 +25,7 @@ struct Gain_Stage_t {
   double value;
 };
 
-class Source {
+class Source : public std::enable_shared_from_this<Source> {
 
   int src_num;
   double min_hz;
@@ -81,6 +81,7 @@ public:
   Source(double c, double r, double e, std::string driver, std::string device, Config *cfg);
   Source(std::string sigmf_meta, std::string sigmf_data, bool repeat, Config *cfg);
   Source(std::string iq_file, bool repeat, double center, double rate, Config *cfg);
+  void init_shared();
   void set_iq_source(std::string iq_file, bool repeat, double center, double rate);
   gr::basic_block_sptr get_src_block();
   void attach_detector(gr::top_block_sptr tb);

@@ -7,13 +7,13 @@
 
 
 
-sigmf_recorder_sptr make_sigmf_recorder(Source *src, Recorder_Type type) {
+sigmf_recorder_sptr make_sigmf_recorder(const std::shared_ptr<Source> &src, Recorder_Type type) {
   sigmf_recorder *recorder = new sigmf_recorder_impl(src, type);
 
   return gnuradio::get_initial_sptr(recorder);
 }
 
-sigmf_recorder_impl::sigmf_recorder_impl(Source *src, Recorder_Type type)
+sigmf_recorder_impl::sigmf_recorder_impl(const std::shared_ptr<Source> &src, Recorder_Type type)
     : gr::hier_block2("sigmf_recorder",
                       gr::io_signature::make(1, 1, sizeof(gr_complex)),
                       gr::io_signature::make(0, 0, sizeof(float))),

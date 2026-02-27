@@ -47,8 +47,8 @@
  *
  * @param source Pointer to parent Source object
  */
-AutotuneManager::AutotuneManager(Source *source)
-    : parent_source(source) {
+AutotuneManager::AutotuneManager(std::weak_ptr<Source> source)
+    : parent_source(std::move(source)) {
 }
 
 /**
@@ -78,14 +78,15 @@ void AutotuneManager::add_error_measurement(int observed_error, int current_offs
   }
 
   average_error = total_errors / static_cast<int>(error_history.size());
-  BOOST_LOG_TRIVIAL(debug) << "Source: " << parent_source->get_num() << " - Errors: " << debug_errors.str() << " Avg: " << average_error;
+  auto sp = parent_source.lock();
+  BOOST_LOG_TRIVIAL(debug) << "Source: " << (sp ? sp->get_num() : -1) << " - Errors: " << debug_errors.str() << " Avg: " << average_error;
 
   // Warn if calculated error offset > PPM_THRESHOLD
-  double center_freq = parent_source->get_center();
+  double center_freq = sp ? sp->get_center() : 0.0;
   if (center_freq != 0.0) {
     double ppm_correction = static_cast<double>(average_error) / (center_freq / 1000000.0);
     if (std::abs(ppm_correction) > PPM_THRESHOLD) {
-      BOOST_LOG_TRIVIAL(warning) << "Source " << parent_source->get_num()
+      BOOST_LOG_TRIVIAL(warning) << "Source " << (sp ? sp->get_num() : -1)
                                  << " - AutoTune offset: " << average_error
                                  << " Hz exceeds " << PPM_THRESHOLD << " PPM (based on center freq "
                                  << center_freq / 1e6 << " MHz). "
@@ -110,7 +111,8 @@ int AutotuneManager::get_average_error() const {
  */
 std::string AutotuneManager::get_status_string() const {
   int autotune_correction = get_average_error();
-  double initial_error = parent_source->get_error();
+  auto sp = parent_source.lock();
+  double initial_error = sp ? sp->get_error() : 0.0;
   double total_error = initial_error - autotune_correction;
   int suggested_error = static_cast<int>(std::round(total_error / SUGGESTED_ERROR_ROUNDING) * SUGGESTED_ERROR_ROUNDING);
 
@@ -137,7 +139,7 @@ void AutotuneManager::reset() {
  *                          Set to false when retuning to avoid storing junk values from retuned channels
  */
 void autotune_control_channel(const std::shared_ptr<System> &system, bool store_measurement) {
-  Source *source = system->get_source();
+  auto source = system->get_source();
   double control_channel_freq = system->get_current_control_channel();
 
   // Query the system control channel for the current frequency error and offset

@@ -61,14 +61,14 @@ class p25_recorder;
 #include "../source.h"
 
 class p25_recorder_impl : public p25_recorder {
-  friend p25_recorder_sptr make_p25_recorder(Source *src, Recorder_Type type);
+  friend p25_recorder_sptr make_p25_recorder(const std::shared_ptr<Source> &src, Recorder_Type type);
 
 protected:
-  void initialize(Source *src);
+  void initialize(const std::shared_ptr<Source> &src);
   void build_graph();
 
 public:
-  p25_recorder_impl(Source *src, Recorder_Type type);
+  p25_recorder_impl(const std::shared_ptr<Source> &src, Recorder_Type type);
 
   void initialize_qpsk();
   void initialize_fsk4();
@@ -97,7 +97,7 @@ public:
   State get_state();
   int lastupdate();
   long elapsed();
-  Source *get_source();
+  std::shared_ptr<Source> get_source();
   void autotune();
 
 protected:
@@ -108,7 +108,7 @@ protected:
   std::string short_name;
   Call *call;
   Config *config;
-  Source *source;
+  std::shared_ptr<Source> source;
   double chan_freq;
   double center_freq;
   bool qpsk_mod;

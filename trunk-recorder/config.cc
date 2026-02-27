@@ -67,7 +67,7 @@ void setup_console_log(std::string log_color, std::string time_fmt) {
   console_sink->imbue(loc);
 }
 
-bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<std::shared_ptr<System>> &systems) {
+bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources, std::vector<std::shared_ptr<System>> &systems) {
 
   string system_modulation;
 
@@ -374,7 +374,7 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
 
       bool source_enabled = element.value("enabled", true);
       if (source_enabled) {
-        Source *source;
+        std::shared_ptr<Source> source;
         bool gain_set = false;
         std::string driver = element.value("driver", "");
 
@@ -391,7 +391,8 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
           string sigmf_data = element.value("sigmfData", "");
           string sigmf_meta = element.value("sigmfMeta", "");
           bool repeat = element.value("repeat", false);
-          source = new Source(sigmf_meta, sigmf_data, repeat, &config);
+          source = std::make_shared<Source>(sigmf_meta, sigmf_data, repeat, &config);
+          source->init_shared();
         } else if (driver == "iqfile") {
           string iq_file = element.value("iqFile", "");
           string iq_type = element.value("iqType", "");
@@ -402,7 +403,8 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
             BOOST_LOG_TRIVIAL(error) << "IQ Type specified in config.json not recognized, needs to be complex or float";
             return false;
           }
-          source = new Source(iq_file, center, rate, repeat, &config);
+          source = std::make_shared<Source>(iq_file, center, rate, repeat, &config);
+          source->init_shared();
         } else {
 
           std::string device = element.value("device", "");
@@ -458,7 +460,8 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
             BOOST_LOG_TRIVIAL(info) << "Both PPM and Error should not be set at the same time. Setting Error to 0.";
             error = 0;
           }
-          source = new Source(center, rate, error, driver, device, &config);
+          source = std::make_shared<Source>(center, rate, error, driver, device, &config);
+          source->init_shared();
 
           // SoapySDRPlay3 quirk: autogain must be disabled before any of the gains can be set
           if (source->get_device().find("sdrplay") != std::string::npos) {
@@ -572,8 +575,7 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
     BOOST_LOG_TRIVIAL(info) << "\n\n-------------------------------------\nDEBUG RECORDER\n-------------------------------------\n";
     BOOST_LOG_TRIVIAL(info) << "  Address: " << config.debug_recorder_address;
 
-    for (vector<Source *>::iterator it = sources.begin(); it != sources.end(); it++) {
-      Source *source = *it;
+    for (auto &source : sources) {
       BOOST_LOG_TRIVIAL(info) << "  " << source->get_driver() << " - " << source->get_device() << " [ " << format_freq(source->get_center()) << " ]  Port: " << source->get_debug_recorder_port();
     }
     BOOST_LOG_TRIVIAL(info) << "\n\n-------------------------------------\n";
@@ -582,7 +584,7 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
   return true;
 }
 
-bool load_config(string config_file, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<std::shared_ptr<System>> &systems) {
+bool load_config(string config_file, Config &config, gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources, std::vector<std::shared_ptr<System>> &systems) {
 
   json data;
 
@@ -602,7 +604,7 @@ bool load_config(string config_file, Config &config, gr::top_block_sptr &tb, std
   return load_config_from_json(data, config, tb, sources, systems);
 }
 
-bool load_config_from_string(const std::string &json_body, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<std::shared_ptr<System>> &systems) {
+bool load_config_from_string(const std::string &json_body, Config &config, gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources, std::vector<std::shared_ptr<System>> &systems) {
 
   json data;
 
