@@ -38,11 +38,7 @@ private:
   double d_freq;
 
 public:
-#if GNURADIO_VERSION < 0x030900
-  typedef boost::shared_ptr<headless_sink> sptr;
-#else
   typedef std::shared_ptr<headless_sink> sptr;
-#endif
 
   static sptr make(int n_channels,
                    unsigned int sample_rate,

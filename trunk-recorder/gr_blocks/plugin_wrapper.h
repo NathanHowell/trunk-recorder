@@ -45,11 +45,7 @@ class BLOCKS_API plugin_wrapper : virtual public sync_block {
 public:
   // gr::blocks::plugin_wrapper::sptr
 
-#if GNURADIO_VERSION < 0x030900
-  typedef boost::shared_ptr<plugin_wrapper> sptr;
-#else
   typedef std::shared_ptr<plugin_wrapper> sptr;
-#endif
 };
 
 } /* namespace blocks */

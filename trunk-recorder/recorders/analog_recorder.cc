@@ -16,15 +16,6 @@ std::vector<float> design_filter(double interpolation, double deci) {
   float trans_width = 0.5 - 0.4;
   float mid_transition_band = 0.5 - trans_width / 2;
 
-#if GNURADIO_VERSION < 0x030900
-  std::vector<float> result = gr::filter::firdes::low_pass(
-      interpolation,
-      1,
-      mid_transition_band / interpolation,
-      trans_width / interpolation,
-      gr::filter::firdes::WIN_KAISER,
-      beta);
-#else
   std::vector<float> result = gr::filter::firdes::low_pass(
       interpolation,
       1,
@@ -32,7 +23,6 @@ std::vector<float> design_filter(double interpolation, double deci) {
       trans_width / interpolation,
       gr::fft::window::WIN_KAISER,
       beta);
-#endif
   return result;
 }
 
@@ -182,13 +172,8 @@ analog_recorder::analog_recorder(Source *src, System *system, Recorder_Type type
   // Analog audio band pass from 300 to 3000 Hz
   // can't use gnuradio.filter.firdes.band_pass since we have different transition widths
   // 300 Hz high pass (275-325 Hz): removes CTCSS/DCS and Type II 150 bps Low Speed Data (LSD), or "FSK wobble"
-#if GNURADIO_VERSION < 0x030900
-  high_f_taps = gr::filter::firdes::high_pass(1, wav_sample_rate, 300, 50, gr::filter::firdes::WIN_HANN); // Configurable
-  low_f_taps = gr::filter::firdes::low_pass(1, wav_sample_rate, 3250, 500, gr::filter::firdes::WIN_HANN);
-#else
   high_f_taps = gr::filter::firdes::high_pass(1, wav_sample_rate, 300, 50, gr::fft::window::WIN_HANN); // Configurable
   low_f_taps = gr::filter::firdes::low_pass(1, wav_sample_rate, 3250, 500, gr::fft::window::WIN_HANN);
-#endif
 
   high_f = gr::filter::fir_filter_fff::make(1, high_f_taps);
   // 3000 Hz low pass (3000-3500 Hz)

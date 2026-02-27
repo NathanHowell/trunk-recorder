@@ -2,7 +2,6 @@
 #define SYSTEM_H
 #include "../talkgroups.h"
 #include "../unit_tags.h"
-#include <boost/foreach.hpp>
 #include <boost/log/trivial.hpp>
 #include <gnuradio/msg_queue.h>
 #include <stdio.h>
@@ -31,17 +30,10 @@ enum TalkgroupDisplayFormat { talkGroupDisplayFormat_id = 0,
                               talkGroupDisplayFormat_id_tag = 1,
                               talkGroupDisplayFormat_tag_id = 2 };
 
-#if GNURADIO_VERSION < 0x030900
-typedef boost::shared_ptr<analog_recorder> analog_recorder_sptr;
-typedef boost::shared_ptr<p25_recorder> p25_recorder_sptr;
-typedef boost::shared_ptr<dmr_recorder> dmr_recorder_sptr;
-typedef boost::shared_ptr<sigmf_recorder> sigmf_recorder_sptr;
-#else
 typedef std::shared_ptr<analog_recorder> analog_recorder_sptr;
 typedef std::shared_ptr<p25_recorder> p25_recorder_sptr;
 typedef std::shared_ptr<dmr_recorder> dmr_recorder_sptr;
 typedef std::shared_ptr<sigmf_recorder> sigmf_recorder_sptr;
-#endif
 
 class System {
 

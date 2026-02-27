@@ -71,11 +71,7 @@ channelizer::channelizer(double input_rate, int samples_per_symbol, double symbo
     long fb = if2 / 2;
 
     bandpass_filter_coeffs = gr::filter::firdes::complex_band_pass(1.0, input_rate, -if1 / 2, if1 / 2, if1 / 2);
-#if GNURADIO_VERSION < 0x030900
-    lowpass_filter_coeffs = gr::filter::firdes::low_pass(1.0, if1, (fb + fa) / 2, fb - fa, gr::filter::firdes::WIN_HAMMING);
-#else
     lowpass_filter_coeffs = gr::filter::firdes::low_pass(1.0, if1, (fb + fa) / 2, fb - fa, gr::fft::window::WIN_HAMMING);
-#endif
     bandpass_filter = gr::filter::fft_filter_ccc::make(decim_settings.decim, bandpass_filter_coeffs);
     lowpass_filter = gr::filter::fft_filter_ccf::make(decim_settings.decim2, lowpass_filter_coeffs);
     resampled_rate = if2;
@@ -88,11 +84,7 @@ channelizer::channelizer(double input_rate, int samples_per_symbol, double symbo
     long fb = fa + 1250;
     lo = gr::analog::sig_source_c::make(input_rate, gr::analog::GR_SIN_WAVE, 0, 1.0, 0.0);
 
-#if GNURADIO_VERSION < 0x030900
-    lowpass_filter_coeffs = gr::filter::firdes::low_pass(1.0, input_rate, (fb + fa) / 2, fb - fa, gr::filter::firdes::WIN_HAMMING);
-#else
     lowpass_filter_coeffs = gr::filter::firdes::low_pass(1.0, input_rate, (fb + fa) / 2, fb - fa, gr::fft::window::WIN_HAMMING);
-#endif
     decim = floor(input_rate / channel_rate);
     resampled_rate = input_rate / decim;
     lowpass_filter = gr::filter::fft_filter_ccf::make(decim, lowpass_filter_coeffs);
@@ -123,11 +115,7 @@ channelizer::channelizer(double input_rate, int samples_per_symbol, double symbo
 
 // As we drop the bw factor, the optfir filter has a harder time converging;
 // using the firdes method here for better results.
-#if GNURADIO_VERSION < 0x030900
-    arb_taps = gr::filter::firdes::low_pass_2(arb_size, arb_size, bw, tb, arb_atten, gr::filter::firdes::WIN_BLACKMAN_HARRIS);
-#else
     arb_taps = gr::filter::firdes::low_pass_2(arb_size, arb_size, bw, tb, arb_atten, gr::fft::window::WIN_BLACKMAN_HARRIS);
-#endif
   } else {
     throw std::runtime_error("channelizer: resampling rate too low");
   }

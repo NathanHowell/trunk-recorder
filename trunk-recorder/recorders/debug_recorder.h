@@ -10,7 +10,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include <boost/shared_ptr.hpp>
 #if GNURADIO_VERSION < 0x030a00
 #include <gnuradio/blocks/udp_sink.h>
 #else
@@ -26,11 +25,7 @@
 class Source;
 class debug_recorder;
 
-#if GNURADIO_VERSION < 0x030900
-typedef boost::shared_ptr<debug_recorder> debug_recorder_sptr;
-#else
 typedef std::shared_ptr<debug_recorder> debug_recorder_sptr;
-#endif
 
 debug_recorder_sptr make_debug_recorder(Source *src, std::string address, int port);
 #include "../source.h"

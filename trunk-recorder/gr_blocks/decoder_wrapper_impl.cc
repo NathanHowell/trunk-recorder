@@ -23,7 +23,6 @@
 
 #include "decoder_wrapper_impl.h"
 #include "decoder_wrapper.h"
-#include <boost/math/special_functions/round.hpp>
 #include <climits>
 #include <cmath>
 #include <cstring>

@@ -11,7 +11,6 @@
 #include <time.h>
 
 #include <boost/log/trivial.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <gnuradio/hier_block2.h>
 #include <gnuradio/io_signature.h>
@@ -31,12 +30,8 @@ class smartnet_impl;
 
 class smartnet_impl : public gr::hier_block2 {
     public:
-    #if GNURADIO_VERSION < 0x030900
-    typedef boost::shared_ptr<smartnet_impl> sptr;
-    #else
-    typedef std::shared_ptr<smartnet_impl> sptr;
-    #endif
-    
+        typedef std::shared_ptr<smartnet_impl> sptr;
+        
     static sptr make(double f,
                                         double c,
                                         long s,

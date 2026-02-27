@@ -3,6 +3,7 @@
 
 #include "state.h"
 #include <boost/format.hpp>
+#include <sstream>
 #include <string>
 
 // ANSI color codes

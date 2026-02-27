@@ -74,11 +74,7 @@ class signal_detector_cvf : virtual public gr::sync_decimator
 {
 public:
 
-#if GNURADIO_VERSION < 0x030900
-  typedef boost::shared_ptr<signal_detector_cvf> sptr;
-#else
   typedef std::shared_ptr<signal_detector_cvf> sptr;
-#endif
 
     
 

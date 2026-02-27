@@ -1,11 +1,7 @@
 #include "unit_tags.h"
 
-#include <boost/algorithm/string/classification.hpp>
-#include <boost/algorithm/string/split.hpp>
-#include <boost/intrusive_ptr.hpp>
 #include <boost/log/trivial.hpp>
-#include <boost/tokenizer.hpp>
-#include <boost/regex.hpp>
+#include <regex>
 
 #include <csv-parser/csv.hpp>
 #include <cstdio>
@@ -198,8 +194,8 @@ std::string UnitTags::find_unit_tag(long tg_number) {
   // Helper lambda: Search user tags
   auto search_user_tags = [&]() -> std::string {
     for (auto &tg : unit_tags) {
-      if (regex_match(tg_num_str, tg->pattern)) {
-        return regex_replace(tg_num_str, tg->pattern, tg->tag, boost::regex_constants::format_no_copy | boost::regex_constants::format_all);
+      if (std::regex_match(tg_num_str, tg->pattern)) {
+        return std::regex_replace(tg_num_str, tg->pattern, tg->tag, std::regex_constants::format_no_copy);
       }
     }
     return "";

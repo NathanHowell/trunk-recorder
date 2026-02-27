@@ -42,21 +42,13 @@ private:
   double d_samp_rate;
 
   std::vector<gr::filter::single_pole_iir<float, float, double>> d_avg_filter;
-#if GNURADIO_VERSION < 0x030900
-  gr::filter::firdes::win_type d_window_type;
-#else
   gr::fft::window::win_type d_window_type;
-#endif
   uint64_t last_conventional_channel_detection_check;
   std::vector<float> d_window;
   std::vector<std::vector<float>> d_signal_edges;
   std::vector<std::vector<float>> d_rf_map;
   std::vector<Detected_Signal> d_detected_signals;
-#if GNURADIO_VERSION < 0x030900
-  gr::fft::fft_complex *d_fft;
-#else
   gr::fft::fft_complex_fwd *d_fft;
-#endif
   std::vector<float> d_freq;
   const char *d_filename;
   uint64_t time_since_epoch_millisec();

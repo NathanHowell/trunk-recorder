@@ -1,7 +1,6 @@
 #ifndef P25_RECORDER_QPSK_DEMOD_H
 #define P25_RECORDER_QPSK_DEMOD_H
 
-#include <boost/shared_ptr.hpp>
 #include <gnuradio/block.h>
 #include <gnuradio/block_detail.h>
 #include <gnuradio/filter/firdes.h>
@@ -19,21 +18,12 @@
 #include <op25_repeater/costas_loop_cc.h>
 #include <op25_repeater/gardner_cc.h>
 
-#if GNURADIO_VERSION < 0x030800
-#include <gnuradio/blocks/multiply_const_ff.h>
-#include <gnuradio/filter/fir_filter_fff.h>
-#else
 #include <gnuradio/blocks/multiply_const.h>
 #include <gnuradio/filter/fir_filter_blk.h>
-#endif
 
 class p25_recorder_qpsk_demod;
 
-#if GNURADIO_VERSION < 0x030900
-typedef boost::shared_ptr<p25_recorder_qpsk_demod> p25_recorder_qpsk_demod_sptr;
-#else
 typedef std::shared_ptr<p25_recorder_qpsk_demod> p25_recorder_qpsk_demod_sptr;
-#endif
 
 p25_recorder_qpsk_demod_sptr make_p25_recorder_qpsk_demod();
 

@@ -17,11 +17,7 @@ class iq_file_source : public gr::hier_block2 {
     gr::blocks::throttle::sptr throttle;
 
 public:
-#if GNURADIO_VERSION < 0x030900
-  typedef boost::shared_ptr<iq_file_source> sptr;
-#else
   typedef std::shared_ptr<iq_file_source> sptr;
-#endif
   static sptr make(std::string filename,  double rate, bool repeat);
          
 

@@ -99,11 +99,7 @@ xlat_channelizer::xlat_channelizer(double input_rate, int samples_per_symbol, do
 
 // As we drop the bw factor, the optfir filter has a harder time converging;
 // using the firdes method here for better results.
-#if GNURADIO_VERSION < 0x030900
-    arb_taps = gr::filter::firdes::low_pass_2(arb_size, arb_size, bw, tb, arb_atten, gr::filter::firdes::WIN_BLACKMAN_HARRIS);
-#else
     arb_taps = gr::filter::firdes::low_pass_2(arb_size, arb_size, bw, tb, arb_atten, gr::fft::window::WIN_BLACKMAN_HARRIS);
-#endif
     BOOST_LOG_TRIVIAL(info) << "\t Channelizer ARB - Symbol Rate: " << channel_rate << " Resampled Rate: " << resampled_rate << " ARB Rate: " << arb_rate << " ARB Taps: " << arb_taps.size() << " BW: " << bw << " TB: " << tb;
     arb_resampler = gr::filter::pfb_arb_resampler_ccf::make(arb_rate, arb_taps);
   } else if (arb_rate > 1) {

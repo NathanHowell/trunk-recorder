@@ -1,7 +1,6 @@
 #ifndef SMARTNET_FSK2_DEMOD_H
 #define SMARTNET_FSK2_DEMOD_H
 
-#include <boost/shared_ptr.hpp>
 #include <gnuradio/analog/quadrature_demod_cf.h>
 #include <gnuradio/block.h>
 #include <gnuradio/hier_block2.h>
@@ -9,11 +8,7 @@
 #include <gnuradio/msg_queue.h>
 #include <gnuradio/blocks/null_sink.h>
 
-#if GNURADIO_VERSION < 0x030800
-#include <gnuradio/filter/fir_filter_fff.h>
-#else
 #include <gnuradio/filter/fir_filter_blk.h>
-#endif
 
 #include <op25_repeater/rmsagc_ff.h>
 #include <op25_repeater/include/op25_repeater/fsk4_demod_ff.h>
@@ -28,11 +23,7 @@ class smartnet_fsk2_demod : public gr::hier_block2 {
   smartnet_fsk2_demod(gr::msg_queue::sptr queue);
   virtual ~smartnet_fsk2_demod();
   void reset();
-    #if GNURADIO_VERSION < 0x030900
-typedef boost::shared_ptr<smartnet_fsk2_demod> sptr;
-#else
-typedef std::shared_ptr<smartnet_fsk2_demod> sptr;
-#endif
+    typedef std::shared_ptr<smartnet_fsk2_demod> sptr;
 
 static sptr make(gr::msg_queue::sptr queue);
 

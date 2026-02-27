@@ -56,11 +56,7 @@ typedef std::function<void(long unitId, const char *signaling_type, SignalType s
 class BLOCKS_API decoder_wrapper : virtual public hier_block2 {
 public:
 // gr::blocks::decoder_wrapper::sptr
-#if GNURADIO_VERSION < 0x030900
-  typedef boost::shared_ptr<decoder_wrapper> sptr;
-#else
   typedef std::shared_ptr<decoder_wrapper> sptr;
-#endif
   virtual void set_mdc_enabled(bool b){};
   virtual void set_fsync_enabled(bool b){};
   virtual void set_star_enabled(bool b){};

@@ -27,7 +27,7 @@ bool start_recorder(Call *call, TrunkMessage message, Config &config, System *sy
   Recorder *sigmf_recorder;
 
   if (!talkgroup){
-    BOOST_FOREACH (auto &TGID, sys->get_talkgroup_patch(call->get_talkgroup())) {  //for each talkgroup in the patch
+    for (auto &TGID : sys->get_talkgroup_patch(call->get_talkgroup())) {  //for each talkgroup in the patch
       if (sys->find_talkgroup(TGID) != NULL){  //if the patched talkgroup is known
         override_record_unknown = true;
         std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup_display(), call->get_freq());
@@ -82,7 +82,7 @@ bool start_recorder(Call *call, TrunkMessage message, Config &config, System *sy
 
       if (talkgroup) {
         int priority = talkgroup->get_priority();
-        BOOST_FOREACH (auto &TGID, sys->get_talkgroup_patch(call->get_talkgroup())) {
+        for (auto &TGID : sys->get_talkgroup_patch(call->get_talkgroup())) {
           if (sys->find_talkgroup(TGID) != NULL) {
             if (sys->find_talkgroup(TGID)->get_priority() < priority) {
               priority = sys->find_talkgroup(TGID)->get_priority();

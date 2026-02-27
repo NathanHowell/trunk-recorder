@@ -23,7 +23,6 @@
 
 #include "signal_decoder_sink_impl.h"
 #include "signal_decoder_sink.h"
-#include <boost/math/special_functions/round.hpp>
 #include <climits>
 #include <cmath>
 #include <cstring>

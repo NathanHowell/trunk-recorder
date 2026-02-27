@@ -4,12 +4,12 @@
 #include <iostream>
 #include <stdio.h>
 #include <string>
-#include <boost/regex.hpp>
+#include <regex>
 
 // User defined tag structure with regex pattern matching
 class UnitTag {
 public:
-  boost::regex pattern;
+  std::regex pattern;
   std::string tag;
 
   UnitTag(std::string p, std::string t);

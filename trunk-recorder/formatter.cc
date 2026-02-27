@@ -1,5 +1,4 @@
 #include "formatter.h"
-#include <boost/lexical_cast.hpp>
 
 int frequency_format = 0;
 bool statusAsString = true;
@@ -58,7 +57,7 @@ std::string format_state(State state, MonitoringState monitoringState) {
     }
     return ss.str();
   }
-  return boost::lexical_cast<std::string>(state);
+  return std::to_string(static_cast<int>(state));
 }
 
 std::string log_header(std::string short_name,long call_num, std::string talkgroup_display, double freq) {

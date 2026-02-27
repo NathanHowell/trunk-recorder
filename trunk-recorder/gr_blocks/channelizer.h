@@ -14,16 +14,9 @@
 #include <gnuradio/filter/pfb_arb_resampler_ccf.h>
 #include <gnuradio/hier_block2.h>
 
-#if GNURADIO_VERSION < 0x030800
-#include <gnuradio/analog/sig_source_c.h>
-#include <gnuradio/blocks/multiply_cc.h>
-#include <gnuradio/blocks/multiply_const_ff.h>
-#include <gnuradio/blocks/multiply_const_ss.h>
-#else
 #include <gnuradio/analog/sig_source.h>
 #include <gnuradio/blocks/multiply.h>
 #include <gnuradio/blocks/multiply_const.h>
-#endif
 
 #include "../formatter.h"
 
@@ -70,11 +63,7 @@ private:
   static DecimSettings get_decim(long speed);
 
 public:
-#if GNURADIO_VERSION < 0x030900
-  typedef boost::shared_ptr<channelizer> sptr;
-#else
   typedef std::shared_ptr<channelizer> sptr;
-#endif
 
   static sptr make(double input_rate, int samples_per_symbol, double symbol_rate, double center_freq, bool conventional);
   channelizer(double input_rate, int samples_per_symbol, double symbol_rate, double center_freq, bool conventional);

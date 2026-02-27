@@ -38,11 +38,7 @@ protected:
   virtual int dowork(int noutput_items, gr_vector_const_void_star &input_items, gr_vector_void_star &output_items);
 
 public:
-#if GNURADIO_VERSION < 0x030900
-  typedef boost::shared_ptr<plugin_wrapper_impl> sptr;
-#else
   typedef std::shared_ptr<plugin_wrapper_impl> sptr;
-#endif
 
   static sptr make(plugin_callback callback);
 

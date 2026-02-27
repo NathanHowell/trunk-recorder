@@ -23,7 +23,6 @@
 
 #include "plugin_wrapper_impl.h"
 #include "plugin_wrapper.h"
-#include <boost/math/special_functions/round.hpp>
 #include <climits>
 #include <cmath>
 #include <cstring>

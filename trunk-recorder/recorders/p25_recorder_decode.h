@@ -1,7 +1,6 @@
 #ifndef P25_RECORDER_DECODE_H
 #define P25_RECORDER_DECODE_H
 
-#include <boost/shared_ptr.hpp>
 #include <json.hpp>
 #include <gnuradio/block.h>
 #include <gnuradio/block_detail.h>
@@ -18,11 +17,7 @@
 #include <op25_repeater/include/op25_repeater/rx_status.h>
 #include <op25_repeater/vocoder.h>
 
-#if GNURADIO_VERSION < 0x030800
-#include <gnuradio/blocks/multiply_const_ss.h>
-#else
 #include <gnuradio/blocks/multiply_const.h>
-#endif
 
 #include "../gr_blocks/plugin_wrapper.h"
 #include "../gr_blocks/headless_sink.h"
@@ -30,11 +25,7 @@
 
 class p25_recorder_decode;
 
-#if GNURADIO_VERSION < 0x030900
-typedef boost::shared_ptr<p25_recorder_decode> p25_recorder_decode_sptr;
-#else
 typedef std::shared_ptr<p25_recorder_decode> p25_recorder_decode_sptr;
-#endif
 
 p25_recorder_decode_sptr make_p25_recorder_decode(Recorder *recorder, Config *config, int silence_frames, bool d_soft_vocoder);
 

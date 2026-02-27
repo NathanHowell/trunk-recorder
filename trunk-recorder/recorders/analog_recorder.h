@@ -10,7 +10,6 @@
 #include <time.h>
 #include <unistd.h>
 
-#include <boost/shared_ptr.hpp>
 
 #include <gnuradio/hier_block2.h>
 #include <gnuradio/io_signature.h>
@@ -19,14 +18,8 @@
 
 #include <gnuradio/block.h>
 #include <gnuradio/blocks/copy.h>
-#if GNURADIO_VERSION < 0x030800
-#include <gnuradio/filter/fir_filter_fff.h>
-
-#include <gnuradio/blocks/multiply_const_ff.h>
-#else
 #include <gnuradio/blocks/multiply_const.h>
 #include <gnuradio/filter/fir_filter_blk.h>
-#endif
 #include <gnuradio/filter/fft_filter_ccf.h>
 #include <gnuradio/filter/firdes.h>
 #include <gnuradio/filter/iir_filter_ffd.h>
@@ -53,11 +46,7 @@ class analog_recorder;
 #include "../call_conventional.h"
 #include "recorder.h"
 
-#if GNURADIO_VERSION < 0x030900
-typedef boost::shared_ptr<analog_recorder> analog_recorder_sptr;
-#else
 typedef std::shared_ptr<analog_recorder> analog_recorder_sptr;
-#endif
 
 #include "../source.h"
 

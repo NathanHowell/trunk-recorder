@@ -42,11 +42,7 @@ class BLOCKS_API tps_decoder_sink : virtual public hier_block2 {
 public:
   // gr::blocks::wavfile_sink::sptr
 
-#if GNURADIO_VERSION < 0x030900
-  typedef boost::shared_ptr<tps_decoder_sink> sptr;
-#else
   typedef std::shared_ptr<tps_decoder_sink> sptr;
-#endif
 
   virtual void set_enabled(bool b){};
 

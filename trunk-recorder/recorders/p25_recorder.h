@@ -10,18 +10,13 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include <boost/shared_ptr.hpp>
 
 #include "recorder.h"
 
 class Source;
 class p25_recorder;
 
-#if GNURADIO_VERSION < 0x030900
-typedef boost::shared_ptr<p25_recorder> p25_recorder_sptr;
-#else
 typedef std::shared_ptr<p25_recorder> p25_recorder_sptr;
-#endif
 
 p25_recorder_sptr make_p25_recorder(Source *src, Recorder_Type type);
 #include "../source.h"

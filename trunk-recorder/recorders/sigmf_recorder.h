@@ -10,7 +10,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include <boost/shared_ptr.hpp>
 
 #include "../gr_blocks/freq_xlating_fft_filter.h"
 #include "recorder.h"
@@ -18,11 +17,7 @@
 class Source;
 class sigmf_recorder;
 
-#if GNURADIO_VERSION < 0x030900
-typedef boost::shared_ptr<sigmf_recorder> sigmf_recorder_sptr;
-#else
 typedef std::shared_ptr<sigmf_recorder> sigmf_recorder_sptr;
-#endif
 
 sigmf_recorder_sptr make_sigmf_recorder(Source *src, Recorder_Type type);
 #include "../source.h"

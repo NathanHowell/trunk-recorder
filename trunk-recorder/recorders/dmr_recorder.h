@@ -13,16 +13,11 @@
 #include "../gr_blocks/plugin_wrapper_impl.h"
 #include "../source.h"
 #include "recorder.h"
-#include <boost/shared_ptr.hpp>
 
 class Source;
 class dmr_recorder;
 
-#if GNURADIO_VERSION < 0x030900
-typedef boost::shared_ptr<dmr_recorder> dmr_recorder_sptr;
-#else
 typedef std::shared_ptr<dmr_recorder> dmr_recorder_sptr;
-#endif
 
 dmr_recorder_sptr make_dmr_recorder(Source *src, Recorder_Type type);
 

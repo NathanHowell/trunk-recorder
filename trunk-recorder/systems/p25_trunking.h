@@ -11,25 +11,16 @@
 #include <time.h>
 
 #include <boost/log/trivial.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <gnuradio/hier_block2.h>
 #include <gnuradio/io_signature.h>
 
 #include <gnuradio/block.h>
 
-#if GNURADIO_VERSION < 0x030800
-#include <gnuradio/analog/sig_source_c.h>
-#include <gnuradio/blocks/multiply_cc.h>
-#include <gnuradio/blocks/multiply_const_ff.h>
-#include <gnuradio/filter/fir_filter_ccf.h>
-#include <gnuradio/filter/fir_filter_fff.h>
-#else
 #include <gnuradio/analog/sig_source.h>
 #include <gnuradio/blocks/multiply.h>
 #include <gnuradio/blocks/multiply_const.h>
 #include <gnuradio/filter/fir_filter_blk.h>
-#endif
 
 #include <gnuradio/blocks/complex_to_arg.h>
 #include <gnuradio/blocks/short_to_float.h>
@@ -62,11 +53,7 @@
 
 class p25_trunking;
 
-#if GNURADIO_VERSION < 0x030900
-typedef boost::shared_ptr<p25_trunking> p25_trunking_sptr;
-#else
 typedef std::shared_ptr<p25_trunking> p25_trunking_sptr;
-#endif
 
 p25_trunking_sptr make_p25_trunking(double f,
                                     double c,

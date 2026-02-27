@@ -10,7 +10,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include <boost/shared_ptr.hpp>
 #include <filesystem>
 
 #include <gnuradio/filter/firdes.h>
@@ -26,29 +25,12 @@
 
 #include <gnuradio/blocks/complex_to_arg.h>
 
-#if GNURADIO_VERSION < 0x030800
-#include <gnuradio/analog/sig_source_c.h>
-#include <gnuradio/blocks/multiply_cc.h>
-#include <gnuradio/blocks/multiply_const_cc.h>
-#include <gnuradio/blocks/multiply_const_ff.h>
-#include <gnuradio/filter/fir_filter_ccf.h>
-#include <gnuradio/filter/fir_filter_fff.h>
-#include <gnuradio/filter/freq_xlating_fir_filter_ccf.h>
-#include <gnuradio/filter/rational_resampler_base_ccc.h>
-#include <gnuradio/filter/rational_resampler_base_ccf.h>
-#include <gnuradio/filter/rational_resampler_base_fff.h>
-#else
 #include <gnuradio/analog/sig_source.h>
 #include <gnuradio/blocks/multiply.h>
 #include <gnuradio/blocks/multiply_const.h>
 #include <gnuradio/filter/fir_filter_blk.h>
 #include <gnuradio/filter/freq_xlating_fir_filter.h>
-#if GNURADIO_VERSION < 0x030900
-#include <gnuradio/filter/rational_resampler_base.h>
-#else
 #include <gnuradio/filter/rational_resampler.h>
-#endif
-#endif
 
 #include <gnuradio/digital/fll_band_edge_cc.h>
 #include <gnuradio/blocks/file_sink.h>

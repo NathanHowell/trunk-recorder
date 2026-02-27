@@ -1,7 +1,6 @@
 #ifndef P25_RECORDER_FSK4_DEMOD_H
 #define P25_RECORDER_FSK4_DEMOD_H
 
-#include <boost/shared_ptr.hpp>
 #include <gnuradio/analog/pll_freqdet_cf.h>
 #include <gnuradio/analog/quadrature_demod_cf.h>
 #include <gnuradio/block.h>
@@ -14,13 +13,8 @@
 
 #include <gnuradio/filter/fft_filter_ccf.h>
 
-#if GNURADIO_VERSION < 0x030800
-#include <gnuradio/blocks/multiply_const_ff.h>
-#include <gnuradio/filter/fir_filter_fff.h>
-#else
 #include <gnuradio/blocks/multiply_const.h>
 #include <gnuradio/filter/fir_filter_blk.h>
-#endif
 #include "../gr_blocks/rms_agc.h"
 #include <op25_repeater/fsk4_slicer_fb.h>
 #include <op25_repeater/rmsagc_ff.h>
@@ -29,11 +23,7 @@
 
 class p25_recorder_fsk4_demod;
 
-#if GNURADIO_VERSION < 0x030900
-typedef boost::shared_ptr<p25_recorder_fsk4_demod> p25_recorder_fsk4_demod_sptr;
-#else
 typedef std::shared_ptr<p25_recorder_fsk4_demod> p25_recorder_fsk4_demod_sptr;
-#endif
 
 p25_recorder_fsk4_demod_sptr make_p25_recorder_fsk4_demod();
 

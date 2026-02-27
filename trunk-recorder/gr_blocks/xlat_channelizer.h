@@ -16,28 +16,16 @@
 #include <gnuradio/filter/pfb_arb_resampler_ccf.h>
 #include <gnuradio/hier_block2.h>
 
-#if GNURADIO_VERSION < 0x030800
-#include <gnuradio/analog/sig_source_c.h>
-#include <gnuradio/blocks/multiply_cc.h>
-#include <gnuradio/blocks/multiply_const_ff.h>
-#include <gnuradio/blocks/multiply_const_ss.h>
-
-#else
 #include <gnuradio/analog/sig_source.h>
 #include <gnuradio/blocks/multiply.h>
 #include <gnuradio/blocks/multiply_const.h>
-#endif
 
 #include "../formatter.h"
 #include "../global_structs.h"
 
 class xlat_channelizer : public gr::hier_block2 {
 public:
-#if GNURADIO_VERSION < 0x030900
-  typedef boost::shared_ptr<xlat_channelizer> sptr;
-#else
   typedef std::shared_ptr<xlat_channelizer> sptr;
-#endif
 
   static sptr make(double input_rate, int samples_per_symbol, double symbol_rate, double bandwidth, double center_freq, bool use_squelch, double excess_bw=default_excess_bw);
   xlat_channelizer(double input_rate, int samples_per_symbol, double symbol_rate, double bandwidth, double center_freq, bool use_squelch, double excess_bw);

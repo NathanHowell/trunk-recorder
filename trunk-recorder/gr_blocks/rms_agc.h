@@ -9,13 +9,8 @@
 
 #include <gnuradio/blocks/add_const_ff.h>
 
-#if GNURADIO_VERSION < 0x030800
-#include <gnuradio/blocks/divide_cc.h>
-#include <gnuradio/blocks/multiply_const_ff.h>
-#else
 #include <gnuradio/blocks/divide.h>
 #include <gnuradio/blocks/multiply_const.h>
-#endif
 
 class rms_agc;
 namespace gr {
@@ -23,11 +18,7 @@ namespace blocks {
 
 class BLOCKS_API rms_agc : virtual public gr::hier_block2 {
 public:
-#if GNURADIO_VERSION < 0x030900
-  typedef boost::shared_ptr<rms_agc> sptr;
-#else
   typedef std::shared_ptr<rms_agc> sptr;
-#endif
 
   static sptr make(double alpha, double reference);
   rms_agc(double a, double r);

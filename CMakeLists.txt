@@ -150,7 +150,6 @@ SET(BOOST_REQUIRED_COMPONENTS
     thread
     log_setup
     log
-    regex
 )
 
 if(UNIX AND NOT BOOST_ROOT AND EXISTS "/usr/lib64")
