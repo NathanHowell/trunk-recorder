@@ -92,8 +92,8 @@ analog_recorder::analog_recorder(Source *src, const std::shared_ptr<System> &sys
   rec_num = rec_counter++;
   state = INACTIVE;
 
-  timestamp = time(NULL);
-  starttime = time(NULL);
+  timestamp = time(nullptr);
+  starttime = time(nullptr);
 
   bool use_streaming = false;
 
@@ -105,7 +105,7 @@ analog_recorder::analog_recorder(Source *src, const std::shared_ptr<System> &sys
     this->tone_freq = 0;
   }
 
-  if (config != NULL) {
+  if (config != nullptr) {
     use_streaming = config->enable_audio_streaming;
   }
 
@@ -212,7 +212,7 @@ State analog_recorder::get_state() {
 }
 
 double analog_recorder::since_last_write() {
-  time_t now = time(NULL);
+  time_t now = time(nullptr);
   return now - wav_sink->get_stop_time();
 }
 
@@ -301,11 +301,11 @@ Source *analog_recorder::get_source() {
 }
 
 int analog_recorder::lastupdate() {
-  return time(NULL) - timestamp;
+  return time(nullptr) - timestamp;
 }
 
 long analog_recorder::elapsed() {
-  return time(NULL) - starttime;
+  return time(nullptr) - starttime;
 }
 
 time_t analog_recorder::get_start_time() {
@@ -325,11 +325,11 @@ void analog_recorder::tune_freq(double f) {
 
 void analog_recorder::decoder_callback_handler(long unitId, const char *signaling_type, gr::blocks::SignalType signal) {
   auto self = std::dynamic_pointer_cast<Recorder>(shared_from_this());
-  if (call != NULL) {
+  if (call != nullptr) {
     wav_sink->set_source(unitId);
     config->event_sink->signal(unitId, signaling_type, signal, call, call->get_system(), self);
   } else {
-    config->event_sink->signal(unitId, signaling_type, signal, NULL, NULL, self);
+    config->event_sink->signal(unitId, signaling_type, signal, nullptr, nullptr, self);
   }
 }
 
@@ -346,7 +346,7 @@ void analog_recorder::setup_decoders_for_system(const std::shared_ptr<System> &s
 }
 
 bool analog_recorder::start(Call *call) {
-  starttime = time(NULL);
+  starttime = time(nullptr);
   auto system = call->get_system();
   this->call = call;
 

@@ -1,6 +1,7 @@
 #ifndef GLOBAL_STRUCTS_H
 #define GLOBAL_STRUCTS_H
 #include <ctime>
+#include <memory>
 #include <string>
 #include <vector>
 const int DB_UNSET = 999;
@@ -45,7 +46,7 @@ struct Config {
   bool soft_vocoder;
   bool record_uu_v_calls;
   int frequency_format;
-  EventSink *event_sink = nullptr;
+  std::shared_ptr<EventSink> event_sink;
 };
 
 struct Call_Source {

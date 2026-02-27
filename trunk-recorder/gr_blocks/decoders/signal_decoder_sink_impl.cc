@@ -88,7 +88,7 @@ void mdc_callback(int frameCount, // 1 or 2 - if 2 then extra0-3 are valid
                                              "\"ex1\":\"%02x\","
                                              "\"ex2\":\"%02x\","
                                              "\"ex3\":\"%02x\"}\n",
-           (int)time(NULL), op, arg, unitID, extra0, extra1, extra2, extra3);
+           (int)time(nullptr), op, arg, unitID, extra0, extra1, extra2, extra3);
 
   BOOST_LOG_TRIVIAL(info) << json_buffer;
 
@@ -111,7 +111,7 @@ void fsync_callback(int cmd, int subcmd, int from_fleet, int from_unit, int to_f
                                              "\"payload\":\"%.*s\","
                                              "\"fsync2\":\"%d\","
                                              "\"2400\":\"%d\"}\n",
-           (int)time(NULL), cmd, subcmd, from_fleet, from_unit,
+           (int)time(nullptr), cmd, subcmd, from_fleet, from_unit,
            to_fleet, to_unit, allflag,
            payload_len, payload,
            is_fsync2, is_2400);
@@ -130,7 +130,7 @@ void star_callback(int unitID, int tag, int status, int message, void *context) 
                                              "\"tag\":\"%d\","
                                              "\"status\":\"%d\","
                                              "\"message\":\"%d\"}\n",
-           (int)time(NULL), unitID, tag, status, message);
+           (int)time(nullptr), unitID, tag, status, message);
 
   BOOST_LOG_TRIVIAL(info) << json_buffer;
 
@@ -193,7 +193,7 @@ int signal_decoder_sink_impl::dowork(int noutput_items, gr_vector_const_void_sta
 }
 
 void signal_decoder_sink_impl::log_decoder_msg(long unitId, const char *signaling_type, SignalType signal) {
-  if (d_callback != NULL) {
+  if (d_callback != nullptr) {
     d_callback(unitId, signaling_type, signal);
   } else {
     BOOST_LOG_TRIVIAL(warning) << "log_decoder_msg dropped, no callback setup!";

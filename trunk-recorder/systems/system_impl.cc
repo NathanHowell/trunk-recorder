@@ -72,7 +72,7 @@ System_impl::System_impl(int sys_num) {
   sys_site_id = 0;
   current_control_channel = 0;
   xor_mask_len = 0;
-  xor_mask = NULL;
+  xor_mask = nullptr;
   // Setup the talkgroups from the CSV file
   talkgroups = std::make_unique<Talkgroups>();
   // Setup the unit tags from the CSV file

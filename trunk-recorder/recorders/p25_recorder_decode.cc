@@ -25,7 +25,7 @@ p25_recorder_decode::~p25_recorder_decode() {
 
 void p25_recorder_decode::stop() {
   wav_sink->stop_recording();
-  d_call = NULL;
+  d_call = nullptr;
 }
 
 void p25_recorder_decode::start(Call *call) {

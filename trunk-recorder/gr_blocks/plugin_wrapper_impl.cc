@@ -55,7 +55,7 @@ int plugin_wrapper_impl::work(int noutput_items, gr_vector_const_void_star &inpu
 
 int plugin_wrapper_impl::dowork(int noutput_items, gr_vector_const_void_star &input_items, gr_vector_void_star &output_items) {
 
-  if (d_callback != NULL) {
+  if (d_callback != nullptr) {
     d_callback((int16_t *)input_items[0], noutput_items);
   } else {
     BOOST_LOG_TRIVIAL(warning) << "plugin_wrapper_impl dropped, no callback setup!";

@@ -154,8 +154,8 @@ debug_recorder_impl::debug_recorder_impl(Source *src, std::string address, int p
 
   state = INACTIVE;
 
-  timestamp = time(NULL);
-  starttime = time(NULL);
+  timestamp = time(nullptr);
+  starttime = time(nullptr);
 
   initialize_prefilter();
 #if GNURADIO_VERSION < 0x030a00
@@ -171,7 +171,7 @@ long debug_recorder_impl::get_source_count() {
 }
 
 Call_Source *debug_recorder_impl::get_source_list() {
-  return NULL; // wav_sink->get_source_list();
+  return nullptr; // wav_sink->get_source_list();
 }
 
 Source *debug_recorder_impl::get_source() {
@@ -199,11 +199,11 @@ double debug_recorder_impl::get_current_length() {
 }
 
 int debug_recorder_impl::lastupdate() {
-  return time(NULL) - timestamp;
+  return time(nullptr) - timestamp;
 }
 
 long debug_recorder_impl::elapsed() {
-  return time(NULL) - starttime;
+  return time(nullptr) - starttime;
 }
 
 void debug_recorder_impl::tune_freq(double f) {
@@ -252,8 +252,8 @@ void debug_recorder_impl::stop() {
 
 bool debug_recorder_impl::start(Call *call) {
   if (state == INACTIVE) {
-    timestamp = time(NULL);
-    starttime = time(NULL);
+    timestamp = time(nullptr);
+    starttime = time(nullptr);
 
     talkgroup = call->get_talkgroup();
     chan_freq = call->get_freq();

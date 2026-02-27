@@ -28,9 +28,9 @@ Call_impl::Call_impl(long t, double f, const std::shared_ptr<System> &s, Config 
   curr_src_id = -1;
   talkgroup = t;
   sys = s;
-  start_time = time(NULL);
-  stop_time = time(NULL);
-  last_update = time(NULL);
+  start_time = time(nullptr);
+  stop_time = time(nullptr);
+  last_update = time(nullptr);
   state = MONITORING;
   monitoringState = UNSPECIFIED;
   debug_recording = false;
@@ -60,9 +60,9 @@ Call_impl::Call_impl(TrunkMessage message, const std::shared_ptr<System> &s, Con
   freq_error = 0;
   talkgroup = message.talkgroup;
   sys = s;
-  start_time = time(NULL);
-  stop_time = time(NULL);
-  last_update = time(NULL);
+  start_time = time(nullptr);
+  stop_time = time(nullptr);
+  last_update = time(nullptr);
   state = MONITORING;
   monitoringState = UNSPECIFIED;
   debug_recording = false;
@@ -109,7 +109,7 @@ long Call_impl::get_call_num() {
 void Call_impl::conclude_call() {
 
   // BOOST_LOG_TRIVIAL(info) << "conclude_call()";
-  stop_time = time(NULL);
+  stop_time = time(nullptr);
 
   if (state == RECORDING || (state == MONITORING && monitoringState == SUPERSEDED)) {
     if (!recorder) {
@@ -372,13 +372,13 @@ bool Call_impl::add_source(long src) {
     }
   }
 
-  config.event_sink->signal(src, NULL, gr::blocks::SignalType::Normal, this, this->get_system(), nullptr);
+  config.event_sink->signal(src, nullptr, gr::blocks::SignalType::Normal, this, this->get_system(), nullptr);
 
   return true;
 }
 
 bool Call_impl::update(TrunkMessage message) {
-  last_update = time(NULL);
+  last_update = time(nullptr);
   if ((message.freq != this->curr_freq) || (message.talkgroup != this->talkgroup)) {
     std::string loghdr = log_header( sys->get_short_name(), this->get_call_num(), this->get_talkgroup_display(), this->get_freq());
     BOOST_LOG_TRIVIAL(error) << loghdr << "C\033[0m\tCall_impl Update, message mismatch - \ttMsg Tg: " << message.talkgroup << "\tMsg Freq: " << message.freq;
@@ -389,7 +389,7 @@ bool Call_impl::update(TrunkMessage message) {
 }
 
 int Call_impl::since_last_update() {
-  return time(NULL) - last_update;
+  return time(nullptr) - last_update;
 }
 
 double Call_impl::since_last_voice_update() {
@@ -403,7 +403,7 @@ double Call_impl::since_last_voice_update() {
 }
 
 long Call_impl::elapsed() {
-  return time(NULL) - start_time;
+  return time(nullptr) - start_time;
 }
 
 int Call_impl::get_idle_count() {

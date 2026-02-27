@@ -206,7 +206,7 @@ void tps_decoder_sink_impl::set_enabled(bool b) { valve->set_enabled(b); };
 bool tps_decoder_sink_impl::get_enabled() { return valve->enabled(); };
 
 void tps_decoder_sink_impl::log_decoder_msg(long unitId, const char *signaling_type, SignalType signal) {
-  if (d_callback != NULL) {
+  if (d_callback != nullptr) {
     d_callback(unitId, signaling_type, signal);
   }
 }

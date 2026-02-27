@@ -43,8 +43,8 @@ sigmf_recorder_impl::sigmf_recorder_impl(Source *src, Recorder_Type type)
 
   // double symbol_rate         = 4800;
 
-  timestamp = time(NULL);
-  starttime = time(NULL);
+  timestamp = time(nullptr);
+  starttime = time(nullptr);
 
 
 
@@ -98,11 +98,11 @@ double sigmf_recorder_impl::get_current_length() {
 }
 
 int sigmf_recorder_impl::lastupdate() {
-  return time(NULL) - timestamp;
+  return time(nullptr) - timestamp;
 }
 
 long sigmf_recorder_impl::elapsed() {
-  return time(NULL) - starttime;
+  return time(nullptr) - starttime;
 }
 /*
 void sigmf_recorder_impl::tune_offset(double f) {
@@ -131,8 +131,8 @@ void sigmf_recorder_impl::stop() {
 
 bool sigmf_recorder_impl::start(Call *call) {
   if (state == INACTIVE) {
-    timestamp = time(NULL);
-    starttime = time(NULL);
+    timestamp = time(nullptr);
+    starttime = time(nullptr);
     int nchars;
     tm *ltm = localtime(&starttime);
     this->call = call;

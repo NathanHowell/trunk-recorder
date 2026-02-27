@@ -28,7 +28,7 @@ bool start_recorder(Call *call, TrunkMessage message, Config &config, const std:
 
   if (!talkgroup){
     for (auto &TGID : sys->get_talkgroup_patch(call->get_talkgroup())) {  //for each talkgroup in the patch
-      if (sys->find_talkgroup(TGID) != NULL){  //if the patched talkgroup is known
+      if (sys->find_talkgroup(TGID) != nullptr){  //if the patched talkgroup is known
         override_record_unknown = true;
         std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup_display(), call->get_freq());
         BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[33mEnabling recording of TG not in Talkgroup File due to active supergroup patch\u001b[0m ";
@@ -83,7 +83,7 @@ bool start_recorder(Call *call, TrunkMessage message, Config &config, const std:
       if (talkgroup) {
         int priority = talkgroup->get_priority();
         for (auto &TGID : sys->get_talkgroup_patch(call->get_talkgroup())) {
-          if (sys->find_talkgroup(TGID) != NULL) {
+          if (sys->find_talkgroup(TGID) != nullptr) {
             if (sys->find_talkgroup(TGID)->get_priority() < priority) {
               priority = sys->find_talkgroup(TGID)->get_priority();
               BOOST_LOG_TRIVIAL(info) << "Temporarily increased priority of talkgroup " << call->get_talkgroup() << " to " << sys->find_talkgroup(TGID)->get_priority() << " due to active patch with talkgroup " << TGID;
@@ -331,13 +331,13 @@ void manage_calls(Config &config, std::vector<Call *> &calls) {
   }
 }
 
-void current_system_status(TrunkMessage message, const std::shared_ptr<System> &sys, EventSink *event_sink) {
+void current_system_status(TrunkMessage message, const std::shared_ptr<System> &sys, const std::shared_ptr<EventSink> &event_sink) {
   if (sys->update_status(message)) {
     event_sink->setup_system(sys);
   }
 }
 
-void current_system_sysid(TrunkMessage message, const std::shared_ptr<System> &sys, EventSink *event_sink) {
+void current_system_sysid(TrunkMessage message, const std::shared_ptr<System> &sys, const std::shared_ptr<EventSink> &event_sink) {
   if ((sys->get_system_type() == "p25") || (sys->get_system_type() == "conventionalP25")) {
     if (sys->update_sysid(message)) {
       event_sink->setup_system(sys);
@@ -345,31 +345,31 @@ void current_system_sysid(TrunkMessage message, const std::shared_ptr<System> &s
   }
 }
 
-void unit_registration(const std::shared_ptr<System> &sys, long source_id, EventSink *event_sink) {
+void unit_registration(const std::shared_ptr<System> &sys, long source_id, const std::shared_ptr<EventSink> &event_sink) {
   event_sink->unit_registration(sys, source_id);
 }
 
-void unit_deregistration(const std::shared_ptr<System> &sys, long source_id, EventSink *event_sink) {
+void unit_deregistration(const std::shared_ptr<System> &sys, long source_id, const std::shared_ptr<EventSink> &event_sink) {
   event_sink->unit_deregistration(sys, source_id);
 }
 
-void unit_acknowledge_response(const std::shared_ptr<System> &sys, long source_id, EventSink *event_sink) {
+void unit_acknowledge_response(const std::shared_ptr<System> &sys, long source_id, const std::shared_ptr<EventSink> &event_sink) {
   event_sink->unit_acknowledge_response(sys, source_id);
 }
 
-void unit_group_affiliation(const std::shared_ptr<System> &sys, long source_id, long talkgroup_num, EventSink *event_sink) {
+void unit_group_affiliation(const std::shared_ptr<System> &sys, long source_id, long talkgroup_num, const std::shared_ptr<EventSink> &event_sink) {
   event_sink->unit_group_affiliation(sys, source_id, talkgroup_num);
 }
 
-void unit_data_grant(const std::shared_ptr<System> &sys, long source_id, EventSink *event_sink) {
+void unit_data_grant(const std::shared_ptr<System> &sys, long source_id, const std::shared_ptr<EventSink> &event_sink) {
   event_sink->unit_data_grant(sys, source_id);
 }
 
-void unit_answer_request(const std::shared_ptr<System> &sys, long source_id, long talkgroup, EventSink *event_sink) {
+void unit_answer_request(const std::shared_ptr<System> &sys, long source_id, long talkgroup, const std::shared_ptr<EventSink> &event_sink) {
   event_sink->unit_answer_request(sys, source_id, talkgroup);
 }
 
-void unit_location(const std::shared_ptr<System> &sys, long source_id, long talkgroup_num, EventSink *event_sink) {
+void unit_location(const std::shared_ptr<System> &sys, long source_id, long talkgroup_num, const std::shared_ptr<EventSink> &event_sink) {
   event_sink->unit_location(sys, source_id, talkgroup_num);
 }
 
@@ -732,7 +732,7 @@ void check_message_count(float timeDiff, Config &config, gr::top_block_sptr &tb,
 }
 
 void check_conventional_channel_detection(std::vector<Source *> &sources) {
-  Source *source = NULL;
+  Source *source = nullptr;
   for (vector<Source *>::iterator src_it = sources.begin(); src_it != sources.end(); src_it++) {
     source = *src_it;
     source->enable_detected_recorders();
@@ -776,11 +776,11 @@ int monitor_messages(TrunkContext &ctx) {
 
   gr::message::sptr msg;
 
-  time_t last_status_time = time(NULL);
-  time_t last_decode_rate_check = time(NULL);
-  time_t management_timestamp = time(NULL);
+  time_t last_status_time = time(nullptr);
+  time_t last_decode_rate_check = time(nullptr);
+  time_t management_timestamp = time(nullptr);
   uint64_t last_conventional_channel_detection_check = time_since_epoch_millisec();
-  time_t current_time = time(NULL);
+  time_t current_time = time(nullptr);
   uint64_t current_time_ms = time_since_epoch_millisec();
   std::vector<TrunkMessage> trunk_messages;
   SmartnetParser *smartnet_parser;
@@ -850,7 +850,7 @@ int monitor_messages(TrunkContext &ctx) {
         }
       }
     }
-    current_time = time(NULL);
+    current_time = time(nullptr);
     current_time_ms = time_since_epoch_millisec();
     if ((current_time_ms - last_conventional_channel_detection_check) >= 0.1) {
       check_conventional_channel_detection(sources);

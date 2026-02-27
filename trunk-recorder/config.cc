@@ -80,7 +80,7 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
     char *no_color = getenv("NO_COLOR");
     bool color = true;
 
-    if (no_color != NULL && no_color[0] != '\0')
+    if (no_color != nullptr && no_color[0] != '\0')
       color = false;
 
     config.log_color = data.value("logColor", (color ? "console" : "none"));

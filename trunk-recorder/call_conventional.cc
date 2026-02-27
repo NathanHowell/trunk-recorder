@@ -16,9 +16,9 @@ void Call_conventional::restart_call() {
   signal = DB_UNSET;
   noise = DB_UNSET;
   curr_src_id = -1;
-  start_time = time(NULL);
-  stop_time = time(NULL);
-  last_update = time(NULL);
+  start_time = time(nullptr);
+  stop_time = time(nullptr);
+  last_update = time(nullptr);
   state = RECORDING;
   debug_recording = false;
   phase2_tdma = false;
@@ -40,7 +40,7 @@ void Call_conventional::set_recorder(const std::shared_ptr<Recorder> &r) {
 }
 
 void Call_conventional::recording_started() {
-  start_time = time(NULL);
+  start_time = time(nullptr);
 }
 
 double Call_conventional::get_squelch_db() {

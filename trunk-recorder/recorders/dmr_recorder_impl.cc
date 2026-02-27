@@ -39,14 +39,14 @@ void dmr_recorder_impl::initialize(Source *src) {
 
   bool use_streaming = false;
 
-  if (config != NULL) {
+  if (config != nullptr) {
     use_streaming = config->enable_audio_streaming;
   }
 
   state = INACTIVE;
 
-  timestamp = time(NULL);
-  starttime = time(NULL);
+  timestamp = time(nullptr);
+  starttime = time(nullptr);
 
   prefilter = xlat_channelizer::make(input_rate, channelizer::phase1_samples_per_symbol, channelizer::phase1_symbol_rate, xlat_channelizer::channel_bandwidth, center_freq, conventional);
 
@@ -140,7 +140,7 @@ int dmr_recorder_impl::get_num() {
 }
 
 double dmr_recorder_impl::since_last_write() {
-  time_t now = time(NULL);
+  time_t now = time(nullptr);
   return now - wav_sink_slot0->get_stop_time();
 }
 
@@ -200,11 +200,11 @@ double dmr_recorder_impl::get_current_length() {
 }
 
 int dmr_recorder_impl::lastupdate() {
-  return time(NULL) - timestamp;
+  return time(nullptr) - timestamp;
 }
 
 long dmr_recorder_impl::elapsed() {
-  return time(NULL) - starttime;
+  return time(nullptr) - starttime;
 }
 
 void dmr_recorder_impl::tune_freq(double f) {
@@ -261,8 +261,8 @@ bool dmr_recorder_impl::start(Call *call) {
     auto system = call->get_system();
     set_tdma_slot(0);
 
-    timestamp = time(NULL);
-    starttime = time(NULL);
+    timestamp = time(nullptr);
+    starttime = time(nullptr);
 
     talkgroup = call->get_talkgroup();
     short_name = call->get_short_name();

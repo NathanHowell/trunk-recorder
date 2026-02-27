@@ -89,7 +89,7 @@ void SmartnetParser::log_bandplan() {
 std::vector<TrunkMessage> SmartnetParser::parse_message(gr::message::sptr msg, const std::shared_ptr<System> &system) {
     this->system = system;
     int sysnum = system->get_sys_num();
-    time_t curr_time = time(NULL);
+    time_t curr_time = time(nullptr);
     std::vector<TrunkMessage> messages;
 
 

@@ -42,10 +42,10 @@ void p25_recorder_impl::initialize(Source *src) {
 
   state = INACTIVE;
 
-  timestamp = time(NULL);
-  starttime = time(NULL);
+  timestamp = time(nullptr);
+  starttime = time(nullptr);
 
-  if (config == NULL) {
+  if (config == nullptr) {
     this->set_enable_audio_streaming(false);
   } else {
     this->set_enable_audio_streaming(config->enable_audio_streaming);
@@ -236,11 +236,11 @@ double p25_recorder_impl::get_current_length() {
 }
 
 int p25_recorder_impl::lastupdate() {
-  return time(NULL) - timestamp;
+  return time(nullptr) - timestamp;
 }
 
 long p25_recorder_impl::elapsed() {
-  return time(NULL) - starttime;
+  return time(nullptr) - starttime;
 }
 
 void p25_recorder_impl::tune_freq(double f) {
@@ -325,8 +325,8 @@ bool p25_recorder_impl::start(Call *call) {
       set_tdma_slot(0);
     }
 
-    timestamp = time(NULL);
-    starttime = time(NULL);
+    timestamp = time(nullptr);
+    starttime = time(nullptr);
 
     talkgroup = call->get_talkgroup();
     short_name = call->get_short_name();

@@ -3,7 +3,7 @@
 using namespace std;
 bool setup_conventional_channel(const std::shared_ptr<System> &system, double frequency, long channel_index, Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<Call *> &calls) {
   bool channel_added = false;
-  Source *source = NULL;
+  Source *source = nullptr;
   float tone_freq = 0.0;
   for (std::vector<Source *>::iterator src_it = sources.begin(); src_it != sources.end(); src_it++) {
     source = *src_it;
@@ -17,7 +17,7 @@ bool setup_conventional_channel(const std::shared_ptr<System> &system, double fr
         channel_added = true;
       }
 
-      Call_conventional *call = NULL;
+      Call_conventional *call = nullptr;
       if (system->has_channel_file()) {
         auto tg = system->find_talkgroup_by_freq(frequency);
         tone_freq = tg->tone;
@@ -124,7 +124,7 @@ bool setup_conventional_system(const std::shared_ptr<System> &system, Config &co
 
 bool setup_systems(Config &config, gr::top_block_sptr &tb, std::vector<Source *> &sources, std::vector<std::shared_ptr<System>> &systems, std::vector<Call *> &calls) {
 
-  Source *source = NULL;
+  Source *source = nullptr;
 
   for (auto &system : systems) {
     bool system_added = false;

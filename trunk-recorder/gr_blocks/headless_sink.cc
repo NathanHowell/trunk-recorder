@@ -38,7 +38,7 @@ headless_sink::headless_sink(int n_channels, unsigned int sample_rate, int /*bit
 
 bool headless_sink::start_recording(Call *call) {
   d_state = IDLE;
-  d_start_time = time(NULL);
+  d_start_time = time(nullptr);
   d_stop_time = 0;
   d_sample_count = 0;
   d_last_write_time = std::chrono::steady_clock::now();
@@ -55,7 +55,7 @@ bool headless_sink::start_recording(Call *call, int /*slot*/) {
 
 void headless_sink::stop_recording() {
   d_state = AVAILABLE;
-  d_stop_time = time(NULL);
+  d_stop_time = time(nullptr);
 }
 
 void headless_sink::set_source(long /*src*/) {
@@ -88,7 +88,7 @@ std::vector<Transmission> headless_sink::get_transmission_list() {
   t.talkgroup = d_talkgroup;
   t.freq = d_freq;
   t.start_time = d_start_time;
-  t.stop_time = d_stop_time.load() > 0 ? d_stop_time.load() : time(NULL);
+  t.stop_time = d_stop_time.load() > 0 ? d_stop_time.load() : time(nullptr);
   t.sample_count = d_sample_count.load();
   t.length = length_in_seconds();
   t.source = 0;
@@ -122,7 +122,7 @@ int headless_sink::work(int noutput_items,
   if (d_state == RECORDING) {
     d_sample_count += noutput_items;
     d_last_write_time = std::chrono::steady_clock::now();
-    d_stop_time = time(NULL);
+    d_stop_time = time(nullptr);
   }
 
   // Consume all samples (discard audio data).
