@@ -1,6 +1,7 @@
 
 #include "sigmf_recorder_impl.h"
 #include <boost/log/trivial.hpp>
+#include <stdexcept>
 
 // static int rec_counter=0;
 
@@ -23,8 +24,7 @@ sigmf_recorder_impl::sigmf_recorder_impl(Source *src, Recorder_Type type)
         } else if (type == SIGMF) {
           conventional = false;
         } else {
-          BOOST_LOG_TRIVIAL(error) << "Trying to SIGMF Recorder to another type of recorder";
-          exit(1);
+          throw std::runtime_error("Cannot create SIGMF recorder with incompatible type");
         }
   source = src;
   freq = source->get_center();

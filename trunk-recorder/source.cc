@@ -192,10 +192,9 @@ Source::Source(std::string sigmf_meta, std::string sigmf_data, bool repeat, Conf
     data = json::parse(f);
   } catch (const json::parse_error &e) {
     // output exception information
-    std::cout << "message: " << e.what() << '\n'
-              << "exception id: " << e.id << '\n'
-              << "byte position of error: " << e.byte << std::endl;
-    exit(1);
+    BOOST_LOG_TRIVIAL(error) << "JSON parse error in source config: " << e.what()
+                            << " (id: " << e.id << ", byte: " << e.byte << ")";
+    throw;
   }
 
   std::cout << data.dump(4) << std::endl;

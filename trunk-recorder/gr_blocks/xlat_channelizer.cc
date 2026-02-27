@@ -1,4 +1,5 @@
 #include "xlat_channelizer.h"
+#include <stdexcept>
 
 xlat_channelizer::sptr xlat_channelizer::make(double input_rate, int samples_per_symbol, double symbol_rate, double bandwidth, double center_freq, bool use_squelch, double excess_bw) {
 
@@ -106,8 +107,7 @@ xlat_channelizer::xlat_channelizer(double input_rate, int samples_per_symbol, do
     BOOST_LOG_TRIVIAL(info) << "\t Channelizer ARB - Symbol Rate: " << channel_rate << " Resampled Rate: " << resampled_rate << " ARB Rate: " << arb_rate << " ARB Taps: " << arb_taps.size() << " BW: " << bw << " TB: " << tb;
     arb_resampler = gr::filter::pfb_arb_resampler_ccf::make(arb_rate, arb_taps);
   } else if (arb_rate > 1) {
-    BOOST_LOG_TRIVIAL(error) << "Something is probably wrong! Resampling rate too low";
-    exit(1);
+    throw std::runtime_error("xlat_channelizer: resampling rate too low (arb_rate > 1)");
   }
 
 

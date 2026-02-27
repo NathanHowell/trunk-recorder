@@ -2,6 +2,7 @@
 #include "debug_recorder_impl.h"
 #include "debug_recorder.h"
 #include <boost/log/trivial.hpp>
+#include <stdexcept>
 #if GNURADIO_VERSION >= 0x030a00
 #include <gnuradio/network/udp_header_types.h>
 #endif
@@ -42,8 +43,7 @@ void debug_recorder_impl::generate_arb_taps() {
     arb_taps = gr::filter::firdes::low_pass_2(arb_size, arb_size, bw, tb, arb_atten, gr::fft::window::WIN_BLACKMAN_HARRIS);
 #endif
   } else {
-    BOOST_LOG_TRIVIAL(error) << "Something is probably wrong! Resampling rate too low";
-    exit(1);
+    throw std::runtime_error("debug_recorder: resampling rate too low");
   }
 }
 

@@ -1,5 +1,6 @@
 #include "talkgroups.h"
 
+#include <stdexcept>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/intrusive_ptr.hpp>
@@ -37,7 +38,7 @@ void Talkgroups::load_talkgroups(int sys_num, std::string filename) {
     BOOST_LOG_TRIVIAL(error) << "The first column must be 'Decimal'";
     BOOST_LOG_TRIVIAL(error) << "Required columns are: 'Decimal', 'Mode', 'Description'";
     BOOST_LOG_TRIVIAL(error) << "Optional columns are: 'Alpha Tag', 'Hex', 'Category', 'Tag', 'Priority', 'Preferred NAC'";
-    exit(0);
+    throw std::runtime_error("Talkgroup CSV: first column must be 'Decimal'");
   } else {
     BOOST_LOG_TRIVIAL(info) << "Found Columns: " << internals::format_row(reader.get_col_names(), ", ");
   }
@@ -47,7 +48,7 @@ void Talkgroups::load_talkgroups(int sys_num, std::string filename) {
       BOOST_LOG_TRIVIAL(error) << "Unknown column header: " << headers[i];
       BOOST_LOG_TRIVIAL(error) << "Required columns are: 'Decimal', 'Mode', 'Description'";
       BOOST_LOG_TRIVIAL(error) << "Optional columns are: 'Alpha Tag', 'Hex', 'Category', 'Tag', 'Priority', 'Preferred NAC'";
-      exit(0);
+      throw std::runtime_error("Talkgroup CSV: unknown column header '" + headers[i] + "'");
     }
   }
 
@@ -67,23 +68,21 @@ void Talkgroups::load_talkgroups(int sys_num, std::string filename) {
       tg_number = row["Decimal"].get<long>();
     } else {
       BOOST_LOG_TRIVIAL(error) << "'Decimal' is required for specifying the Talkgroup number - Row: " << reader.n_rows();
-      exit(0);
+      throw std::runtime_error("Talkgroup CSV: missing 'Decimal' value");
     }
 
     if ((reader.index_of("Mode") >= 0) && row["Mode"].is_str()) {
       mode = row["Mode"].get<std::string>();
     } else {
       BOOST_LOG_TRIVIAL(error) << "Mode is required for Row: " << reader.n_rows();
-      ;
-      exit(0);
+      throw std::runtime_error("Talkgroup CSV: missing 'Mode' value");
     }
 
     if (reader.index_of("Description") >= 0) {
       description = row["Description"].get<std::string>();
     } else {
       BOOST_LOG_TRIVIAL(error) << "Description is required for Row: " << reader.n_rows();
-      ;
-      exit(0);
+      throw std::runtime_error("Talkgroup CSV: missing 'Description' value");
     }
 
     if (reader.index_of("Alpha Tag") >= 0) {
@@ -133,7 +132,7 @@ void Talkgroups::load_channels(int sys_num, std::string filename) {
     BOOST_LOG_TRIVIAL(error) << "The first column must be 'TG Number'";
     BOOST_LOG_TRIVIAL(error) << "Required columns are: 'TG Number', 'Frequency'";
     BOOST_LOG_TRIVIAL(error) << "Optional columns are: 'Alpha Tag', 'Tone', 'Description', 'Category', 'Tag', 'Enable', 'Comment', 'Signal Detector', 'Squelch'";
-    exit(0);
+    throw std::runtime_error("Channel CSV: first column must be 'TG Number'");
   } else {
     BOOST_LOG_TRIVIAL(info) << "Found Columns: " << internals::format_row(reader.get_col_names(), ", ");
   }
@@ -143,7 +142,7 @@ void Talkgroups::load_channels(int sys_num, std::string filename) {
       BOOST_LOG_TRIVIAL(error) << "Unknown column header: " << headers[i];
       BOOST_LOG_TRIVIAL(error) << "Required columns are: 'TG Number', 'Frequency'";
       BOOST_LOG_TRIVIAL(error) << "Optional columns are: 'Alpha Tag', 'Tone', 'Description', 'Category', 'Tag', 'Enable', 'Comment', 'Signal Detector', 'Squelch'";
-      exit(0);
+      throw std::runtime_error("Channel CSV: unknown column header '" + headers[i] + "'");
     }
   }
 
@@ -165,7 +164,7 @@ void Talkgroups::load_channels(int sys_num, std::string filename) {
       tg_number = row["TG Number"].get<long>();
     } else {
       BOOST_LOG_TRIVIAL(error) << "'TG Number' is required for specifying the Talkgroup number - Row: " << reader.n_rows();
-      exit(0);
+      throw std::runtime_error("Channel CSV: missing 'TG Number' value");
     }
 
     if ((reader.index_of("Description") >= 0) && row["Description"].is_str()) {

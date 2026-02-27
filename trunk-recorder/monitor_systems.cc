@@ -964,7 +964,9 @@ int monitor_messages(TrunkContext &ctx) {
         Source *source = *src_it;
         if (!source->got_samples()) {
           BOOST_LOG_TRIVIAL(error) << "Source " << source->get_num() << " has stopped receiving samples - Terminating trunk recorder";
-          exit(1);
+          ctx.exit_flag = 1;
+          ctx.exit_code = 1;
+          break;
         }
       }
       last_decode_rate_check = current_time;

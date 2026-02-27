@@ -1,4 +1,5 @@
 #include "channelizer.h"
+#include <stdexcept>
 
 channelizer::sptr channelizer::make(double input_rate, int samples_per_symbol, double symbol_rate, double center_freq, bool conventional) {
 
@@ -128,8 +129,7 @@ channelizer::channelizer(double input_rate, int samples_per_symbol, double symbo
     arb_taps = gr::filter::firdes::low_pass_2(arb_size, arb_size, bw, tb, arb_atten, gr::fft::window::WIN_BLACKMAN_HARRIS);
 #endif
   } else {
-    BOOST_LOG_TRIVIAL(error) << "Something is probably wrong! Resampling rate too low";
-    exit(1);
+    throw std::runtime_error("channelizer: resampling rate too low");
   }
   arb_resampler = gr::filter::pfb_arb_resampler_ccf::make(arb_rate, arb_taps);
   double sps = d_samples_per_symbol;
