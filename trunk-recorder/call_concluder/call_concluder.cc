@@ -483,7 +483,9 @@ void Call_Concluder::conclude_call(Call *call, System *sys, Config config) {
         BOOST_LOG_TRIVIAL(error) << loghdr << "Failed to create metadata JSON for encrypted call";
       }
     }
-    
+
+    // Notify plugins so they see the call ended (with duration/metadata).
+    plugman_call_end(call_info);
     remove_call_files(call_info);
     return;
   }
