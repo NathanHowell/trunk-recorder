@@ -92,7 +92,6 @@ analog_recorder::analog_recorder(const std::shared_ptr<Source> &src, const std::
   rec_num = rec_counter++;
   state = INACTIVE;
 
-  timestamp = std::chrono::steady_clock::now();
   starttime = std::chrono::steady_clock::now();
 
   bool use_streaming = false;
@@ -295,14 +294,6 @@ void analog_recorder::set_source(long src) {
 
 std::shared_ptr<Source> analog_recorder::get_source() {
   return source;
-}
-
-int analog_recorder::lastupdate() {
-  return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - timestamp).count();
-}
-
-long analog_recorder::elapsed() {
-  return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - starttime).count();
 }
 
 double analog_recorder::get_current_length() {

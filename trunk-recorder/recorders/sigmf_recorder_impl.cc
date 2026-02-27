@@ -43,7 +43,6 @@ sigmf_recorder_impl::sigmf_recorder_impl(const std::shared_ptr<Source> &src, Rec
 
   // double symbol_rate         = 4800;
 
-  timestamp = std::chrono::steady_clock::now();
   starttime = std::chrono::steady_clock::now();
 
 
@@ -101,13 +100,6 @@ std::chrono::duration<double> sigmf_recorder_impl::since_last_write() {
   return std::chrono::duration<double>::zero(); // sigmf recorders write continuously and never time out
 }
 
-int sigmf_recorder_impl::lastupdate() {
-  return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - timestamp).count();
-}
-
-long sigmf_recorder_impl::elapsed() {
-  return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - starttime).count();
-}
 /*
 void sigmf_recorder_impl::tune_offset(double f) {
   // have to flip this for 3.7
@@ -135,7 +127,6 @@ void sigmf_recorder_impl::stop() {
 
 bool sigmf_recorder_impl::start(const std::shared_ptr<Call> &call) {
   if (state == INACTIVE) {
-    timestamp = std::chrono::steady_clock::now();
     starttime = std::chrono::steady_clock::now();
     int nchars;
     time_t wall_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());

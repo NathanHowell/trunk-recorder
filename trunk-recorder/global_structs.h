@@ -47,7 +47,6 @@ struct Config {
 
 struct Call_Source {
   long source;
-  long time;
   double position;
   bool emergency;
   std::string signal_system;
@@ -64,7 +63,6 @@ struct Call_Freq {
 };
 
 struct Call_Error {
-  long time;
   double position;
   double total_len;
   double error_count;

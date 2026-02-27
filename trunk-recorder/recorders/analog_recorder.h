@@ -82,8 +82,6 @@ public:
   std::vector<Transmission> get_transmission_list();
   State get_state();
   int get_num();
-  int lastupdate();
-  long elapsed();
   static bool logging;
   void process_message_queues(void);
   void decoder_callback_handler(long unitId, const char *signaling_type, gr::blocks::SignalType signal);
@@ -103,7 +101,6 @@ private:
   float quad_gain;
   double wav_sample_rate;
   double squelch_db;
-  std::chrono::steady_clock::time_point timestamp;
   std::chrono::steady_clock::time_point starttime;
   bool use_tone_squelch;
 

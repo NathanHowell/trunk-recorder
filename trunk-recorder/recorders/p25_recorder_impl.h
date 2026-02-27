@@ -96,14 +96,11 @@ public:
   double get_pwr();
   std::vector<Transmission> get_transmission_list();
   State get_state();
-  int lastupdate();
-  long elapsed();
   std::shared_ptr<Source> get_source();
   void autotune();
 
 protected:
   State state;
-  std::chrono::steady_clock::time_point timestamp;
   std::chrono::steady_clock::time_point starttime;
   long talkgroup;
   std::string short_name;

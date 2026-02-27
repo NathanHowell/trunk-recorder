@@ -48,8 +48,6 @@ public:
   virtual double get_pwr() = 0;
   virtual std::vector<Transmission> get_transmission_list() = 0;
   virtual State get_state() = 0;
-  virtual int lastupdate() = 0;
-  virtual long elapsed() = 0;
   virtual std::shared_ptr<Source> get_source() = 0;
   virtual void autotune() = 0;
 };

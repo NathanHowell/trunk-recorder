@@ -73,8 +73,6 @@ public:
   bool is_enabled();
   bool is_active();
   State get_state();
-  int lastupdate();
-  long elapsed();
 
 
 private:
@@ -87,7 +85,6 @@ private:
   const double phase1_symbol_rate = 4800;
 
   double squelch_db;
-  std::chrono::steady_clock::time_point timestamp;
   std::chrono::steady_clock::time_point starttime;
 
   const Config &config;

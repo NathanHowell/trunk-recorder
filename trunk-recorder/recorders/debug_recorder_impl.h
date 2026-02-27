@@ -75,8 +75,6 @@ public:
   std::chrono::duration<double> since_last_write();
   bool is_active();
   State get_state();
-  int lastupdate();
-  long elapsed();
   std::shared_ptr<Source> get_source();
   void initialize_prefilter();
   DecimSettings get_decim(long speed);
@@ -87,7 +85,6 @@ private:
   double chan_freq;
   double center_freq;
   long talkgroup;
-  std::chrono::steady_clock::time_point timestamp;
   std::chrono::steady_clock::time_point starttime;
 
   const Config &config;

@@ -37,8 +37,6 @@ public:
   virtual bool is_enabled() { return false; };
   virtual bool is_active() = 0;
   virtual State get_state() = 0;
-  virtual int lastupdate() = 0;
-  virtual long elapsed() = 0;
 };
 
 #endif

@@ -46,8 +46,6 @@ public:
   virtual std::vector<Transmission> get_transmission_list() = 0;
   virtual std::vector<Transmission> get_transmission_list(int slot) = 0;
   virtual State get_state() = 0;
-  virtual int lastupdate() = 0;
-  virtual long elapsed() = 0;
   virtual std::shared_ptr<Source> get_source() = 0;
 };
 

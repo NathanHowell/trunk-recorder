@@ -43,7 +43,6 @@ void dmr_recorder_impl::initialize(const std::shared_ptr<Source> &src) {
 
   state = INACTIVE;
 
-  timestamp = std::chrono::steady_clock::now();
   starttime = std::chrono::steady_clock::now();
 
   prefilter = xlat_channelizer::make(input_rate, channelizer::phase1_samples_per_symbol, channelizer::phase1_symbol_rate, xlat_channelizer::channel_bandwidth, center_freq, conventional);
@@ -196,14 +195,6 @@ double dmr_recorder_impl::get_current_length() {
   return wav_sink_slot0->total_length_in_seconds();
 }
 
-int dmr_recorder_impl::lastupdate() {
-  return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - timestamp).count();
-}
-
-long dmr_recorder_impl::elapsed() {
-  return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - starttime).count();
-}
-
 void dmr_recorder_impl::tune_freq(double f) {
   chan_freq = f;
   float freq = (center_freq - f);
@@ -258,7 +249,6 @@ bool dmr_recorder_impl::start(const std::shared_ptr<Call> &call) {
     auto system = call->get_system();
     set_tdma_slot(0);
 
-    timestamp = std::chrono::steady_clock::now();
     starttime = std::chrono::steady_clock::now();
 
     talkgroup = call->get_talkgroup();

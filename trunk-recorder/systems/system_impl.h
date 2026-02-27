@@ -61,7 +61,6 @@ public:
   int message_count;
   int decode_rate;
   int retune_attempts;
-  time_t last_message_time;
   std::string bandplan;
   int bandfreq;
   double bandplan_base;

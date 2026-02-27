@@ -154,7 +154,6 @@ debug_recorder_impl::debug_recorder_impl(const std::shared_ptr<Source> &src, std
 
   state = INACTIVE;
 
-  timestamp = std::chrono::steady_clock::now();
   starttime = std::chrono::steady_clock::now();
 
   initialize_prefilter();
@@ -192,14 +191,6 @@ double debug_recorder_impl::get_current_length() {
 
 std::chrono::duration<double> debug_recorder_impl::since_last_write() {
   return std::chrono::duration<double>::zero(); // debug recorders stream continuously and never time out
-}
-
-int debug_recorder_impl::lastupdate() {
-  return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - timestamp).count();
-}
-
-long debug_recorder_impl::elapsed() {
-  return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - starttime).count();
 }
 
 void debug_recorder_impl::tune_freq(double f) {
@@ -248,7 +239,6 @@ void debug_recorder_impl::stop() {
 
 bool debug_recorder_impl::start(const std::shared_ptr<Call> &call) {
   if (state == INACTIVE) {
-    timestamp = std::chrono::steady_clock::now();
     starttime = std::chrono::steady_clock::now();
 
     talkgroup = call->get_talkgroup();
