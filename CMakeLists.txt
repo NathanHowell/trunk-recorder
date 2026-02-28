@@ -237,6 +237,7 @@ list(APPEND trunk_recorder_sources
   trunk-recorder/csv_helper.cc
   trunk-recorder/config.cc
   trunk-recorder/setup_systems.cc
+  trunk-recorder/call_state_manager.cc
   trunk-recorder/monitor_systems.cc
   trunk-recorder/talkgroup.cc
   trunk-recorder/talkgroups.cc
