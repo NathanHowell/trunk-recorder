@@ -36,7 +36,7 @@ public:
   virtual void set_enabled(bool enabled) {};
   virtual bool is_enabled() { return false; };
   virtual bool is_active() = 0;
-  virtual State get_state() = 0;
+  virtual RecorderState get_state() = 0;
 };
 
 #endif

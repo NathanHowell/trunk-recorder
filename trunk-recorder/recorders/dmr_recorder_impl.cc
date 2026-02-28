@@ -39,7 +39,7 @@ void dmr_recorder_impl::initialize(const std::shared_ptr<Source> &src) {
 
   use_streaming = config.enable_audio_streaming;
 
-  state = INACTIVE;
+  state = REC_INACTIVE;
 
   starttime = std::chrono::steady_clock::now();
 
@@ -138,12 +138,12 @@ std::chrono::duration<double> dmr_recorder_impl::since_last_write() {
   return std::chrono::steady_clock::now() - wav_sink_slot0->get_stop_time();
 }
 
-State dmr_recorder_impl::get_state() {
+RecorderState dmr_recorder_impl::get_state() {
   return wav_sink_slot0->get_state();
 }
 
 bool dmr_recorder_impl::is_active() {
-  if (state == ACTIVE) {
+  if (state == REC_ACTIVE) {
     return true;
   } else {
     return false;
@@ -158,7 +158,7 @@ void dmr_recorder_impl::set_enabled(bool enabled) {
 }
 
 bool dmr_recorder_impl::is_squelched() {
-  if (state == ACTIVE) {
+  if (state == REC_ACTIVE) {
     return prefilter->is_squelched();
   }
   return true;
@@ -170,12 +170,12 @@ double dmr_recorder_impl::get_pwr() {
 
 bool dmr_recorder_impl::is_idle() {
   /*
-    if ((wav_sink_slot0->get_state() == IDLE) || (wav_sink_slot0->get_state() == STOPPED)) {
+    if ((wav_sink_slot0->get_state() == REC_IDLE) || (wav_sink_slot0->get_state() == REC_STOPPED)) {
       return true;
     }
 
     return false;*/
-  if (state == ACTIVE) {
+  if (state == REC_ACTIVE) {
     return prefilter->is_squelched();
   }
   return true;
@@ -226,8 +226,8 @@ std::vector<Transmission> dmr_recorder_impl::get_transmission_list(int slot) {
 }
 
 void dmr_recorder_impl::stop() {
-  if (state == ACTIVE) {
-    state = INACTIVE;
+  if (state == REC_ACTIVE) {
+    state = REC_INACTIVE;
     set_enabled(false);
     wav_sink_slot0->stop_recording();
     wav_sink_slot1->stop_recording();
@@ -241,7 +241,7 @@ void dmr_recorder_impl::set_tdma_slot(int slot) {
 }
 
 bool dmr_recorder_impl::start(const std::shared_ptr<Call> &call) {
-  if (state == INACTIVE) {
+  if (state == REC_INACTIVE) {
     auto system = call->get_system();
     set_tdma_slot(0);
 
@@ -260,7 +260,7 @@ bool dmr_recorder_impl::start(const std::shared_ptr<Call> &call) {
     levels->set_k(call->get_system()->get_digital_levels());
     wav_sink_slot0->start_recording(call, 0);
     wav_sink_slot1->start_recording(call, 1);
-    state = ACTIVE;
+    state = REC_ACTIVE;
 
   if (conventional) {
     auto conventional_call = std::dynamic_pointer_cast<Call_conventional>(call);

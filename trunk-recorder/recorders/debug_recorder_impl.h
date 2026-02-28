@@ -74,7 +74,7 @@ public:
   double get_current_length();
   std::chrono::duration<double> since_last_write();
   bool is_active();
-  State get_state();
+  RecorderState get_state();
   std::shared_ptr<Source> get_source();
   void initialize_prefilter();
   DecimSettings get_decim(long speed);
@@ -91,7 +91,7 @@ private:
   std::shared_ptr<Source> source;
 
   // int num;
-  State state;
+  RecorderState state;
 
   double system_channel_rate;
   double arb_rate;

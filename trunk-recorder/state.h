@@ -1,17 +1,21 @@
 #ifndef STATE_H
 #define STATE_H
 
-enum State { MONITORING = 0,
-             RECORDING = 1,
-             INACTIVE = 2,
-             ACTIVE = 3,
-             IDLE = 4,
-             STOPPED = 6,
-             AVAILABLE = 7,
-             IGNORE = 8 };
+enum CallState {
+             MONITORING = 0,
+             RECORDING = 1 };
+
+enum RecorderState {
+             REC_RECORDING = 1,
+             REC_INACTIVE = 2,
+             REC_ACTIVE = 3,
+             REC_IDLE = 4,
+             REC_STOPPED = 6,
+             REC_AVAILABLE = 7,
+             REC_IGNORE = 8 };
 
 enum MonitoringState {
-             UNSPECIFIED = 0, 
+             UNSPECIFIED = 0,
              UNKNOWN_TG = 1,
              IGNORED_TG = 2,
              NO_SOURCE = 3,

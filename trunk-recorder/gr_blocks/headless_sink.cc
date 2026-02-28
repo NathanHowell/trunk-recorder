@@ -28,7 +28,7 @@ headless_sink::headless_sink(int n_channels, unsigned int sample_rate, int /*bit
                  io_signature::make(1, n_channels, sizeof(int16_t)),
                  io_signature::make(0, 0, 0)),
       d_sample_rate(sample_rate),
-      d_state(AVAILABLE),
+      d_state(REC_AVAILABLE),
       d_last_write_time(std::chrono::steady_clock::now()),
       d_start_time(),
       d_stop_time(std::chrono::steady_clock::now()),
@@ -37,7 +37,7 @@ headless_sink::headless_sink(int n_channels, unsigned int sample_rate, int /*bit
       d_freq(0.0) {}
 
 bool headless_sink::start_recording(const std::shared_ptr<Call> &call) {
-  d_state = IDLE;
+  d_state = REC_IDLE;
   d_start_time = std::chrono::system_clock::now();
   d_stop_time = std::chrono::steady_clock::now();
   d_sample_count = 0;
@@ -54,7 +54,7 @@ bool headless_sink::start_recording(const std::shared_ptr<Call> &call, int /*slo
 }
 
 void headless_sink::stop_recording() {
-  d_state = AVAILABLE;
+  d_state = REC_AVAILABLE;
   d_stop_time = std::chrono::steady_clock::now();
 }
 
@@ -62,7 +62,7 @@ void headless_sink::set_source(long /*src*/) {
   // No-op: no file to tag with source ID.
 }
 
-State headless_sink::get_state() {
+RecorderState headless_sink::get_state() {
   return d_state;
 }
 
@@ -115,11 +115,11 @@ double headless_sink::length_in_seconds() {
 int headless_sink::work(int noutput_items,
                         gr_vector_const_void_star & /*input_items*/,
                         gr_vector_void_star & /*output_items*/) {
-  if (d_state == IDLE) {
-    d_state = RECORDING;
+  if (d_state == REC_IDLE) {
+    d_state = REC_RECORDING;
   }
 
-  if (d_state == RECORDING) {
+  if (d_state == REC_RECORDING) {
     d_sample_count += noutput_items;
     auto now = std::chrono::steady_clock::now();
     d_last_write_time = now;

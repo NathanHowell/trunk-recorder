@@ -95,12 +95,12 @@ public:
   bool is_squelched();
   double get_pwr();
   std::vector<Transmission> get_transmission_list();
-  State get_state();
+  RecorderState get_state();
   std::shared_ptr<Source> get_source();
   void autotune();
 
 protected:
-  State state;
+  RecorderState state;
   std::chrono::steady_clock::time_point starttime;
   long talkgroup;
   std::string short_name;

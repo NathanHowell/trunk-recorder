@@ -45,7 +45,7 @@ public:
   virtual int get_num() = 0;
   virtual double get_current_length() = 0;
   virtual bool is_active() = 0;
-  virtual State get_state() = 0;
+  virtual RecorderState get_state() = 0;
   virtual std::shared_ptr<Source> get_source() = 0;
   virtual void initialize_prefilter() = 0;
   virtual DecimSettings get_decim(long speed) = 0;

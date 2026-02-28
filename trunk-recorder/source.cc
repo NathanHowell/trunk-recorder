@@ -627,7 +627,7 @@ std::shared_ptr<Recorder> Source::get_analog_recorder(const std::shared_ptr<Talk
 
 std::shared_ptr<Recorder> Source::get_analog_recorder(const std::shared_ptr<Call> &call) {
   for (auto &rx : analog_recorders) {
-    if (rx->get_state() == AVAILABLE) {
+    if (rx->get_state() == REC_AVAILABLE) {
       return rx;
     }
   }
@@ -659,7 +659,7 @@ std::shared_ptr<Recorder> Source::get_digital_recorder(const std::shared_ptr<Tal
 
 std::shared_ptr<Recorder> Source::get_digital_recorder(const std::shared_ptr<Call> &call) {
   for (auto &rx : digital_recorders) {
-    if (rx->get_state() == AVAILABLE) {
+    if (rx->get_state() == REC_AVAILABLE) {
       return rx;
     }
   }
@@ -674,7 +674,7 @@ std::shared_ptr<Recorder> Source::get_digital_recorder(const std::shared_ptr<Cal
 
 std::shared_ptr<Recorder> Source::get_debug_recorder() {
   for (auto &rx : debug_recorders) {
-    if (rx->get_state() == INACTIVE) {
+    if (rx->get_state() == REC_INACTIVE) {
       return rx;
     }
   }
@@ -687,7 +687,7 @@ int Source::get_debug_recorder_port() {
 
 std::shared_ptr<Recorder> Source::get_sigmf_recorder() {
   for (auto &rx : sigmf_recorders) {
-    if (rx->get_state() == INACTIVE) {
+    if (rx->get_state() == REC_INACTIVE) {
       return rx;
     }
   }
@@ -746,7 +746,7 @@ int Source::get_num_available_digital_recorders() {
        it != digital_recorders.end(); it++) {
     p25_recorder_sptr rx = *it;
 
-    if (rx->get_state() == AVAILABLE) {
+    if (rx->get_state() == REC_AVAILABLE) {
       num_available_recorders++;
     }
   }
@@ -759,7 +759,7 @@ int Source::get_num_available_analog_recorders() {
   for (std::vector<analog_recorder_sptr>::iterator it = analog_recorders.begin(); it != analog_recorders.end(); it++) {
     analog_recorder_sptr rx = *it;
 
-    if (rx->get_state() == AVAILABLE) {
+    if (rx->get_state() == REC_AVAILABLE) {
       num_available_recorders++;
     }
   }

@@ -53,8 +53,8 @@ public:
   bool get_debug_recording();
   void set_sigmf_recording(bool m);
   bool get_sigmf_recording();
-  void set_state(State s);
-  State get_state();
+  void set_state(CallState s);
+  CallState get_state();
   void set_monitoring_state(MonitoringState s);
   MonitoringState get_monitoring_state();
   void set_phase2_tdma(bool m);
@@ -85,7 +85,7 @@ public:
   std::vector<Transmission> get_transmissions();
 
 protected:
-  State state;
+  CallState state;
   MonitoringState monitoringState;
   static long call_counter;
   long call_num;

@@ -88,7 +88,7 @@ analog_recorder::analog_recorder(const std::shared_ptr<Source> &src, const std::
   talkgroup = 0;
 
   rec_num = rec_counter++;
-  state = INACTIVE;
+  state = REC_INACTIVE;
 
   starttime = std::chrono::steady_clock::now();
 
@@ -202,7 +202,7 @@ analog_recorder::~analog_recorder() {}
 
 long analog_recorder::get_wav_hz() { return wav_sample_rate; };
 
-State analog_recorder::get_state() {
+RecorderState analog_recorder::get_state() {
   return wav_sink->get_state();
 }
 
@@ -219,8 +219,8 @@ std::vector<Transmission> analog_recorder::get_transmission_list() {
 }
 
 void analog_recorder::stop() {
-  if (state == ACTIVE) {
-    state = INACTIVE;
+  if (state == REC_ACTIVE) {
+    state = REC_INACTIVE;
     set_enabled(false);
     wav_sink->stop_recording();
   } else {
@@ -243,7 +243,7 @@ bool analog_recorder::is_analog() {
 }
 
 bool analog_recorder::is_active() {
-  if (state == ACTIVE) {
+  if (state == REC_ACTIVE) {
     return true;
   } else {
     return false;
@@ -267,7 +267,7 @@ double analog_recorder::get_pwr() {
 }
 
 bool analog_recorder::is_idle() {
-  if (state == ACTIVE) {
+  if (state == REC_ACTIVE) {
     return prefilter->is_squelched();
   }
   return true;
@@ -350,7 +350,7 @@ bool analog_recorder::start(const std::shared_ptr<Call> &call) {
 
   wav_sink->start_recording(call);
 
-  state = ACTIVE;
+  state = REC_ACTIVE;
   if (conventional) {
     auto conventional_call = std::dynamic_pointer_cast<Call_conventional>(call);
     squelch_db = conventional_call->get_squelch_db();

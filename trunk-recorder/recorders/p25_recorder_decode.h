@@ -64,7 +64,7 @@ public:
   double get_current_length();
   void plugin_callback_handler(int16_t *samples, int sampleCount);
   double get_output_sample_rate();
-  State get_state();
+  RecorderState get_state();
   gr::op25_repeater::p25_frame_assembler::sptr get_transmission_sink();
   void check_message_queue();
 

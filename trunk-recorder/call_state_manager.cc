@@ -366,7 +366,7 @@ void CallStateManager::conclude_and_erase(
 void CallStateManager::manage_trunked_call(
     std::vector<std::shared_ptr<Call>>::iterator &it, bool &ended_call) {
   auto &call = *it;
-  State state = call->get_state();
+  CallState state = call->get_state();
 
   // MONITORING calls: end when the control channel stops mentioning them.
   if ((state == MONITORING) && (call->since_last_update() > config_.call_timeout)) {

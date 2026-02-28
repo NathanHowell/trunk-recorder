@@ -152,7 +152,7 @@ debug_recorder_impl::debug_recorder_impl(const std::shared_ptr<Source> &src, std
   input_rate = source->get_rate();
   talkgroup = 0;
 
-  state = INACTIVE;
+  state = REC_INACTIVE;
 
   starttime = std::chrono::steady_clock::now();
 
@@ -174,7 +174,7 @@ int debug_recorder_impl::get_num() {
 }
 
 bool debug_recorder_impl::is_active() {
-  if (state == ACTIVE) {
+  if (state == REC_ACTIVE) {
     return true;
   } else {
     return false;
@@ -223,14 +223,14 @@ void debug_recorder_impl::tune_offset(double f) {
   }
 }
 
-State debug_recorder_impl::get_state() {
+RecorderState debug_recorder_impl::get_state() {
   return state;
 }
 
 void debug_recorder_impl::stop() {
-  if (state == ACTIVE) {
+  if (state == REC_ACTIVE) {
     BOOST_LOG_TRIVIAL(error) << "debug_recorder.cc: Stopping Logger \t[ " << rec_num << " ] - freq[ " << chan_freq << "] \t talkgroup[ " << talkgroup << " ]";
-    state = INACTIVE;
+    state = REC_INACTIVE;
     valve->set_enabled(false);
   } else {
     BOOST_LOG_TRIVIAL(error) << "debug_recorder.cc: Trying to Stop an Inactive Logger!!!";
@@ -238,7 +238,7 @@ void debug_recorder_impl::stop() {
 }
 
 bool debug_recorder_impl::start(const std::shared_ptr<Call> &call) {
-  if (state == INACTIVE) {
+  if (state == REC_INACTIVE) {
     starttime = std::chrono::steady_clock::now();
 
     talkgroup = call->get_talkgroup();
@@ -249,7 +249,7 @@ bool debug_recorder_impl::start(const std::shared_ptr<Call> &call) {
     int offset_amount = (center_freq - chan_freq);
     tune_offset(offset_amount);
 
-    state = ACTIVE;
+    state = REC_ACTIVE;
     valve->set_enabled(true);
   } else {
     BOOST_LOG_TRIVIAL(error) << "debug_recorder.cc: Trying to Start an already Active Logger!!!";

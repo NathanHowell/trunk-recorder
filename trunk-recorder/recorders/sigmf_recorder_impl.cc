@@ -37,7 +37,7 @@ sigmf_recorder_impl::sigmf_recorder_impl(const std::shared_ptr<Source> &src, Rec
 
   rec_num = rec_counter++;
 
-  state = INACTIVE;
+  state = REC_INACTIVE;
 
   // double symbol_rate         = 4800;
 
@@ -75,7 +75,7 @@ void sigmf_recorder_impl::set_enabled(bool enabled) {
 }
 
 bool sigmf_recorder_impl::is_active() {
-  if (state == ACTIVE) {
+  if (state == REC_ACTIVE) {
     return true;
   } else {
     return false;
@@ -106,16 +106,16 @@ void sigmf_recorder_impl::tune_offset(double f) {
   freq_xlat->set_center_freq(-f);
 }*/
 
-State sigmf_recorder_impl::get_state() {
+RecorderState sigmf_recorder_impl::get_state() {
   return state;
 }
 
 void sigmf_recorder_impl::stop() {
-  if (state == ACTIVE) {
+  if (state == REC_ACTIVE) {
     std::string loghdr = log_header(this->call->get_short_name(),this->call->get_call_num(),this->call->get_talkgroup(),freq);
     BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[32mStopping SigMF Recorder Num [" << rec_num << "]\u001b[0m";
 
-    state = INACTIVE;
+    state = REC_INACTIVE;
     set_enabled(false);
     raw_sink->close();
   } else {
@@ -124,7 +124,7 @@ void sigmf_recorder_impl::stop() {
 }
 
 bool sigmf_recorder_impl::start(const std::shared_ptr<Call> &call) {
-  if (state == INACTIVE) {
+  if (state == REC_INACTIVE) {
     starttime = std::chrono::steady_clock::now();
     int nchars;
     time_t wall_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
@@ -154,7 +154,7 @@ bool sigmf_recorder_impl::start(const std::shared_ptr<Call> &call) {
     }
 
     raw_sink->open(filename);
-    state = ACTIVE;
+    state = REC_ACTIVE;
 
   if (conventional) {
     auto conventional_call = std::dynamic_pointer_cast<Call_conventional>(call);

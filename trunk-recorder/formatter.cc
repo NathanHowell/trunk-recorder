@@ -25,7 +25,7 @@ boost::format FormatSamplingRate(float f) {
   return boost::format("%.0f") % f;
 }
 
-std::string format_state(State state, MonitoringState monitoringState) {
+std::string format_state(CallState state, MonitoringState monitoringState) {
   if (statusAsString) {
     std::stringstream ss;
     switch (state) {
@@ -43,13 +43,25 @@ std::string format_state(State state, MonitoringState monitoringState) {
         break;
 
       case RECORDING:  ss << Color::RED << "Recording"  << Color::RST; break;
-      case INACTIVE:   ss << Color::BLU << "Inactive"   << Color::RST; break;
-      case ACTIVE:     ss << Color::YEL << "Active"     << Color::RST; break;
-      case IDLE:       ss << "Idle"; break;
-      case STOPPED:    ss << Color::MAG << "Stopped"    << Color::RST; break;
-      case AVAILABLE:  ss << Color::GRN << "Available"  << Color::RST; break;
-      case IGNORE:     ss << "Ignored"; break;
       default:         ss << "Unknown"; break;
+    }
+    return ss.str();
+  }
+  return std::to_string(static_cast<int>(state));
+}
+
+std::string format_state(RecorderState state) {
+  if (statusAsString) {
+    std::stringstream ss;
+    switch (state) {
+      case REC_RECORDING: ss << Color::RED << "Recording"  << Color::RST; break;
+      case REC_INACTIVE:  ss << Color::BLU << "Inactive"   << Color::RST; break;
+      case REC_ACTIVE:    ss << Color::YEL << "Active"     << Color::RST; break;
+      case REC_IDLE:      ss << "Idle"; break;
+      case REC_STOPPED:   ss << Color::MAG << "Stopped"    << Color::RST; break;
+      case REC_AVAILABLE: ss << Color::GRN << "Available"  << Color::RST; break;
+      case REC_IGNORE:    ss << "Ignored"; break;
+      default:            ss << "Unknown"; break;
     }
     return ss.str();
   }

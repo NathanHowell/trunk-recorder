@@ -30,7 +30,8 @@ namespace Color {
 
 extern boost::format format_freq(double f);
 extern boost::format FormatSamplingRate(float f);
-extern std::string format_state(State state, MonitoringState monitoringState = UNSPECIFIED);
+extern std::string format_state(CallState state, MonitoringState monitoringState = UNSPECIFIED);
+extern std::string format_state(RecorderState state);
 std::string get_frequency_format();
 extern std::string log_header(std::string short_name,long call_num, long talkgroup, double freq);
 extern int frequency_format;

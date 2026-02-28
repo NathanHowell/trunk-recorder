@@ -255,11 +255,11 @@ bool Call_impl::get_sigmf_recording() {
   return sigmf_recording;
 }
 
-void Call_impl::set_state(State s) {
+void Call_impl::set_state(CallState s) {
   state = s;
 }
 
-State Call_impl::get_state() {
+CallState Call_impl::get_state() {
   return state;
 }
 

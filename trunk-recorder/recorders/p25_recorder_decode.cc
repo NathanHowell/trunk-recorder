@@ -61,7 +61,7 @@ double p25_recorder_decode::get_current_length() {
   return wav_sink->total_length_in_seconds();
 }
 
-State p25_recorder_decode::get_state() {
+RecorderState p25_recorder_decode::get_state() {
   return wav_sink->get_state();
 }
 

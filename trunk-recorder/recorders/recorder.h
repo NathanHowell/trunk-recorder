@@ -72,7 +72,7 @@ public:
   virtual void set_source(long src){};
   virtual long get_wav_hz() { return 8000; };
   virtual long get_talkgroup() { return 0; };
-  virtual State get_state() { return INACTIVE; };
+  virtual RecorderState get_state() { return REC_INACTIVE; };
   virtual void set_enabled(bool enabled) {};
   virtual bool is_enabled() { return false; };
   virtual bool is_active() { return false; };

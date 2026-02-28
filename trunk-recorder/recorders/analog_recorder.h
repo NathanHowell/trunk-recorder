@@ -80,7 +80,7 @@ public:
   bool is_squelched();
   double get_pwr();
   std::vector<Transmission> get_transmission_list();
-  State get_state();
+  RecorderState get_state();
   int get_num();
   static bool logging;
   void process_message_queues(void);
@@ -104,7 +104,7 @@ private:
   std::chrono::steady_clock::time_point starttime;
   bool use_tone_squelch;
 
-  State state;
+  RecorderState state;
   std::vector<float> channel_lpf_taps;
   std::vector<float> lpf_taps;
   std::vector<float> audio_resampler_taps;

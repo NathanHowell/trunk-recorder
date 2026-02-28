@@ -29,7 +29,7 @@ namespace blocks {
 class BLOCKS_API headless_sink : virtual public sync_block {
 private:
   unsigned d_sample_rate;
-  std::atomic<State> d_state;
+  std::atomic<RecorderState> d_state;
   std::atomic<std::chrono::time_point<std::chrono::steady_clock>> d_last_write_time;
   std::chrono::time_point<std::chrono::system_clock> d_start_time;
   std::atomic<std::chrono::time_point<std::chrono::steady_clock>> d_stop_time;
@@ -54,7 +54,7 @@ public:
 
   void set_source(long src);
 
-  State get_state();
+  RecorderState get_state();
   std::chrono::time_point<std::chrono::system_clock> get_start_time();
   std::chrono::time_point<std::chrono::steady_clock> get_stop_time();
   std::chrono::time_point<std::chrono::steady_clock> get_last_write_time();

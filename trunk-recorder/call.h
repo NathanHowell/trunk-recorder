@@ -48,8 +48,8 @@ public:
   virtual bool get_debug_recording() = 0;
   virtual void set_sigmf_recording(bool m) = 0;
   virtual bool get_sigmf_recording() = 0;
-  virtual void set_state(State s) = 0;
-  virtual State get_state() = 0;
+  virtual void set_state(CallState s) = 0;
+  virtual CallState get_state() = 0;
   virtual void set_monitoring_state(MonitoringState s) = 0;
   virtual MonitoringState get_monitoring_state() = 0;
   virtual void set_phase2_tdma(bool m) = 0;

@@ -72,7 +72,7 @@ public:
   void set_enabled(bool enabled);
   bool is_enabled();
   bool is_active();
-  State get_state();
+  RecorderState get_state();
 
 
 private:
@@ -92,7 +92,7 @@ private:
   std::shared_ptr<Call> call;
   char filename[255];
   // int num;
-  State state;
+  RecorderState state;
 
   //channelizer::sptr prefilter;
   xlat_channelizer::sptr prefilter;

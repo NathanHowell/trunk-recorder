@@ -38,7 +38,7 @@ void p25_recorder_impl::initialize(const std::shared_ptr<Source> &src) {
   d_phase2_tdma = false;
   rec_num = rec_counter++;
 
-  state = INACTIVE;
+  state = REC_INACTIVE;
 
   starttime = std::chrono::steady_clock::now();
 
@@ -168,7 +168,7 @@ void p25_recorder_impl::process_message_queues() {
   }
 }
 
-State p25_recorder_impl::get_state() {
+RecorderState p25_recorder_impl::get_state() {
   if (qpsk_mod) {
     return qpsk_p25_decode->get_state();
   } else {
@@ -185,7 +185,7 @@ void p25_recorder_impl::set_enabled(bool enabled) {
 }
 
 bool p25_recorder_impl::is_active() {
-  if (state == ACTIVE) {
+  if (state == REC_ACTIVE) {
     return true;
   } else {
     return false;
@@ -193,7 +193,7 @@ bool p25_recorder_impl::is_active() {
 }
 
 bool p25_recorder_impl::is_squelched() {
-  if (state == ACTIVE) {
+  if (state == REC_ACTIVE) {
     return prefilter->is_squelched();
   }
   return true;
@@ -205,11 +205,11 @@ double p25_recorder_impl::get_pwr() {
 
 bool p25_recorder_impl::is_idle() {
   if (qpsk_mod) {
-    if ((qpsk_p25_decode->get_state() == IDLE) || (qpsk_p25_decode->get_state() == STOPPED)) {
+    if ((qpsk_p25_decode->get_state() == REC_IDLE) || (qpsk_p25_decode->get_state() == REC_STOPPED)) {
       return true;
     }
   } else {
-    if ((fsk4_p25_decode->get_state() == IDLE) || (fsk4_p25_decode->get_state() == STOPPED)) {
+    if ((fsk4_p25_decode->get_state() == REC_IDLE) || (fsk4_p25_decode->get_state() == REC_STOPPED)) {
       return true;
     }
   }
@@ -251,7 +251,7 @@ std::vector<Transmission> p25_recorder_impl::get_transmission_list() {
 }
 
 void p25_recorder_impl::stop() {
-  if (state == ACTIVE) {
+  if (state == REC_ACTIVE) {
     if (source->get_autotune_source()) {
       // Send last tuning measurements to autotune manager
       source->add_autotune_error_measurement(this->get_freq_error(), autotune_offset);
@@ -259,7 +259,7 @@ void p25_recorder_impl::stop() {
     std::string loghdr = log_header(this->call->get_short_name(),this->call->get_call_num(),this->call->get_talkgroup(),chan_freq);
     BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[33mStopping P25 Recorder Num [" << rec_num << "]\u001b[0m\tTDMA: " << d_phase2_tdma << "\tSlot: " << tdma_slot << "\tTuningErr: " << std::showpos << this->get_freq_error() << std::noshowpos << " Hz";
 
-    state = INACTIVE;
+    state = REC_INACTIVE;
     set_enabled(false);
 
     clear();
@@ -283,7 +283,7 @@ void p25_recorder_impl::set_tdma_slot(int slot) {
 }
 
 bool p25_recorder_impl::start(const std::shared_ptr<Call> &call) {
-  if (state == INACTIVE) {
+  if (state == REC_INACTIVE) {
     auto system = call->get_system();
     qpsk_mod = system->get_qpsk_mod();
     set_tdma(call->get_phase2_tdma());
@@ -334,7 +334,7 @@ bool p25_recorder_impl::start(const std::shared_ptr<Call> &call) {
       modulation_selector->set_output_index(0);
       fsk4_p25_decode->start(call);
     }
-    state = ACTIVE;
+    state = REC_ACTIVE;
 
     if (conventional) {
       auto conventional_call = std::dynamic_pointer_cast<Call_conventional>(call);
