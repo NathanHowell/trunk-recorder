@@ -113,13 +113,6 @@ protected:
   bool duplex;
   bool is_analog;
   int priority;
-  char filename[255];
-  char transmission_filename[255];
-  char converted_filename[255];
-  char status_filename[255];
-  char debug_filename[255];
-  char sigmf_filename[255];
-  char path[255];
   bool phase2_tdma;
   int tdma_slot;
   double final_length;
