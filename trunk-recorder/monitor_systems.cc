@@ -286,10 +286,13 @@ void manage_calls(Config &config, std::vector<std::shared_ptr<Call>> &calls) {
     if (state == RECORDING) {
       auto recorder = call->get_recorder();
 
-      // Stop the call if:
-      // - there hasn't been an UPDATE for it on the Control Channel in X seconds AND the recorder hasn't written anything in X seconds
+      // Stop the call if either condition is met:
+      // - the recorder hasn't written anything in X seconds (audio stopped), OR
+      // - there hasn't been an UPDATE for it on the Control Channel in X seconds
+      // Previously these were AND'd, which meant calls could live forever if the
+      // control channel kept sending UPDATEs after the recorder went idle.
 
-      if (recorder && (recorder->since_last_write() > config.call_timeout) && (call->since_last_update() > config.call_timeout)) {
+      if (recorder && (recorder->since_last_write() > config.call_timeout || call->since_last_update() > config.call_timeout)) {
         std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup(), call->get_freq());
         BOOST_LOG_TRIVIAL(trace) << loghdr << "\u001b[36m Stopping Call because of Recorder \u001b[0m Rec last write: " << recorder->since_last_write().count() << "s State: " << format_state(recorder->get_state());
         call->conclude_call();
@@ -305,10 +308,14 @@ void manage_calls(Config &config, std::vector<std::shared_ptr<Call>> &calls) {
       auto recorder = call->get_recorder();
       std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup(), call->get_freq());
       if (recorder) {
-        BOOST_LOG_TRIVIAL(trace) << loghdr << "\u001b[36m  Call UPDATEs has been inactive for more than " << config.call_timeout.count() << "s \u001b[0m Rec last write: " << recorder->since_last_write().count() << "s State: " << format_state(recorder->get_state());
+        BOOST_LOG_TRIVIAL(trace) << loghdr << "\u001b[36m  Concluding stale call \u001b[0m Rec last write: " << recorder->since_last_write().count() << "s State: " << format_state(recorder->get_state());
       } else {
-        BOOST_LOG_TRIVIAL(trace) << loghdr << "\u001b[36m  Call UPDATEs has been inactive for more than " << config.call_timeout.count() << "s \u001b[0m (no recorder)";
+        BOOST_LOG_TRIVIAL(trace) << loghdr << "\u001b[36m  Concluding stale call \u001b[0m (no recorder)";
       }
+      call->conclude_call();
+      ended_call = true;
+      it = calls.erase(it);
+      continue;
     }
     ++it;
   } // foreach loggers
