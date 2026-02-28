@@ -22,7 +22,6 @@ public:
   virtual ~Call(){};
   virtual long get_call_num() = 0;
   virtual void restart_call() = 0;
-  virtual void stop_call() = 0;
   virtual void conclude_call() = 0;
   virtual void set_sigmf_recorder(const std::shared_ptr<Recorder> &r) = 0;
   virtual std::shared_ptr<Recorder> get_sigmf_recorder() = 0;

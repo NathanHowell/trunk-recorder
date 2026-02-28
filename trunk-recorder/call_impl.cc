@@ -91,17 +91,6 @@ Call_impl::~Call_impl() {
 void Call_impl::restart_call() {
 }
 
-void Call_impl::stop_call() {
-
-  if (this->get_recorder()) {
-    // If the call is being recorded, check to see if the recorder is currently in an INACTIVE state. This means that the recorder is not
-    // doing anything and can be stopped.
-    if ((state == RECORDING) && this->get_recorder()->is_idle()) {
-      std::string loghdr = log_header( sys->get_short_name(), this->get_call_num(), this->get_talkgroup(), this->get_freq());
-      BOOST_LOG_TRIVIAL(info) << loghdr << "Stopping Recorded Call_impl - Last Update: " << this->since_last_update().count() << "s";
-    }
-  }
-}
 long Call_impl::get_call_num() {
   return call_num;
 }
