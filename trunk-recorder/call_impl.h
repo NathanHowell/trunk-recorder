@@ -129,6 +129,8 @@ protected:
   std::weak_ptr<Recorder> recorder;
   std::weak_ptr<Recorder> debug_recorder;
   std::weak_ptr<Recorder> sigmf_recorder;
+
+public:
   bool add_source(long src);
 };
 

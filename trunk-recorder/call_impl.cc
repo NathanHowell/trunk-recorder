@@ -12,7 +12,10 @@ std::string Call_impl::get_temp_dir() {
 }
 
 std::shared_ptr<Call> Call::make(TrunkMessage message, const std::shared_ptr<System> &s, Config c) {
-  return std::make_shared<Call_impl>(message, s, c);
+  auto call = std::make_shared<Call_impl>(message, s, c);
+  // add_source must be called after make_shared so that shared_from_this() works
+  call->add_source(message.source);
+  return call;
 }
 
 Call_impl::Call_impl(long t, double f, const std::shared_ptr<System> &s, Config c) {
@@ -79,7 +82,6 @@ Call_impl::Call_impl(TrunkMessage message, const std::shared_ptr<System> &s, Con
     was_update = true;
   }
   set_freq(message.freq);
-  add_source(message.source);
 }
 /*
 Call_impl::~Call_impl() {
