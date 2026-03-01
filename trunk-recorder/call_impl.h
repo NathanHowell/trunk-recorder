@@ -80,6 +80,8 @@ public:
   void set_noise(double n);
   SystemType get_system_type();
   long get_current_source_id();
+  void set_current_source_id(long src);
+  void set_last_update();
   bool get_conversation_mode();
   std::shared_ptr<System> get_system();
   std::vector<Transmission> get_transmissions();

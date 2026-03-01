@@ -75,6 +75,8 @@ public:
   virtual void set_noise(double n) = 0;
   virtual SystemType get_system_type() = 0;
   virtual long get_current_source_id() = 0;
+  virtual void set_current_source_id(long src) = 0;
+  virtual void set_last_update() = 0;
   virtual bool get_conversation_mode() = 0;
   virtual std::shared_ptr<System> get_system() = 0;
   virtual std::vector<Transmission> get_transmissions() = 0;

@@ -342,6 +342,14 @@ long Call_impl::get_current_source_id() {
   return curr_src_id;
 }
 
+void Call_impl::set_current_source_id(long src) {
+  curr_src_id = src;
+}
+
+void Call_impl::set_last_update() {
+  last_update = std::chrono::steady_clock::now();
+}
+
 bool Call_impl::add_source(long src) {
   if (src == -1) {
     return false;
