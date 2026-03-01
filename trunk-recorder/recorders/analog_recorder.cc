@@ -266,6 +266,10 @@ double analog_recorder::get_pwr() {
   return prefilter->get_pwr();
 }
 
+std::vector<gr::analog::squelch_event> analog_recorder::drain_squelch_events() {
+  return prefilter->drain_squelch_events();
+}
+
 bool analog_recorder::is_idle() {
   if (state == REC_ACTIVE) {
     return prefilter->is_squelched();

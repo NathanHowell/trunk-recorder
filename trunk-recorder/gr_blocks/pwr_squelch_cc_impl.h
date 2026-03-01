@@ -29,6 +29,7 @@ private:
 protected:
     void update_state(const gr_complex& in) override;
     bool mute() const override { return d_pwr < d_threshold; }
+    double get_pwr_db() const override { return 10 * std::log10(d_pwr); }
 
 public:
     pwr_squelch_cc_impl(double db,
@@ -49,6 +50,10 @@ public:
     bool gate() const override { return squelch_base_cc_impl::gate(); }
     void set_gate(bool gate) override { squelch_base_cc_impl::set_gate(gate); }
     bool unmuted() const override { return squelch_base_cc_impl::unmuted(); }
+
+    std::vector<squelch_event> drain_squelch_events() override {
+        return squelch_base_cc_impl::drain_squelch_events();
+    }
 
     int general_work(int noutput_items,
                      gr_vector_int& ninput_items,

@@ -25,8 +25,12 @@ squelch_base_cc_impl::squelch_base_cc_impl(const char* name, int ramp, bool gate
             io_signature::make(1, 1, sizeof(float))),
       d_sob_key(pmt::intern("squelch_sob")),
       d_eob_key(pmt::intern("squelch_eob")),
+      d_squelch_state_port(pmt::intern("squelch_state")),
+      d_muted_key(pmt::intern("muted")),
+      d_pwr_db_key(pmt::intern("pwr_db")),
       d_tag_next_unmuted(true)
 {
+    message_port_register_out(d_squelch_state_port);
     set_ramp(ramp);
     set_gate(gate);
     d_state = ST_MUTED;
@@ -35,6 +39,13 @@ squelch_base_cc_impl::squelch_base_cc_impl(const char* name, int ramp, bool gate
 }
 
 squelch_base_cc_impl::~squelch_base_cc_impl() {}
+
+std::vector<squelch_event> squelch_base_cc_impl::drain_squelch_events() {
+    gr::thread::scoped_lock l(d_setlock);
+    std::vector<squelch_event> result;
+    result.swap(d_events);
+    return result;
+}
 
 int squelch_base_cc_impl::ramp() const { return d_ramp; }
 
@@ -87,12 +98,25 @@ int squelch_base_cc_impl::general_work(int noutput_items,
             if (d_tag_next_unmuted) {
                 d_tag_next_unmuted = false;
                 add_item_tag(0, nitems_written(0) + j, d_sob_key, pmt::PMT_NIL);
+                double pwr = get_pwr_db();
+                d_events.push_back({false, pwr});
+                pmt::pmt_t sob_msg = pmt::make_dict();
+                sob_msg = pmt::dict_add(sob_msg, d_muted_key, pmt::PMT_F);
+                sob_msg = pmt::dict_add(sob_msg, d_pwr_db_key, pmt::from_double(pwr));
+                message_port_pub(d_squelch_state_port, sob_msg);
             }
             if (mute()) {
                 d_state =
                     d_ramp ? ST_DECAY : ST_MUTED; // If not ramping, go straight to muted
-                if (d_state == ST_MUTED)
+                if (d_state == ST_MUTED) {
                     add_item_tag(0, nitems_written(0) + j, d_eob_key, pmt::PMT_NIL);
+                    double pwr = get_pwr_db();
+                    d_events.push_back({true, pwr});
+                    pmt::pmt_t eob_msg = pmt::make_dict();
+                    eob_msg = pmt::dict_add(eob_msg, d_muted_key, pmt::PMT_T);
+                    eob_msg = pmt::dict_add(eob_msg, d_pwr_db_key, pmt::from_double(pwr));
+                    message_port_pub(d_squelch_state_port, eob_msg);
+                }
             }
             break;
 
@@ -113,6 +137,12 @@ int squelch_base_cc_impl::general_work(int noutput_items,
             if (d_ramped == 0.0) {
                 d_state = ST_MUTED;
                 add_item_tag(0, nitems_written(0) + j, d_eob_key, pmt::PMT_NIL);
+                double pwr = get_pwr_db();
+                d_events.push_back({true, pwr});
+                pmt::pmt_t decay_msg = pmt::make_dict();
+                decay_msg = pmt::dict_add(decay_msg, d_muted_key, pmt::PMT_T);
+                decay_msg = pmt::dict_add(decay_msg, d_pwr_db_key, pmt::from_double(pwr));
+                message_port_pub(d_squelch_state_port, decay_msg);
             }
             break;
         };

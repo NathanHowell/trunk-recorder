@@ -168,6 +168,10 @@ double dmr_recorder_impl::get_pwr() {
   return prefilter->get_pwr();
 }
 
+std::vector<gr::analog::squelch_event> dmr_recorder_impl::drain_squelch_events() {
+  return prefilter->drain_squelch_events();
+}
+
 bool dmr_recorder_impl::is_idle() {
   /*
     if ((wav_sink_slot0->get_state() == REC_IDLE) || (wav_sink_slot0->get_state() == REC_STOPPED)) {

@@ -203,6 +203,10 @@ double p25_recorder_impl::get_pwr() {
   return prefilter->get_pwr();
 }
 
+std::vector<gr::analog::squelch_event> p25_recorder_impl::drain_squelch_events() {
+  return prefilter->drain_squelch_events();
+}
+
 bool p25_recorder_impl::is_idle() {
   if (qpsk_mod) {
     if ((qpsk_p25_decode->get_state() == REC_IDLE) || (qpsk_p25_decode->get_state() == REC_STOPPED)) {

@@ -34,6 +34,7 @@
 
 #include "../call.h"
 #include "../state.h"
+#include "../gr_blocks/squelch_base_cc_impl.h"
 #include <gnuradio/blocks/file_sink.h>
 
 class Recorder {
@@ -83,6 +84,7 @@ public:
   virtual std::chrono::duration<double> since_last_write() = 0;
   virtual void clear(){};
 
+  virtual std::vector<gr::analog::squelch_event> drain_squelch_events() { return {}; }
   virtual void process_message_queues(void){};
   virtual double get_output_sample_rate() { return 0; }
   virtual int get_output_channels() { return 1; }

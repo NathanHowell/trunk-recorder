@@ -13,6 +13,7 @@
 
 #include <gnuradio/analog/api.h>
 #include "squelch_base_cc.h"
+#include "squelch_base_cc_impl.h"
 #include <cmath>
 
 namespace gr {
@@ -54,6 +55,7 @@ public:
     virtual double get_pwr() = 0;
     virtual void set_threshold(double db) = 0;
     virtual void set_alpha(double alpha) = 0;
+    virtual std::vector<squelch_event> drain_squelch_events() = 0;
 
     int ramp() const override = 0;
     void set_ramp(int ramp) override = 0;
