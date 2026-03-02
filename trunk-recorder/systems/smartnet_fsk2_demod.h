@@ -1,6 +1,7 @@
 #ifndef SMARTNET_FSK2_DEMOD_H
 #define SMARTNET_FSK2_DEMOD_H
 
+#include <functional>
 #include <gnuradio/analog/quadrature_demod_cf.h>
 #include <gnuradio/block.h>
 #include <gnuradio/hier_block2.h>
@@ -23,6 +24,7 @@ class smartnet_fsk2_demod : public gr::hier_block2 {
   smartnet_fsk2_demod(gr::msg_queue::sptr queue);
   virtual ~smartnet_fsk2_demod();
   void reset();
+  void set_msg_callback(std::function<void(gr::message::sptr)> cb);
     typedef std::shared_ptr<smartnet_fsk2_demod> sptr;
 
 static sptr make(gr::msg_queue::sptr queue);

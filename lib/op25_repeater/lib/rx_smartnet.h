@@ -71,6 +71,7 @@ namespace gr{
                 void set_slot_key(int mask) { };
                 void set_xormask(const char* p) { };
                 void set_debug(int debug);
+                void set_msg_callback(std::function<void(gr::message::sptr)> cb) override;
                 rx_smartnet(const char * options, log_ts& logger, int debug, int msgq_id, gr::msg_queue::sptr queue);
                 ~rx_smartnet();
 
@@ -85,6 +86,7 @@ namespace gr{
                 int d_debug;
                 int d_msgq_id;
                 gr::msg_queue::sptr d_msg_queue;
+                std::function<void(gr::message::sptr)> d_msg_cb;
 
                 op25_timer sync_timer;
                 bool d_in_sync;

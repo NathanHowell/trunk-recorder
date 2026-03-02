@@ -956,12 +956,19 @@ void p25p2_tdma::handle_4V2V_ess(const uint8_t dibits[])
 	}
 }
 
+void p25p2_tdma::set_msg_callback(std::function<void(gr::message::sptr)> cb) {
+	d_msg_cb = std::move(cb);
+}
+
 void p25p2_tdma::send_msg(const std::string msg_str, long msg_type)
 {
-	if (!d_do_msgq || d_msg_queue->full_p())
+	if (!d_do_msgq)
 		return;
 
-	gr::message::sptr msg = gr::message::make_from_string(msg_str, msg_type, 0, 0);           
-    if (!d_msg_queue->full_p())
-    	d_msg_queue->insert_tail(msg);
+	gr::message::sptr msg = gr::message::make_from_string(msg_str, msg_type, 0, 0);
+	if (d_msg_cb) {
+		d_msg_cb(msg);
+	} else if (!d_msg_queue->full_p()) {
+		d_msg_queue->insert_tail(msg);
+	}
 }

@@ -201,8 +201,8 @@ double p25_recorder_impl::get_pwr() {
   return prefilter->get_pwr();
 }
 
-std::vector<gr::analog::squelch_event> p25_recorder_impl::drain_squelch_events() {
-  return prefilter->drain_squelch_events();
+void p25_recorder_impl::set_squelch_callback(int recorder_num, std::function<void(int, bool, double)> cb) {
+  prefilter->set_squelch_callback(recorder_num, std::move(cb));
 }
 
 bool p25_recorder_impl::is_idle() {

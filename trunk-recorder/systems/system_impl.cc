@@ -706,6 +706,16 @@ bool System_impl::add_ota_unit_tag(const OTAAlias &ota_alias) {
   return false;
 }
 
+void System_impl::set_msg_callback(std::function<void(gr::message::sptr)> cb) {
+  d_msg_cb = std::move(cb);
+  if (smartnet_trunking && d_msg_cb) {
+    smartnet_trunking->set_msg_callback(d_msg_cb);
+  }
+  if (p25_trunking && d_msg_cb) {
+    p25_trunking->set_msg_callback(d_msg_cb);
+  }
+}
+
 void System_impl::setup_trunking(const std::shared_ptr<Source> &source, gr::top_block_sptr &tb) {
   double control_channel_freq = get_current_control_channel();
   set_source(source);
@@ -713,10 +723,12 @@ void System_impl::setup_trunking(const std::shared_ptr<Source> &source, gr::top_
   if (system_type == SYS_SMARTNET) {
     smartnet_trunking = smartnet_impl::make(control_channel_freq, source->get_center(),
                                             source->get_rate(), get_msg_queue(), get_sys_num());
+    if (d_msg_cb) smartnet_trunking->set_msg_callback(d_msg_cb);
     tb->connect(source->get_src_block(), 0, smartnet_trunking, 0);
   } else if (system_type == SYS_P25) {
     p25_trunking = make_p25_trunking(control_channel_freq, source->get_center(),
                                       source->get_rate(), get_msg_queue(), qpsk_mod, get_sys_num());
+    if (d_msg_cb) p25_trunking->set_msg_callback(d_msg_cb);
     tb->connect(source->get_src_block(), 0, p25_trunking, 0);
   }
 }
@@ -754,6 +766,7 @@ void System_impl::retune_trunking(gr::top_block_sptr &tb, std::vector<std::share
           tb->disconnect(current_source->get_src_block(), 0, smartnet_trunking, 0);
           smartnet_trunking = smartnet_impl::make(control_channel_freq, src->get_center(),
                                                   src->get_rate(), get_msg_queue(), get_sys_num());
+          if (d_msg_cb) smartnet_trunking->set_msg_callback(d_msg_cb);
           tb->connect(src->get_src_block(), 0, smartnet_trunking, 0);
           tb->unlock();
         } else if (system_type == SYS_P25) {
@@ -762,6 +775,7 @@ void System_impl::retune_trunking(gr::top_block_sptr &tb, std::vector<std::share
           tb->disconnect(current_source->get_src_block(), 0, p25_trunking, 0);
           p25_trunking = make_p25_trunking(control_channel_freq, src->get_center(),
                                             src->get_rate(), get_msg_queue(), qpsk_mod, get_sys_num());
+          if (d_msg_cb) p25_trunking->set_msg_callback(d_msg_cb);
           tb->connect(src->get_src_block(), 0, p25_trunking, 0);
           tb->unlock();
         } else {

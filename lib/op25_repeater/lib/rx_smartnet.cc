@@ -214,14 +214,21 @@ namespace gr{
             d_debug = debug;
         }
 
+        void rx_smartnet::set_msg_callback(std::function<void(gr::message::sptr)> cb) {
+            d_msg_cb = std::move(cb);
+        }
+
         void rx_smartnet::sync_timeout()
         {
-            if ((d_msgq_id >= 0) && (!d_msg_queue->full_p())) {
+            if (d_msgq_id >= 0) {
                 std::string m_buf;
                 gr::message::sptr msg;
                 msg = gr::message::make_from_string(m_buf, get_msg_type(PROTOCOL_SMARTNET, M_SMARTNET_TIMEOUT), (d_msgq_id << 1), logts.get_ts());
-                if (!d_msg_queue->full_p())
+                if (d_msg_cb) {
+                    d_msg_cb(msg);
+                } else if (!d_msg_queue->full_p()) {
                     d_msg_queue->insert_tail(msg);
+                }
             }
             if (d_debug >= 10) {
                 fprintf(stderr, "%s rx_smartnet::sync_timeout:\n", logts.get(d_msgq_id));
@@ -231,11 +238,13 @@ namespace gr{
 
         void rx_smartnet::send_msg(const char* buf) {
             std::string msg_str = std::string(buf,5);
-            if ((d_msgq_id >= 0) && (!d_msg_queue->full_p())) {
-
+            if (d_msgq_id >= 0) {
                 gr::message::sptr msg = gr::message::make_from_string(msg_str, get_msg_type(PROTOCOL_SMARTNET, M_SMARTNET_OSW), (d_msgq_id<<1), logts.get_ts());
-                if (!d_msg_queue->full_p())
+                if (d_msg_cb) {
+                    d_msg_cb(msg);
+                } else if (!d_msg_queue->full_p()) {
                     d_msg_queue->insert_tail(msg);
+                }
             }
         }
 

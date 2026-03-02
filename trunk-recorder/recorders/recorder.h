@@ -2,6 +2,7 @@
 #define RECORDER_H
 
 #include <cstdio>
+#include <functional>
 #include <fstream>
 #include <iostream>
 #include <math.h>
@@ -84,7 +85,7 @@ public:
   virtual std::chrono::duration<double> since_last_write() = 0;
   virtual void clear(){};
 
-  virtual std::vector<gr::analog::squelch_event> drain_squelch_events() { return {}; }
+  virtual void set_squelch_callback(int recorder_num, std::function<void(int, bool, double)> cb) {}
   virtual void process_message_queues(void){};
   virtual double get_output_sample_rate() { return 0; }
   virtual int get_output_channels() { return 1; }

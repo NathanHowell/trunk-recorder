@@ -478,6 +478,12 @@ void Source::enable_detected_recorders() {
   }
 }
 
+void Source::set_detection_callback(std::function<void()> cb) {
+  if (signal_detector) {
+    signal_detector->set_detection_callback(std::move(cb));
+  }
+}
+
 void Source::set_signal_detector_threshold(float threshold) {
 BOOST_LOG_TRIVIAL(info) << " - Setting Signal Detector Threshold to: " << threshold;
   signal_detector->set_threshold(threshold);

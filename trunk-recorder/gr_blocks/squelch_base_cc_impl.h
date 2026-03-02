@@ -12,15 +12,11 @@
 #define INCLUDED_GR_SQUELCH_BASE_CC_IMPL_H
 
 #include "./squelch_base_cc.h"
+#include <functional>
 #include <vector>
 
 namespace gr {
 namespace analog {
-
-struct squelch_event {
-    bool muted;    // true = squelch closed, false = squelch open
-    double pwr_db; // power at transition time
-};
 
 class squelch_base_cc_impl : public squelch_base_cc
 {
@@ -34,7 +30,8 @@ private:
     const pmt::pmt_t d_squelch_state_port;
     const pmt::pmt_t d_muted_key, d_pwr_db_key;
     bool d_tag_next_unmuted;
-    std::vector<squelch_event> d_events;
+    int d_recorder_num = -1;
+    std::function<void(int, bool, double)> d_squelch_cb;
 
 protected:
     void update_state(const gr_complex& sample) override{};
@@ -53,7 +50,7 @@ public:
 
     std::vector<float> squelch_range() const override = 0;
 
-    std::vector<squelch_event> drain_squelch_events();
+    void set_squelch_callback(int recorder_num, std::function<void(int, bool, double)> cb);
 
     int general_work(int noutput_items,
                      gr_vector_int& ninput_items,

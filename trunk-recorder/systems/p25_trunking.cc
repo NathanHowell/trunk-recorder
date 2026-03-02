@@ -173,6 +173,11 @@ int p25_trunking::get_freq_error() {
   return prefilter->get_freq_error();
 }
 
+void p25_trunking::set_msg_callback(std::function<void(gr::message::sptr)> cb) {
+  if (op25_frame_assembler)
+    op25_frame_assembler->set_msg_callback(std::move(cb));
+}
+
 void p25_trunking::finetune_control_freq(double f) {
   // Minor tuning adjustment without resetting costas or phase
   chan_freq = f;

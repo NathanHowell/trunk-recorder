@@ -21,6 +21,11 @@ smartnet_fsk2_demod::~smartnet_fsk2_demod() {
 void smartnet_fsk2_demod::reset() {
 }
 
+void smartnet_fsk2_demod::set_msg_callback(std::function<void(gr::message::sptr)> cb) {
+  if (framer)
+    framer->set_msg_callback(std::move(cb));
+}
+
 void smartnet_fsk2_demod::initialize() {
   const double channel_rate = symbol_rate * samples_per_symbol;
   const double pi = M_PI;

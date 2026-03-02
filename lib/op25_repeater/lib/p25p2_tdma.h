@@ -24,6 +24,7 @@
 #include <stdint.h>
 #include <deque>
 #include <vector>
+#include <functional>
 #include <gnuradio/msg_queue.h>
 #include "mbelib.h"
 #include "imbe_decoder.h"
@@ -46,6 +47,7 @@ public:
 	p25p2_tdma(const op25_audio& udp, log_ts& logger, int slotid, int debug, bool do_msgq, gr::msg_queue::sptr queue, std::deque<int16_t> &qptr, bool do_audio_output, bool soft_vocoder, int msgq_id = 0) ;	// constructor
 	int handle_packet(uint8_t dibits[], const uint64_t fs) ;
 	void set_slotid(int slotid);
+	void set_msg_callback(std::function<void(gr::message::sptr)> cb);
 	void call_end();
 	void crypt_reset();
 	void crypt_key(uint16_t keyid, uint8_t algid, const std::vector<uint8_t> &key);
@@ -80,6 +82,7 @@ private:
 	software_imbe_decoder software_decoder;
 	imbe_vocoder vocoder;
 	gr::msg_queue::sptr d_msg_queue;
+	std::function<void(gr::message::sptr)> d_msg_cb;
 	std::deque<int16_t> &output_queue_decode;
 	bool d_do_msgq;
 	int d_msgq_id;

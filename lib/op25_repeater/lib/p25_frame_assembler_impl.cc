@@ -36,15 +36,23 @@
 namespace gr {
   namespace op25_repeater {
 
+    void p25_frame_assembler_impl::set_msg_callback(std::function<void(gr::message::sptr)> cb) {
+      d_msg_cb = cb;
+      p1fdma.set_msg_callback(cb);
+      p2tdma.set_msg_callback(cb);
+    }
+
     /* This is for the TPS Analog decoder */
     void p25_frame_assembler_impl::p25p2_queue_msg(int duid) {
       static const unsigned char wbuf[2] = {0xff, 0xff}; // dummy NAC
       if (!d_do_msgq)
         return;
-      if (d_msg_queue->full_p())
-        return;
       gr::message::sptr msg = gr::message::make_from_string(std::string((const char *)wbuf, 2), duid, 0);
-      d_msg_queue->insert_tail(msg);
+      if (d_msg_cb) {
+        d_msg_cb(msg);
+      } else if (!d_msg_queue->full_p()) {
+        d_msg_queue->insert_tail(msg);
+      }
     }
 
     void p25_frame_assembler_impl::set_xormask(const char*p) {

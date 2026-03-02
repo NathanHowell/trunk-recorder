@@ -80,6 +80,11 @@ namespace gr {
             }
         }
 
+        void frame_assembler_impl::set_msg_callback(std::function<void(gr::message::sptr)> cb) {
+            if (d_sync)
+                d_sync->set_msg_callback(std::move(cb));
+        }
+
         void frame_assembler_impl::set_debug(int debug) {
             if (d_sync)
                 d_sync->set_debug(debug);

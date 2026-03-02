@@ -234,6 +234,7 @@ public:
   bool add_ota_unit_tag(const OTAAlias &ota_alias) override;
   void setup_trunking(const std::shared_ptr<Source> &source, gr::top_block_sptr &tb) override;
   void retune_trunking(gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources) override;
+  void set_msg_callback(std::function<void(gr::message::sptr)> cb) override;
 
 private:
   TalkgroupDisplayFormat talkgroup_display_format;
@@ -248,5 +249,6 @@ private:
   bool d_fsync_enabled;
   bool d_star_enabled;
   bool d_tps_enabled;
+  std::function<void(gr::message::sptr)> d_msg_cb;
 };
 #endif

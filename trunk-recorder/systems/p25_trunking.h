@@ -4,6 +4,7 @@
 #define _USE_MATH_DEFINES
 
 #include <cstdio>
+#include <functional>
 #include <iostream>
 #include <math.h>
 #include <stdio.h>
@@ -92,6 +93,7 @@ public:
   void enable();
   int get_freq_error();
   void finetune_control_freq(double f);
+  void set_msg_callback(std::function<void(gr::message::sptr)> cb);
   int autotune_offset;
 
   gr::msg_queue::sptr tune_queue;

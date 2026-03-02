@@ -11,6 +11,7 @@
 #ifndef INCLUDED_ANALOG_PWR_SQUELCH_CC_H
 #define INCLUDED_ANALOG_PWR_SQUELCH_CC_H
 
+#include <functional>
 #include <gnuradio/analog/api.h>
 #include "squelch_base_cc.h"
 #include "squelch_base_cc_impl.h"
@@ -55,7 +56,7 @@ public:
     virtual double get_pwr() = 0;
     virtual void set_threshold(double db) = 0;
     virtual void set_alpha(double alpha) = 0;
-    virtual std::vector<squelch_event> drain_squelch_events() = 0;
+    virtual void set_squelch_callback(int recorder_num, std::function<void(int, bool, double)> cb) = 0;
 
     int ramp() const override = 0;
     void set_ramp(int ramp) override = 0;

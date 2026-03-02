@@ -1,5 +1,6 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
+#include <functional>
 #include <memory>
 #include "../talkgroups.h"
 #include "../unit_tags.h"
@@ -181,5 +182,6 @@ public:
 
   virtual void setup_trunking(const std::shared_ptr<Source> &source, gr::top_block_sptr &tb) = 0;
   virtual void retune_trunking(gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources) = 0;
+  virtual void set_msg_callback(std::function<void(gr::message::sptr)> cb) {}
 };
 #endif

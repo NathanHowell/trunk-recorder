@@ -22,11 +22,14 @@
 
 #include "log_ts.h"
 
+#include <functional>
+
 namespace gr{
     namespace op25_repeater{
 
         class rx_base {
             public:
+                virtual void set_msg_callback(std::function<void(gr::message::sptr)> cb) {};
                 virtual void rx_sym(const uint8_t sym) = 0;
                 virtual void sync_reset(void) = 0;
                 virtual void call_end(void) = 0;

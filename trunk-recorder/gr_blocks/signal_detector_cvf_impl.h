@@ -117,6 +117,13 @@ public:
   void set_quantization(float d_quantization) {
     signal_detector_cvf_impl::d_quantization = d_quantization;
   }
+
+  void set_detection_callback(std::function<void()> cb) override {
+    d_detection_cb = std::move(cb);
+  }
+
+private:
+  std::function<void()> d_detection_cb;
 };
 
 //} // namespace inspector

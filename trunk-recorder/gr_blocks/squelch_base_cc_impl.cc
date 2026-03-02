@@ -40,11 +40,10 @@ squelch_base_cc_impl::squelch_base_cc_impl(const char* name, int ramp, bool gate
 
 squelch_base_cc_impl::~squelch_base_cc_impl() {}
 
-std::vector<squelch_event> squelch_base_cc_impl::drain_squelch_events() {
+void squelch_base_cc_impl::set_squelch_callback(int recorder_num, std::function<void(int, bool, double)> cb) {
     gr::thread::scoped_lock l(d_setlock);
-    std::vector<squelch_event> result;
-    result.swap(d_events);
-    return result;
+    d_recorder_num = recorder_num;
+    d_squelch_cb = std::move(cb);
 }
 
 int squelch_base_cc_impl::ramp() const { return d_ramp; }
@@ -99,7 +98,7 @@ int squelch_base_cc_impl::general_work(int noutput_items,
                 d_tag_next_unmuted = false;
                 add_item_tag(0, nitems_written(0) + j, d_sob_key, pmt::PMT_NIL);
                 double pwr = get_pwr_db();
-                d_events.push_back({false, pwr});
+                if (d_squelch_cb) d_squelch_cb(d_recorder_num, false, pwr);
                 pmt::pmt_t sob_msg = pmt::make_dict();
                 sob_msg = pmt::dict_add(sob_msg, d_muted_key, pmt::PMT_F);
                 sob_msg = pmt::dict_add(sob_msg, d_pwr_db_key, pmt::from_double(pwr));
@@ -111,7 +110,7 @@ int squelch_base_cc_impl::general_work(int noutput_items,
                 if (d_state == ST_MUTED) {
                     add_item_tag(0, nitems_written(0) + j, d_eob_key, pmt::PMT_NIL);
                     double pwr = get_pwr_db();
-                    d_events.push_back({true, pwr});
+                    if (d_squelch_cb) d_squelch_cb(d_recorder_num, true, pwr);
                     pmt::pmt_t eob_msg = pmt::make_dict();
                     eob_msg = pmt::dict_add(eob_msg, d_muted_key, pmt::PMT_T);
                     eob_msg = pmt::dict_add(eob_msg, d_pwr_db_key, pmt::from_double(pwr));
@@ -139,6 +138,7 @@ int squelch_base_cc_impl::general_work(int noutput_items,
                 add_item_tag(0, nitems_written(0) + j, d_eob_key, pmt::PMT_NIL);
                 double pwr = get_pwr_db();
                 d_events.push_back({true, pwr});
+                if (d_squelch_cb) d_squelch_cb(d_recorder_num, true, pwr);
                 pmt::pmt_t decay_msg = pmt::make_dict();
                 decay_msg = pmt::dict_add(decay_msg, d_muted_key, pmt::PMT_T);
                 decay_msg = pmt::dict_add(decay_msg, d_pwr_db_key, pmt::from_double(pwr));

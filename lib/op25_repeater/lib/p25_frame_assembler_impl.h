@@ -53,6 +53,7 @@ namespace gr {
 	p25p2_tdma p2tdma;
 	bool d_do_msgq;
 	gr::msg_queue::sptr d_msg_queue;
+	std::function<void(gr::message::sptr)> d_msg_cb;
 
   int d_input_rate;
   int d_silence_frames;
@@ -90,6 +91,7 @@ public:
 
       void clear_silence_frame_count();
       void clear();
+      void set_msg_callback(std::function<void(gr::message::sptr)> cb) override;
       log_ts logts;
     };
 

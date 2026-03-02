@@ -48,8 +48,8 @@ public:
   int get_freq_error();
   bool is_squelched();
   double get_pwr();
-  std::vector<gr::analog::squelch_event> drain_squelch_events() {
-    return squelch->drain_squelch_events();
+  void set_squelch_callback(int recorder_num, std::function<void(int, bool, double)> cb) {
+    squelch->set_squelch_callback(recorder_num, std::move(cb));
   }
   void tune_offset(double f);
   void set_samples_per_symbol(int samples_per_symbol);

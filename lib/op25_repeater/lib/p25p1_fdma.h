@@ -29,6 +29,7 @@
 
 #include "log_ts.h"
 #include "op25_timer.h"
+#include <functional>
 #include "op25_audio.h"
 #include "p25_framer.h"
 #include "software_imbe_decoder.h"
@@ -84,6 +85,7 @@ namespace gr {
                 bool d_soft_vocoder;
                 int d_nac;
                 gr::msg_queue::sptr d_msg_queue;
+                std::function<void(gr::message::sptr)> d_msg_cb;
                 std::deque<int16_t> &output_queue;
                 p25_framer* framer;
                 op25_timer qtimer;
@@ -121,6 +123,7 @@ namespace gr {
             public:
                 void set_debug(int debug);
                 void set_nac(int nac);
+                void set_msg_callback(std::function<void(gr::message::sptr)> cb);
                 void reset_timer();
                 void call_end();
                 void crypt_reset();

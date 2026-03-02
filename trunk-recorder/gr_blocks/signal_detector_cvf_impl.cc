@@ -391,6 +391,9 @@ int signal_detector_cvf_impl::work(int noutput_items,
       std::lock_guard<std::mutex> guard(d_mutex);
       d_detected_signals = find_signal_edges();
       last_conventional_channel_detection_check = current_time_ms;
+      if (d_detection_cb && !d_detected_signals.empty()) {
+        d_detection_cb();
+      }
     }
   // BOOST_LOG_TRIVIAL(info) << "d_detected_signals.size() = " << d_detected_signals.size() << std::endl;
 

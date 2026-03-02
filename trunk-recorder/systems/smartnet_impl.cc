@@ -81,6 +81,11 @@ void smartnet_impl::enable() {
   
 }
 
+void smartnet_impl::set_msg_callback(std::function<void(gr::message::sptr)> cb) {
+  if (fsk2_demod)
+    fsk2_demod->set_msg_callback(std::move(cb));
+}
+
 void smartnet_impl::finetune_control_freq(double f) {
    tune_freq(f);
 }

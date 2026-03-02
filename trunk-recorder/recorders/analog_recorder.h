@@ -79,7 +79,7 @@ public:
   bool is_idle();
   bool is_squelched();
   double get_pwr();
-  std::vector<gr::analog::squelch_event> drain_squelch_events() override;
+  void set_squelch_callback(int recorder_num, std::function<void(int, bool, double)> cb) override;
   std::vector<Transmission> get_transmission_list();
   RecorderState get_state();
   int get_num();

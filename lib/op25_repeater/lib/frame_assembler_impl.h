@@ -58,6 +58,7 @@ namespace gr {
                 void sync_reset();
                 void crypt_reset();
                 void crypt_key(uint16_t keyid, uint8_t algid, const std::vector<uint8_t> &key);
+                void set_msg_callback(std::function<void(gr::message::sptr)> cb) override;
 
             public:
                 log_ts logts;

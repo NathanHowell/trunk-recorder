@@ -51,8 +51,8 @@ public:
     void set_gate(bool gate) override { squelch_base_cc_impl::set_gate(gate); }
     bool unmuted() const override { return squelch_base_cc_impl::unmuted(); }
 
-    std::vector<squelch_event> drain_squelch_events() override {
-        return squelch_base_cc_impl::drain_squelch_events();
+    void set_squelch_callback(int recorder_num, std::function<void(int, bool, double)> cb) override {
+        squelch_base_cc_impl::set_squelch_callback(recorder_num, std::move(cb));
     }
 
     int general_work(int noutput_items,

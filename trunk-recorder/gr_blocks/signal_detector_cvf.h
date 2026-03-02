@@ -21,6 +21,7 @@
 #ifndef INCLUDED_INSPECTOR_SIGNAL_DETECTOR_CVF_H
 #define INCLUDED_INSPECTOR_SIGNAL_DETECTOR_CVF_H
 
+#include <functional>
 #include <gnuradio/sync_decimator.h>
 /*
 namespace gr {
@@ -118,6 +119,7 @@ public:
     virtual void set_sensitivity(float d_sensitivity) = 0;
     virtual void set_auto_threshold(bool d_auto_threshold) = 0;
     virtual void set_average(float d_average) = 0;
+    virtual void set_detection_callback(std::function<void()> cb) = 0;
 };
 
 //} // namespace inspector
