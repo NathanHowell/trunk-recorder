@@ -42,8 +42,6 @@ void p25_recorder_impl::initialize(const std::shared_ptr<Source> &src) {
 
   starttime = std::chrono::steady_clock::now();
 
-  this->set_enable_audio_streaming(config.enable_audio_streaming);
-
   prefilter = xlat_channelizer::make(input_rate, channelizer::phase1_samples_per_symbol, channelizer::phase1_symbol_rate, xlat_channelizer::channel_bandwidth, center_freq, conventional);
 
   modulation_selector = gr::blocks::selector::make(sizeof(gr_complex), 0, 0);

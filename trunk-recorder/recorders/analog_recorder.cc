@@ -92,8 +92,6 @@ analog_recorder::analog_recorder(const std::shared_ptr<Source> &src, const std::
 
   starttime = std::chrono::steady_clock::now();
 
-  bool use_streaming = false;
-
   if (tone_freq > 0) {
     use_tone_squelch = true;
     this->tone_freq = tone_freq;
@@ -101,8 +99,6 @@ analog_recorder::analog_recorder(const std::shared_ptr<Source> &src, const std::
     use_tone_squelch = false;
     this->tone_freq = 0;
   }
-
-  use_streaming = config.enable_audio_streaming;
 
   if (type == ANALOGC) {
     conventional = true;
@@ -153,11 +149,7 @@ analog_recorder::analog_recorder(const std::shared_ptr<Source> &src, const std::
 
   wav_sink = gr::blocks::headless_sink::make(1, wav_sample_rate, 16);
 
-  if (use_streaming) {
-    BOOST_LOG_TRIVIAL(info) << "\t Creating plugin sink..." << std::endl;
-    plugin_sink = gr::blocks::plugin_wrapper_impl::make(std::bind(&analog_recorder::plugin_callback_handler, this, std::placeholders::_1, std::placeholders::_2));
-    BOOST_LOG_TRIVIAL(info) << "\t Plugin sink created!" << std::endl;
-  }
+  plugin_sink = gr::blocks::plugin_wrapper_impl::make(std::bind(&analog_recorder::plugin_callback_handler, this, std::placeholders::_1, std::placeholders::_2));
 
   BOOST_LOG_TRIVIAL(info) << "\t Creating decoder sink..." << std::endl;
   decoder_sink = gr::blocks::decoder_wrapper_impl::make(wav_sample_rate, std::bind(&analog_recorder::decoder_callback_handler, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
@@ -193,9 +185,7 @@ analog_recorder::analog_recorder(const std::shared_ptr<Source> &src, const std::
   connect(levels, 0, converter, 0);
   connect(converter, 0, wav_sink, 0);
 
-  if (use_streaming) {
-    connect(converter, 0, plugin_sink, 0);
-  }
+  connect(converter, 0, plugin_sink, 0);
 }
 
 analog_recorder::~analog_recorder() {}

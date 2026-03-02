@@ -25,23 +25,11 @@ struct Transmission {
 };
 
 struct Config {
-  std::string config_file;
   std::string temp_dir;
   std::string debug_recorder_address;
-  std::string default_mode;
-  bool new_call_from_update;
   bool debug_recorder;
   int debug_recorder_port;
-  std::chrono::duration<double> call_timeout;
-  bool console_log;
-  std::string log_color;
-  int control_message_warn_rate;
-  int control_retune_limit;
-  bool broadcast_signals;
-  bool enable_audio_streaming;
   bool soft_vocoder;
-  bool record_uu_v_calls;
-  int frequency_format;
   std::shared_ptr<EventSink> event_sink;
 };
 

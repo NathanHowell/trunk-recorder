@@ -83,11 +83,11 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
     if (no_color != nullptr && no_color[0] != '\0')
       color = false;
 
-    config.log_color = data.value("logColor", (color ? "console" : "none"));
+    std::string log_color = data.value("logColor", (color ? "console" : "none"));
 
-    config.console_log = data.value("consoleLog", true);
-    if (config.console_log) {
-      setup_console_log(config.log_color, "%Y-%m-%d %H:%M:%S.%f");
+    bool console_log = data.value("consoleLog", true);
+    if (console_log) {
+      setup_console_log(log_color, "%Y-%m-%d %H:%M:%S.%f");
     }
 
     BOOST_LOG_TRIVIAL(info) << "\n-------------------------------------\n     Trunk Recorder\n-------------------------------------\n";
@@ -103,7 +103,6 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
       return false;
     }
 
-    BOOST_LOG_TRIVIAL(info) << "Using Config file: " << config.config_file << "\n";
     BOOST_LOG_TRIVIAL(info) << PROJECT_NAME << ": "
                             << "Version: " << PROJECT_VER << "\n";
 
@@ -121,24 +120,9 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
 
     BOOST_LOG_TRIVIAL(info) << "Temporary Transmission Directory: " << config.temp_dir;
 
-    config.broadcast_signals = data.value("broadcastSignals", false);
-    BOOST_LOG_TRIVIAL(info) << "Broadcast Signals: " << config.broadcast_signals;
-    config.default_mode = data.value("defaultMode", "digital");
-    BOOST_LOG_TRIVIAL(info) << "Default Mode: " << config.default_mode;
-    config.call_timeout = std::chrono::duration<double>(data.value("callTimeout", 3.0));
-    BOOST_LOG_TRIVIAL(info) << "Call Timeout (seconds): " << config.call_timeout.count();
-    config.control_message_warn_rate = data.value("controlWarnRate", 10);
-    BOOST_LOG_TRIVIAL(info) << "Control channel warning rate: " << config.control_message_warn_rate;
-    config.control_retune_limit = data.value("controlRetuneLimit", 0);
-    BOOST_LOG_TRIVIAL(info) << "Control channel retune limit: " << config.control_retune_limit;
     config.soft_vocoder = data.value("softVocoder", false);
     BOOST_LOG_TRIVIAL(info) << "Phase 1 Software Vocoder: " << config.soft_vocoder;
-    config.enable_audio_streaming = true;
-    BOOST_LOG_TRIVIAL(info) << "Enable Audio Streaming: " << config.enable_audio_streaming;
-    config.record_uu_v_calls = data.value("recordUUVCalls", true);
-    BOOST_LOG_TRIVIAL(info) << "Record Unit to Unit Voice Calls: " << config.record_uu_v_calls;
-    config.new_call_from_update = data.value("newCallFromUpdate", true);
-    BOOST_LOG_TRIVIAL(info) << "New Call from UPDATE Messages: " << config.new_call_from_update;
+
     std::string frequency_format_string = data.value("frequencyFormat", "mhz");
 
     if (boost::iequals(frequency_format_string, "mhz")) {
@@ -148,7 +132,6 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
     } else {
       frequency_format = 0;
     }
-    config.frequency_format = frequency_format;
     BOOST_LOG_TRIVIAL(info) << "Frequency format: " << get_frequency_format();
 
     statusAsString = data.value("statusAsString", statusAsString);
@@ -156,7 +139,7 @@ bool load_config_from_json(json &data, Config &config, gr::top_block_sptr &tb, s
     std::string log_level = data.value("logLevel", "info");
     BOOST_LOG_TRIVIAL(info) << "Log Level: " << log_level;
     set_logging_level(log_level);
-    BOOST_LOG_TRIVIAL(info) << "Color Console/Logfile Output: " << config.log_color;
+    BOOST_LOG_TRIVIAL(info) << "Color Console/Logfile Output: " << log_color;
 
     config.debug_recorder = data.value("debugRecorder", 0);
     config.debug_recorder_address = data.value("debugRecorderAddress", "127.0.0.1");
@@ -572,8 +555,6 @@ bool load_config(string config_file, Config &config, gr::top_block_sptr &tb, std
 
   json data;
 
-  config.config_file = config_file;
-
   try {
     std::ifstream f(config_file);
     data = json::parse(f);
@@ -591,8 +572,6 @@ bool load_config(string config_file, Config &config, gr::top_block_sptr &tb, std
 bool load_config_from_string(const std::string &json_body, Config &config, gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources, std::vector<std::shared_ptr<System>> &systems) {
 
   json data;
-
-  config.config_file = "<json string>";
 
   try {
     data = json::parse(json_body);

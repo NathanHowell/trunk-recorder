@@ -35,10 +35,6 @@ void dmr_recorder_impl::initialize(const std::shared_ptr<Source> &src) {
   d_phase2_tdma = true;
   rec_num = rec_counter++;
 
-  bool use_streaming = false;
-
-  use_streaming = config.enable_audio_streaming;
-
   state = REC_INACTIVE;
 
   starttime = std::chrono::steady_clock::now();
@@ -106,10 +102,8 @@ void dmr_recorder_impl::initialize(const std::shared_ptr<Source> &src) {
   connect(framer, 0, wav_sink_slot0, 0);
   connect(framer, 1, wav_sink_slot1, 0);
 
-  if (use_streaming) {
-    connect(framer, 0, plugin_sink_slot0, 0);
-    connect(framer, 1, plugin_sink_slot1, 0);
-  }
+  connect(framer, 0, plugin_sink_slot0, 0);
+  connect(framer, 1, plugin_sink_slot1, 0);
 }
 
 void dmr_recorder_impl::plugin_callback_handler(int16_t *samples, int sampleCount) {

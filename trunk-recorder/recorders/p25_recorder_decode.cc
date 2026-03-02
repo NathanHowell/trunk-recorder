@@ -83,8 +83,6 @@ void p25_recorder_decode::initialize(int silence_frames, bool d_soft_vocoder) {
   wav_sink = gr::blocks::headless_sink::make(1, 8000, 16);
   // recorder->initialize(src);
 
-  bool use_streaming = d_recorder->get_enable_audio_streaming();
-
   // OP25 Frame Assembler
   traffic_queue = gr::msg_queue::make(2);
   rx_queue = gr::msg_queue::make(100);
@@ -102,17 +100,13 @@ void p25_recorder_decode::initialize(int silence_frames, bool d_soft_vocoder) {
   op25_frame_assembler = gr::op25_repeater::p25_frame_assembler::make(silence_frames, d_soft_vocoder, udp_host, udp_port, verbosity, do_imbe, do_output, do_msgq, rx_queue, do_audio_output, do_tdma, do_nocrypt);
   levels = gr::blocks::multiply_const_ss::make(1);
 
-  if (use_streaming) {
-    plugin_sink = gr::blocks::plugin_wrapper_impl::make(std::bind(&p25_recorder_decode::plugin_callback_handler, this, std::placeholders::_1, std::placeholders::_2));
-  }
+  plugin_sink = gr::blocks::plugin_wrapper_impl::make(std::bind(&p25_recorder_decode::plugin_callback_handler, this, std::placeholders::_1, std::placeholders::_2));
 
   connect(self(), 0, slicer, 0);
   connect(slicer, 0, op25_frame_assembler, 0);
   connect(op25_frame_assembler, 0, levels, 0);
 
-  if (use_streaming) {
-    connect(levels, 0, plugin_sink, 0);
-  }
+  connect(levels, 0, plugin_sink, 0);
   connect(levels, 0, wav_sink, 0);
 }
 
