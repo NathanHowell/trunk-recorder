@@ -49,7 +49,6 @@ bool setup_conventional_channel(const std::shared_ptr<System> &system, double fr
         system->add_conventional_recorder(rec);
         calls.push_back(call);
         config.event_sink->setup_recorder(rec);
-        config.event_sink->call_start(call);
       } else if (system->get_system_type() == SYS_CONVENTIONAL_DMR) {
         // Because of dynamic mod assignment we can not start the recorder until the graph has been unlocked.
         // This has something to do with the way the Selector block works.

@@ -139,30 +139,9 @@ void Call_impl::conclude_call() {
         }
       }
 
-      if (this->sys->get_system_type() == SYS_CONVENTIONAL_DMR) {
-        auto dmr_rec = std::dynamic_pointer_cast<dmr_recorder>(rec);
-        if (!dmr_rec) {
-          BOOST_LOG_TRIVIAL(error) << "Call_impl::conclude_call() conventionalDMR system but recorder is not a dmr_recorder!";
-        } else {
-          // Conventional DMR is recorded on two slots, so we need to conclude the call for each slot
-          transmission_list = dmr_rec->get_transmission_list(0);
-          tdma_slot = 0;
-          config.event_sink->conclude_call(shared_from_this(), sys, config);
-          transmission_list = dmr_rec->get_transmission_list(1);
-          tdma_slot = 1;
-          config.event_sink->conclude_call(shared_from_this(), sys, config);
-        }
-      } else {
-        // All other system types do not have multiple recorders
-        transmission_list = rec->get_transmission_list();
-        config.event_sink->conclude_call(shared_from_this(), sys, config);
-      }
+      // Call conclusion is now orchestrated in Rust (CallManager::conclude_call).
+      // C++ just stops the recorders above; Rust handles event dispatch.
     }
-
-  } else if (state == MONITORING) {
-    // Monitored-only calls (encrypted, no source, etc.) never got a recorder,
-    // but plugins still need to know the call ended.
-    config.event_sink->conclude_call(shared_from_this(), sys, config);
   }
 }
 void Call_impl::set_sigmf_recorder(const std::shared_ptr<Recorder> &r) {
@@ -368,7 +347,7 @@ bool Call_impl::add_source(long src) {
     }
   }
 
-  config.event_sink->signal(src, nullptr, gr::blocks::SignalType::Normal, shared_from_this(), this->get_system(), nullptr);
+  // Signal event is now fired from Rust (update_call_source → tr_context_fire_signal).
 
   return true;
 }
