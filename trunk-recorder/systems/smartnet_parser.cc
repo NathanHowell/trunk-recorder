@@ -17,10 +17,10 @@ using json = nlohmann::json;
 #define ALT_CC_EXPIRY_TIME 60.0
 #define TGID_DEFAULT_PRIO 3
 
-SmartnetParser::SmartnetParser(const std::shared_ptr<System> &system) : system(system) {
+SmartnetParser::SmartnetParser(SmartnetParserConfig config) : config_(std::move(config)) {
     this->debug_level = 1;
     this->msgq_id = -1;
-    this->sysnum = system ? system->get_sys_num() : 0;
+    this->sysnum = config_.sys_num;
     this->osw_count = 0;
     this->last_osw = 0.0;
     this->rx_cc_freq = 0.0;
@@ -81,14 +81,13 @@ void SmartnetParser::enqueue(int addr, int grp, int cmd, double ts) {
 
 void SmartnetParser::log_bandplan() {
      auto [band, is_rebanded, is_international, is_splinter, is_shuffled] = get_bandplan_details();
-     BOOST_LOG_TRIVIAL(info) << "[SmartnetParser] Bandplan: " << system->get_bandplan() 
+     BOOST_LOG_TRIVIAL(info) << "[SmartnetParser] Bandplan: " << config_.bandplan
                              << " -> Band: " << band 
                              << " Rebanded: " << is_rebanded;
 }
 
-std::vector<TrunkMessage> SmartnetParser::parse_message(gr::message::sptr msg, const std::shared_ptr<System> &system) {
-    this->system = system;
-    int sysnum = system->get_sys_num();
+std::vector<TrunkMessage> SmartnetParser::parse_message(gr::message::sptr msg) {
+    int sysnum = config_.sys_num;
     time_t curr_time = time(nullptr);
     std::vector<TrunkMessage> messages;
 
@@ -958,7 +957,7 @@ void SmartnetParser::add_alternate_cc_freq(double ts, double cc_rx_freq, double 
 }
 
 std::tuple<std::string, bool, bool, bool, bool> SmartnetParser::get_bandplan_details() {
-    std::string bandplan = system->get_bandplan();
+    std::string bandplan = config_.bandplan;
     
     if (bandplan == "400" || bandplan == "400_custom") bandplan = "OBT";
     if (bandplan == "800_reband") bandplan = "800_rebanded";
@@ -1005,10 +1004,10 @@ double SmartnetParser::get_freq(int chan, bool is_tx) {
         freq = 935.0125 + (0.0125 * chan);
         if (is_tx && freq != 0.0) freq -= 39.0;
     } else if (band == "OBT") {
-         double bp_base = system->get_bandplan_base();
-         double bp_high = system->get_bandplan_high();
-         double bp_spacing = system->get_bandplan_spacing();
-         int bp_base_offset = system->get_bandplan_offset();
+         double bp_base = config_.bandplan_base;
+         double bp_high = config_.bandplan_high;
+         double bp_spacing = config_.bandplan_spacing;
+         int bp_base_offset = config_.bandplan_offset;
          double high_cmd = bp_base_offset + (bp_high - bp_base) / bp_spacing;
 
          if (!is_tx) {
@@ -1039,10 +1038,10 @@ bool SmartnetParser::is_chan(int chan, bool is_tx) {
     } else if (band == "900") {
         if (chan <= 0x1de) return true;
     } else if (band == "OBT") {
-        double bp_base = system->get_bandplan_base();
-        double bp_high = system->get_bandplan_high();
-        double bp_spacing = system->get_bandplan_spacing();
-        int bp_base_offset = system->get_bandplan_offset();
+        double bp_base = config_.bandplan_base;
+        double bp_high = config_.bandplan_high;
+        double bp_spacing = config_.bandplan_spacing;
+        int bp_base_offset = config_.bandplan_offset;
         double high_cmd = bp_base_offset + (bp_high - bp_base) / bp_spacing;
         int bp_tx_base_offset = bp_base_offset - 380; // Default assumption
 

@@ -1022,14 +1022,14 @@ std::vector<TrunkMessage> P25Parser::decode_tsbk(boost::dynamic_bitset<> &tsbk, 
   return messages;
 }
 
-std::vector<TrunkMessage> P25Parser::parse_message(gr::message::sptr msg, const std::shared_ptr<System> &system) {
+std::vector<TrunkMessage> P25Parser::parse_message(gr::message::sptr msg, const P25ParserConfig &config) {
   std::vector<TrunkMessage> messages;
 
   long type = msg->type();
-  int sys_num = system->get_sys_num();
+  int sys_num = config.sys_num;
 
-  if(system->has_custom_freq_table_file() && custom_freq_table_loaded == false){
-    load_freq_table(system->get_custom_freq_table_file(), sys_num);
+  if(!config.custom_freq_table_file.empty() && custom_freq_table_loaded == false){
+    load_freq_table(config.custom_freq_table_file, sys_num);
   }
 
   TrunkMessage message;
@@ -1061,7 +1061,7 @@ std::vector<TrunkMessage> P25Parser::parse_message(gr::message::sptr msg, const 
 
  if (s.length() < 2) {
     if (s.length() > 0) {
-      BOOST_LOG_TRIVIAL(debug) << "[" << system->get_short_name() << "]\t P25 Parse error, s: " << s << " Len: " << s.length() << " Freq: " << format_freq(system->get_current_control_channel());
+      BOOST_LOG_TRIVIAL(debug) << "[" << config.short_name << "]\t P25 Parse error, s: " << s << " Len: " << s.length();
     }
     message.message_type = INVALID_CC_MESSAGE;
     messages.push_back(message);
