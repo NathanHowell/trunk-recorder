@@ -51,7 +51,6 @@ System_impl::System_impl(int sys_num) {
   talkgroups = std::make_unique<Talkgroups>();
   // Setup the unit tags from the CSV file
   unit_tags = std::make_unique<UnitTags>();
-  talkgroup_patches = {};
   d_hideEncrypted = false;
   d_monitorEncrypted = false;
   d_hideUnknown = false;
@@ -551,122 +550,6 @@ void System_impl::set_autotune_offset(int offset) {
   }
 }
 
-
-std::vector<unsigned long> System_impl::get_talkgroup_patch(unsigned long talkgroup) {
-  // Given a single TGID, return a vector of TGIDs that are part of the same patch
-  std::vector<unsigned long> patched_tgids;
-  for (auto &patch : talkgroup_patches) {
-    if (patch.second.find(talkgroup) != patch.second.end()) {
-      // talkgroup passed in is part of this patch, so add all talkgroups from this patch to our output vector
-      for (auto &patch_element : patch.second) {
-        patched_tgids.push_back(patch_element.first);
-      }
-    }
-  }
-  return patched_tgids;
-}
-
-void System_impl::update_active_talkgroup_patches(PatchData patch_data) {
-  std::time_t update_time = std::time(nullptr);
-  bool new_flag = true;
-
-  for (auto &patch : talkgroup_patches) {
-    if (patch.first == patch_data.sg) {
-      new_flag = false;
-      if (0 != patch_data.sg) {
-        patch.second[patch_data.sg] = update_time;
-      }
-      if (0 != patch_data.ga1) {
-        patch.second[patch_data.ga1] = update_time;
-      }
-      if (0 != patch_data.ga2) {
-        patch.second[patch_data.ga2] = update_time;
-      }
-      if (0 != patch_data.ga3) {
-        patch.second[patch_data.ga3] = update_time;
-      }
-    }
-  }
-  if (new_flag == true) {
-    // TGIDs from the Message were not found in an existing patch, so add them to a new one
-    BOOST_LOG_TRIVIAL(debug) << "tsbk00\tNew Motorola patch fround, \tsg: " << patch_data.sg << "\tga1: " << patch_data.ga1 << "\tga2: " << patch_data.ga2 << "\tga3: " << patch_data.ga3;
-    std::map<unsigned long, std::time_t> new_patch;
-    if (0 != patch_data.sg) {
-      new_patch[patch_data.sg] = update_time;
-    }
-    if (0 != patch_data.ga1) {
-      new_patch[patch_data.ga1] = update_time;
-    }
-    if (0 != patch_data.ga2) {
-      new_patch[patch_data.ga2] = update_time;
-    }
-    if (0 != patch_data.ga3) {
-      new_patch[patch_data.ga3] = update_time;
-    }
-    talkgroup_patches[patch_data.sg] = new_patch;
-  }
-}
-
-void System_impl::delete_talkgroup_patch(PatchData patch_data) {
-  for (auto &patch : talkgroup_patches) {
-    if (patch.first == patch_data.sg) {
-      patch.second.erase(patch_data.ga1);
-      patch.second.erase(patch_data.ga2);
-      patch.second.erase(patch_data.ga3);
-    }
-  }
-}
-
-void System_impl::clear_stale_talkgroup_patches() {
-  std::vector<unsigned long> stale_patches;
-
-  for (auto &patch : talkgroup_patches) {
-    // patch.first (map key) is supergroup TGID, patch.second (map value) is the map of all TGIDs in this patch and associated timestamps
-    std::vector<unsigned long> stale_talkgroups;
-    for (auto &patch_element : patch.second) {
-      // patch_element.first (map key) is TGID, patch.second (map value) is the timestamp
-      if (std::time(nullptr) - patch_element.second >= 10) { // 10 second hard coded timeout for now
-        stale_talkgroups.push_back(patch_element.first);     // add this tgid to the list that we'll delete from this patch since it's expired
-      }
-    }
-    for (auto &stale_talkgroup : stale_talkgroups) {
-      BOOST_LOG_TRIVIAL(debug) << "Going to remove stale TGID " << stale_talkgroup << "from patch with sg id " << patch.first;
-      patch.second.erase(stale_talkgroup);
-    }
-    if (patch.second.size() == 0) {
-      stale_patches.push_back(patch.first); // This patch is not empty, so add it to the list of patches we'll delete
-    }
-  }
-  for (auto &stale_patch : stale_patches) {
-    BOOST_LOG_TRIVIAL(debug) << "Going to remove entire patch with sg id " << stale_patch;
-    talkgroup_patches.erase(stale_patch);
-  }
-
-  // Print out all active patches to the console
-  BOOST_LOG_TRIVIAL(debug) << "Found " << talkgroup_patches.size() << " active talkgroup patches:";
-  for (auto &patch : talkgroup_patches) {
-    std::string printstring;
-    for (auto &patch_element : patch.second) {
-      printstring += " ";
-      printstring += std::to_string(patch_element.first);
-    }
-    BOOST_LOG_TRIVIAL(debug) << "Active Patch of TGIDs" << printstring;
-  }
-}
-
-void System_impl::print_active_talkgroup_patches() {
-  // Print out all active patches to the console
-  BOOST_LOG_TRIVIAL(info) << "[ " << short_name << " ] " << talkgroup_patches.size() << " active talkgroup patches:";
-  for (auto &patch : talkgroup_patches) {
-    std::string printstring = " - ";
-    for (auto &patch_element : patch.second) {
-      printstring += " ";
-      printstring += std::to_string(patch_element.first);
-    }
-    BOOST_LOG_TRIVIAL(info) << "Active Patch of TGIDs" << printstring;
-  }
-
-}
 
 bool System_impl::get_multiSite() {
   return d_multiSite;

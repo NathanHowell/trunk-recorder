@@ -92,8 +92,6 @@ public:
   smartnet_impl::sptr smartnet_trunking;
   p25_trunking_sptr p25_trunking;
 
-  std::map<unsigned long, std::map<unsigned long, std::time_t>> talkgroup_patches;
-
   std::string get_short_name() override;
   void set_short_name(std::string short_name) override;
   double get_min_duration() override;
@@ -215,11 +213,6 @@ public:
   void set_autotune_offset(int offset) override;
 
 
-  std::vector<unsigned long> get_talkgroup_patch(unsigned long talkgroup) override;
-  void update_active_talkgroup_patches(PatchData f_data) override;
-  void delete_talkgroup_patch(PatchData f_data) override;
-  void clear_stale_talkgroup_patches() override;
-  void print_active_talkgroup_patches() override;
   bool get_multiSite() override;
   void set_multiSite(bool multiSite) override;
 
