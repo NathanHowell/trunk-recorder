@@ -16,7 +16,9 @@
 #include <gnuradio/uhd/usrp_source.h>
 #include <iostream>
 #include <numeric>
+#ifdef HAVE_OSMOSDR
 #include <osmosdr/source.h>
+#endif
 
 #include <json.hpp>
 
@@ -158,9 +160,11 @@ public:
   void add_autotune_error_measurement(int error, int offset);
   int get_source_error();
 
+#ifdef HAVE_OSMOSDR
   inline osmosdr::source::sptr cast_to_osmo_sptr(gr::basic_block_sptr p) {
     return std::dynamic_pointer_cast<osmosdr::source, gr::basic_block>(p);
   }
+#endif
   inline gr::uhd::usrp_source::sptr cast_to_usrp_sptr(gr::basic_block_sptr p) {
     return std::dynamic_pointer_cast<gr::uhd::usrp_source, gr::basic_block>(p);
   }

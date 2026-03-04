@@ -140,6 +140,10 @@ find_package(GnuradioUHD)
 find_package(GnuradioOsmosdr)
 find_package(LibUHD)
 
+if(GNURADIO_OSMOSDR_FOUND)
+  add_definitions(-DHAVE_OSMOSDR)
+endif()
+
 ########################################################################
 # Setup boost
 ########################################################################
@@ -187,13 +191,15 @@ message(STATUS "Gnuradio Version is: " ${Gnuradio_VERSION})
 include_directories(
     ${Boost_INCLUDE_DIRS}
     ${GNURADIO_RUNTIME_INCLUDE_DIRS}
-    ${GNURADIO_OSMOSDR_INCLUDE_DIRS}
     ${CMAKE_BINARY_DIR}/lib
     ${CMAKE_BINARY_DIR}/include
     ${CMAKE_SOURCE_DIR}/lib/op25_repeater/lib
     ${CMAKE_SOURCE_DIR}/lib/op25_repeater/include
     "lib"
 )
+if(GNURADIO_OSMOSDR_FOUND)
+  include_directories(${GNURADIO_OSMOSDR_INCLUDE_DIRS})
+endif()
 
 link_directories(
     ${Boost_LIBRARY_DIRS}
@@ -315,8 +321,10 @@ target_link_libraries(trunk_recorder_shared
     ${GNURADIO_AUDIO_LIBRARIES}
     ${GNURADIO_UHD_LIBRARIES}
     ${UHD_LIBRARIES}
-    ${GNURADIO_BLOCKS_LIBRARIES}
-    ${GNURADIO_OSMOSDR_LIBRARIES})
+    ${GNURADIO_BLOCKS_LIBRARIES})
+if(GNURADIO_OSMOSDR_FOUND)
+  target_link_libraries(trunk_recorder_shared ${GNURADIO_OSMOSDR_LIBRARIES})
+endif()
 
 message(STATUS "All libraries:" ${GNURADIO_ALL_LIBRARIES})
 if(NOT Gnuradio_VERSION VERSION_LESS "3.8")

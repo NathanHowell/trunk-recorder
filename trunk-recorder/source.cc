@@ -86,6 +86,7 @@ Source::Source(double c, double r, double e, std::string drv, std::string dev, c
   signal_detector = signal_detector_cvf::make(rate, fft_len, 0, threshold, threshold_sensitivity, auto_threshold, average, quantization, min_bw, max_bw, "");
   BOOST_LOG_TRIVIAL(info) << "Made the Signal Detector";
 
+#ifdef HAVE_OSMOSDR
   if (driver == "osmosdr") {
     osmosdr::source::sptr osmo_src;
     std::vector<std::string> gain_names;
@@ -133,6 +134,7 @@ Source::Source(double c, double r, double e, std::string drv, std::string dev, c
 
     source_block = osmo_src;
   }
+#endif
 
   if (driver == "usrp") {
     gr::uhd::usrp_source::sptr usrp_src;
@@ -241,10 +243,12 @@ void Source::attach_detector(gr::top_block_sptr tb) {
 void Source::set_antenna(std::string ant) {
   antenna = ant;
 
+#ifdef HAVE_OSMOSDR
   if (driver == "osmosdr") {
     cast_to_osmo_sptr(source_block)->set_antenna(antenna, 0);
     BOOST_LOG_TRIVIAL(info) << "Setting antenna to [" << cast_to_osmo_sptr(source_block)->get_antenna() << "]";
   }
+#endif
 
   if (driver == "usrp") {
     BOOST_LOG_TRIVIAL(info) << "Setting antenna to [" << antenna << "]";
@@ -298,10 +302,12 @@ std::string Source::get_device() {
 void Source::set_freq_corr(double p) {
   ppm = p;
 
+#ifdef HAVE_OSMOSDR
   if (driver == "osmosdr") {
     cast_to_osmo_sptr(source_block)->set_freq_corr(ppm);
     BOOST_LOG_TRIVIAL(info) << "PPM set to: " << cast_to_osmo_sptr(source_block)->get_freq_corr();
   }
+#endif
 }
 
 void Source::set_error(double e) {
@@ -315,6 +321,7 @@ double Source::get_error() {
 /* -- Gain -- */
 
 void Source::set_gain(double r) {
+#ifdef HAVE_OSMOSDR
   if (driver == "osmosdr") {
     gain = r;
     cast_to_osmo_sptr(source_block)->set_gain(gain);
@@ -324,6 +331,7 @@ void Source::set_gain(double r) {
     }
     BOOST_LOG_TRIVIAL(info) << "Gain set to: " << current_gain;
   }
+#endif
 
   if (driver == "usrp") {
     gain = r;
@@ -341,6 +349,7 @@ std::vector<Gain_Stage_t> Source::get_gain_stages() {
 }
 
 void Source::set_gain_by_name(std::string name, double new_gain) {
+#ifdef HAVE_OSMOSDR
   if (driver == "osmosdr") {
     cast_to_osmo_sptr(source_block)->set_gain(new_gain, name);
     double current_gain = cast_to_osmo_sptr(source_block)->get_gain(name);
@@ -349,19 +358,24 @@ void Source::set_gain_by_name(std::string name, double new_gain) {
     }
     BOOST_LOG_TRIVIAL(info) << name << " Gain set to: " << current_gain;
     add_gain_stage(name, new_gain);
-  } else {
+  } else
+#endif
+  {
     BOOST_LOG_TRIVIAL(error) << "Unable to set Gain by Name for SDR driver: " << driver;
   }
 }
 
 int Source::get_gain_by_name(std::string name) {
+#ifdef HAVE_OSMOSDR
   if (driver == "osmosdr") {
     try {
       return cast_to_osmo_sptr(source_block)->get_gain(name, 0);
     } catch (std::exception &e) {
       BOOST_LOG_TRIVIAL(error) << name << " Gain unsupported or other error: " << e.what();
     }
-  } else {
+  } else
+#endif
+  {
     BOOST_LOG_TRIVIAL(error) << "Unable to get Gain by Name for SDR drive: " << driver;
   }
   return -1;
@@ -372,6 +386,7 @@ double Source::get_gain() {
 }
 
 void Source::set_gain_mode(bool m) {
+#ifdef HAVE_OSMOSDR
   if (driver == "osmosdr") {
     gain_mode = m;
     cast_to_osmo_sptr(source_block)->set_gain_mode(gain_mode);
@@ -381,6 +396,7 @@ void Source::set_gain_mode(bool m) {
       BOOST_LOG_TRIVIAL(info) << "Auto gain control is OFF";
     }
   }
+#endif
 }
 
 double Source::get_if_gain() {
