@@ -17,7 +17,6 @@
 #include <gnuradio/io_signature.h>
 
 #include <gnuradio/analog/pll_freqdet_cf.h>
-#include <gnuradio/analog/pwr_squelch_cc.h>
 #include <gnuradio/filter/fft_filter_fff.h>
 #include <gnuradio/filter/pfb_arb_resampler_ccf.h>
 
@@ -94,7 +93,7 @@ public:
   bool is_idle();
   bool is_squelched();
   double get_pwr();
-  void set_squelch_callback(int recorder_num, std::function<void(int, bool, double)> cb) override;
+  void set_squelch_callback(std::function<void(bool, double)> cb) override;
   std::vector<Transmission> get_transmission_list();
   RecorderState get_state();
   std::shared_ptr<Source> get_source();

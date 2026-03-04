@@ -162,8 +162,8 @@ double dmr_recorder_impl::get_pwr() {
   return prefilter->get_pwr();
 }
 
-void dmr_recorder_impl::set_squelch_callback(int recorder_num, std::function<void(int, bool, double)> cb) {
-  prefilter->set_squelch_callback(recorder_num, std::move(cb));
+void dmr_recorder_impl::set_squelch_callback(std::function<void(bool, double)> cb) {
+  prefilter->set_squelch_callback(std::move(cb));
 }
 
 bool dmr_recorder_impl::is_idle() {

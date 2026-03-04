@@ -35,7 +35,6 @@
 
 #include "../call.h"
 #include "../state.h"
-#include "../gr_blocks/squelch_base_cc_impl.h"
 #include <gnuradio/blocks/file_sink.h>
 
 class Recorder {
@@ -85,7 +84,7 @@ public:
   virtual std::chrono::duration<double> since_last_write() = 0;
   virtual void clear(){};
 
-  virtual void set_squelch_callback(int recorder_num, std::function<void(int, bool, double)> cb) {}
+  virtual void set_squelch_callback(std::function<void(bool, double)> cb) {}
   virtual void process_message_queues(void){};
   virtual double get_output_sample_rate() { return 0; }
   virtual int get_output_channels() { return 1; }

@@ -5,7 +5,7 @@
 #include <iomanip>
 
 #include "./rms_agc.h"
-#include "./pwr_squelch_cc.h"
+#include "./callback_pwr_squelch_cc.h"
 #include <gnuradio/blocks/copy.h>
 #include <gnuradio/digital/fll_band_edge_cc.h>
 #include <gnuradio/filter/fft_filter_ccc.h>
@@ -46,7 +46,7 @@ private:
   std::vector<float> lowpass_filter_coeffs;
   std::vector<float> cutoff_filter_coeffs;
 
-  gr::analog::pwr_squelch_cc::sptr squelch;
+  callback_pwr_squelch_cc::sptr squelch;
   gr::digital::fll_band_edge_cc::sptr fll_band_edge;
   gr::blocks::rms_agc::sptr rms_agc;
 

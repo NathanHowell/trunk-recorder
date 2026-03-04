@@ -128,7 +128,7 @@ channelizer::channelizer(double input_rate, int samples_per_symbol, double symbo
   // the received audio is high-passed above the cutoff and then fed to a
   // reverse squelch. If the power is then BELOW a threshold, open the squelch.
 
-  squelch = gr::analog::pwr_squelch_cc::make(squelch_db, 0.0001, 0, true);
+  squelch = callback_pwr_squelch_cc::make(squelch_db, 0.0001, 0, true);
 
   rms_agc = gr::blocks::rms_agc::make(0.45, 0.85);
   fll_band_edge = gr::digital::fll_band_edge_cc::make(sps, def_excess_bw, 2 * sps + 1, (2.0 * pi) / sps / 250); // OP25 has this set to 350 instead of 250

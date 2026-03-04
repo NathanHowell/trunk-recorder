@@ -26,7 +26,6 @@
 #include <gnuradio/filter/iir_filter_ffd.h>
 
 #include <gnuradio/analog/ctcss_squelch_ff.h>
-#include <gnuradio/analog/pwr_squelch_cc.h>
 #include <gnuradio/analog/pwr_squelch_ff.h>
 #include <gnuradio/analog/quadrature_demod_cf.h>
 
@@ -79,7 +78,7 @@ public:
   bool is_idle();
   bool is_squelched();
   double get_pwr();
-  void set_squelch_callback(int recorder_num, std::function<void(int, bool, double)> cb) override;
+  void set_squelch_callback(std::function<void(bool, double)> cb) override;
   std::vector<Transmission> get_transmission_list();
   RecorderState get_state();
   int get_num();

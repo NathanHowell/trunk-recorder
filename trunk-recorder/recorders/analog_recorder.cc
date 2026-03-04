@@ -256,8 +256,8 @@ double analog_recorder::get_pwr() {
   return prefilter->get_pwr();
 }
 
-void analog_recorder::set_squelch_callback(int recorder_num, std::function<void(int, bool, double)> cb) {
-  prefilter->set_squelch_callback(recorder_num, std::move(cb));
+void analog_recorder::set_squelch_callback(std::function<void(bool, double)> cb) {
+  prefilter->set_squelch_callback(std::move(cb));
 }
 
 bool analog_recorder::is_idle() {
