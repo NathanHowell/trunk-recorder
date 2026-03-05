@@ -151,6 +151,10 @@ void p25_trunking::set_rate(long s) {
   // TODO: Update/remake blocks that depend on input_rate
 }
 
+double p25_trunking::get_pwr() {
+  return prefilter->get_pwr();
+}
+
 double p25_trunking::get_freq() {
   return chan_freq;
 }

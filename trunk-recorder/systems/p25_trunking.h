@@ -91,6 +91,7 @@ public:
   void tune_freq(double f);
   double get_freq();
   void enable();
+  double get_pwr();
   int get_freq_error();
   void finetune_control_freq(double f);
   void set_msg_callback(std::function<void(gr::message::sptr)> cb);

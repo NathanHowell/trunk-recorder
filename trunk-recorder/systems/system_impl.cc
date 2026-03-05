@@ -3,6 +3,8 @@
 #include "../source.h"
 #include "../formatter.h"
 
+#include <limits>
+
 std::shared_ptr<System> System::make(int sys_num) {
   return std::make_shared<System_impl>(sys_num);
 }
@@ -514,6 +516,15 @@ bool System_impl::get_hideUnknown() {
 
 void System_impl::set_hideUnknown(bool hideUnknown) {
   d_hideUnknown = hideUnknown;
+}
+
+double System_impl::get_control_channel_pwr() {
+  if (p25_trunking) {
+    return p25_trunking->get_pwr();
+  } else if (smartnet_trunking) {
+    return smartnet_trunking->get_pwr();
+  }
+  return std::numeric_limits<double>::quiet_NaN();
 }
 
 int System_impl::get_freq_error() {

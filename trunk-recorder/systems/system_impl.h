@@ -207,6 +207,7 @@ public:
   bool get_hideUnknown() override;
   void set_hideUnknown(bool hideUnknown) override;
 
+  double get_control_channel_pwr() override;
   int get_freq_error() override;
   void finetune_control_freq(double f) override;
   int get_autotune_offset() override;

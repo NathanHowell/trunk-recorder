@@ -155,6 +155,7 @@ public:
   virtual bool get_hideUnknown() = 0;
   virtual void set_hideUnknown(bool hideUnknown) = 0;
 
+  virtual double get_control_channel_pwr() = 0;
   virtual int get_freq_error() = 0;
   virtual void finetune_control_freq(double f) = 0;
   virtual int get_autotune_offset() = 0;
