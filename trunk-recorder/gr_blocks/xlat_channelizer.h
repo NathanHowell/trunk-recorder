@@ -16,7 +16,7 @@
 #include <gnuradio/filter/pfb_arb_resampler_ccf.h>
 #include <gnuradio/hier_block2.h>
 
-#include <gnuradio/analog/probe_avg_mag_sqrd.h>
+#include <gnuradio/analog/probe_avg_mag_sqrd_c.h>
 #include <gnuradio/analog/sig_source.h>
 #include <gnuradio/blocks/multiply.h>
 #include <gnuradio/blocks/multiply_const.h>
