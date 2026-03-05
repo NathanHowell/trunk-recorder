@@ -101,7 +101,7 @@ public:
   // TrunkingDecoder interface
   int get_autotune_offset() const override { return autotune_offset; }
   void set_autotune_offset(int offset) override { autotune_offset = offset; }
-  std::shared_ptr<gr::hier_block2> as_hier_block() override { return shared_from_this(); }
+  std::shared_ptr<gr::hier_block2> as_hier_block() override { return std::dynamic_pointer_cast<gr::hier_block2>(shared_from_this()); }
 
   gr::msg_queue::sptr tune_queue;
   gr::msg_queue::sptr traffic_queue;
