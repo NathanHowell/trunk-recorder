@@ -24,12 +24,13 @@
 
 #include "../gr_blocks/xlat_channelizer.h"
 #include "smartnet_fsk2_demod.h"
+#include "trunking_decoder.h"
 
 class smartnet_impl;
 
 
 
-class smartnet_impl : public gr::hier_block2 {
+class smartnet_impl : public gr::hier_block2, public trunking_decoder {
     public:
         typedef std::shared_ptr<smartnet_impl> sptr;
         
@@ -49,14 +50,19 @@ class smartnet_impl : public gr::hier_block2 {
 
   void set_center(double c);
   void set_rate(long s);
-  void tune_freq(double f);
-  double get_pwr();
-  double get_freq();
+  void tune_freq(double f) override;
+  double get_pwr() override;
+  double get_freq() override;
   void enable();
-  int get_freq_error();
-  void finetune_control_freq(double f);
-  void set_msg_callback(std::function<void(gr::message::sptr)> cb);
+  int get_freq_error() override;
+  void finetune_control_freq(double f) override;
+  void set_msg_callback(std::function<void(gr::message::sptr)> cb) override;
   int autotune_offset;
+
+  // TrunkingDecoder interface
+  int get_autotune_offset() const override { return autotune_offset; }
+  void set_autotune_offset(int offset) override { autotune_offset = offset; }
+  std::shared_ptr<gr::hier_block2> as_hier_block() override { return shared_from_this(); }
 
   gr::msg_queue::sptr rx_queue;
 

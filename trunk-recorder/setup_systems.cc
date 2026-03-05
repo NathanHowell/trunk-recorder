@@ -127,20 +127,11 @@ bool setup_systems(Config &config, gr::top_block_sptr &tb, std::vector<std::shar
     if (is_conventional(system->get_system_type())) {
       system_added = setup_conventional_system(system, config, tb, sources, calls);
     } else {
-      // If it's not a conventional system, then it's a trunking system
-      double control_channel_freq = system->get_current_control_channel();
-      BOOST_LOG_TRIVIAL(info) << "[" << system->get_short_name() << "]\tStarted with Control Channel: " << format_freq(control_channel_freq);
-
-      for (auto &src : sources) {
-        if ((src->get_min_hz() <= control_channel_freq) &&
-            (src->get_max_hz() >= control_channel_freq)) {
-          system_added = true;
-          system->setup_trunking(src, tb);
-          break;
-        }
-      }
+      // Trunking system — create one decoder per control channel
+      system->setup_decoders(tb, sources);
+      system_added = (system->get_decoders().size() > 0);
       if (!system_added) {
-        BOOST_LOG_TRIVIAL(error) << "[" << system->get_short_name() << "]\t Unable to find a source for this System! Control Channel Freq: " << format_freq(control_channel_freq);
+        BOOST_LOG_TRIVIAL(error) << "[" << system->get_short_name() << "]\t No sources cover any control channel";
         return false;
       }
     }

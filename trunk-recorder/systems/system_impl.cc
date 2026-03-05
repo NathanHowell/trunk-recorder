@@ -1,5 +1,7 @@
 #include "system_impl.h"
 #include "system.h"
+#include "p25_trunking.h"
+#include "smartnet_impl.h"
 #include "../source.h"
 #include "../formatter.h"
 
@@ -60,7 +62,6 @@ System_impl::System_impl(int sys_num) {
   d_fsync_enabled = false;
   d_star_enabled = false;
   d_tps_enabled = false;
-  retune_attempts = 0;
   message_count = 0;
   decode_rate = 0;
   msg_queue = gr::msg_queue::make(100);
@@ -519,45 +520,51 @@ void System_impl::set_hideUnknown(bool hideUnknown) {
 }
 
 double System_impl::get_control_channel_pwr() {
-  if (p25_trunking) {
-    return p25_trunking->get_pwr();
-  } else if (smartnet_trunking) {
-    return smartnet_trunking->get_pwr();
+  double best = std::numeric_limits<double>::quiet_NaN();
+  for (auto &entry : decoders) {
+    double pwr = entry.decoder->get_pwr();
+    if (std::isnan(best) || pwr > best) {
+      best = pwr;
+    }
   }
-  return std::numeric_limits<double>::quiet_NaN();
+  return best;
 }
 
 int System_impl::get_freq_error() {
-  if (p25_trunking) {
-    return p25_trunking->get_freq_error();
-  } else if (smartnet_trunking) {
-    // return smartnet_trunking->get_freq_error();
+  if (decoders.size() > 1) {
+    BOOST_LOG_TRIVIAL(warning) << "[" << short_name << "] get_freq_error() called with " << decoders.size() << " decoders, using first";
+  }
+  if (!decoders.empty()) {
+    return decoders[0].decoder->get_freq_error();
   }
   return 0;
 }
 
 void System_impl::finetune_control_freq(double f) {
-  if (p25_trunking) {
-    p25_trunking->finetune_control_freq(f);
-  } else if (smartnet_trunking) {
-    // smartnet_trunking->finetune_control_freq(f);
+  if (decoders.size() > 1) {
+    BOOST_LOG_TRIVIAL(warning) << "[" << short_name << "] finetune_control_freq() called with " << decoders.size() << " decoders, using first";
+  }
+  if (!decoders.empty()) {
+    decoders[0].decoder->finetune_control_freq(f);
   }
 }
 
 int System_impl::get_autotune_offset() {
-  if (p25_trunking) {
-    return p25_trunking->autotune_offset;
-  } else if (smartnet_trunking) {
-    // return smartnet_trunking->autotune_offset;
+  if (decoders.size() > 1) {
+    BOOST_LOG_TRIVIAL(warning) << "[" << short_name << "] get_autotune_offset() called with " << decoders.size() << " decoders, using first";
+  }
+  if (!decoders.empty()) {
+    return decoders[0].decoder->get_autotune_offset();
   }
   return 0;
 }
 
 void System_impl::set_autotune_offset(int offset) {
-  if (p25_trunking) {
-    p25_trunking->autotune_offset = offset;
-  } else if (smartnet_trunking) {
-    // smartnet_trunking->autotune_offset = offset;
+  if (decoders.size() > 1) {
+    BOOST_LOG_TRIVIAL(warning) << "[" << short_name << "] set_autotune_offset() called with " << decoders.size() << " decoders, using first";
+  }
+  if (!decoders.empty()) {
+    decoders[0].decoder->set_autotune_offset(offset);
   }
 }
 
@@ -585,14 +592,6 @@ void System_impl::set_multiSiteSystemNumber(unsigned long multiSiteSystemNumber)
   d_multiSiteSystemNumber = multiSiteSystemNumber;
 }
 
-int System_impl::get_retune_attempts() {
-  return retune_attempts;
-}
-
-void System_impl::set_retune_attempts(int attempts) {
-  retune_attempts = attempts;
-}
-
 bool System_impl::add_ota_unit_tag(const OTAAlias &ota_alias) {
   if (unit_tags) {
     return unit_tags->add_ota(ota_alias);
@@ -602,84 +601,59 @@ bool System_impl::add_ota_unit_tag(const OTAAlias &ota_alias) {
 
 void System_impl::set_msg_callback(std::function<void(gr::message::sptr)> cb) {
   d_msg_cb = std::move(cb);
-  if (smartnet_trunking && d_msg_cb) {
-    smartnet_trunking->set_msg_callback(d_msg_cb);
-  }
-  if (p25_trunking && d_msg_cb) {
-    p25_trunking->set_msg_callback(d_msg_cb);
-  }
-}
-
-void System_impl::setup_trunking(const std::shared_ptr<Source> &source, gr::top_block_sptr &tb) {
-  double control_channel_freq = get_current_control_channel();
-  set_source(source);
-
-  if (system_type == SYS_SMARTNET) {
-    smartnet_trunking = smartnet_impl::make(control_channel_freq, source->get_center(),
-                                            source->get_rate(), get_msg_queue(), get_sys_num());
-    if (d_msg_cb) smartnet_trunking->set_msg_callback(d_msg_cb);
-    tb->connect(source->get_src_block(), 0, smartnet_trunking, 0);
-  } else if (system_type == SYS_P25) {
-    p25_trunking = make_p25_trunking(control_channel_freq, source->get_center(),
-                                      source->get_rate(), get_msg_queue(), qpsk_mod, get_sys_num());
-    if (d_msg_cb) p25_trunking->set_msg_callback(d_msg_cb);
-    tb->connect(source->get_src_block(), 0, p25_trunking, 0);
-  }
-}
-
-void System_impl::retune_trunking(gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources) {
-  auto current_source = get_source();
-  double control_channel_freq = get_next_control_channel();
-
-  BOOST_LOG_TRIVIAL(error) << "[" << short_name << "] Retuning to Control Channel: " << format_freq(control_channel_freq);
-
-  if (!current_source) {
-    BOOST_LOG_TRIVIAL(error) << "[" << short_name << "] No source assigned to system, cannot retune.";
-    return;
-  }
-
-  if ((current_source->get_min_hz() <= control_channel_freq) &&
-      (current_source->get_max_hz() >= control_channel_freq)) {
-    if (system_type == SYS_SMARTNET) {
-      smartnet_trunking->tune_freq(control_channel_freq);
-    } else if (system_type == SYS_P25) {
-      p25_trunking->tune_freq(control_channel_freq);
-    } else {
-      BOOST_LOG_TRIVIAL(error) << "\t - Unknown system type for Retune";
+  if (d_msg_cb) {
+    for (auto &entry : decoders) {
+      entry.decoder->set_msg_callback(d_msg_cb);
     }
-  } else {
-    bool source_found = false;
-    for (auto &src : sources) {
-      if ((src->get_min_hz() <= control_channel_freq) &&
-          (src->get_max_hz() >= control_channel_freq)) {
-        source_found = true;
+  }
+}
 
-        if (system_type == SYS_SMARTNET) {
-          set_source(src);
-          tb->lock();
-          tb->disconnect(current_source->get_src_block(), 0, smartnet_trunking, 0);
-          smartnet_trunking = smartnet_impl::make(control_channel_freq, src->get_center(),
-                                                  src->get_rate(), get_msg_queue(), get_sys_num());
-          if (d_msg_cb) smartnet_trunking->set_msg_callback(d_msg_cb);
-          tb->connect(src->get_src_block(), 0, smartnet_trunking, 0);
-          tb->unlock();
-        } else if (system_type == SYS_P25) {
-          set_source(src);
-          tb->lock();
-          tb->disconnect(current_source->get_src_block(), 0, p25_trunking, 0);
-          p25_trunking = make_p25_trunking(control_channel_freq, src->get_center(),
-                                            src->get_rate(), get_msg_queue(), qpsk_mod, get_sys_num());
-          if (d_msg_cb) p25_trunking->set_msg_callback(d_msg_cb);
-          tb->connect(src->get_src_block(), 0, p25_trunking, 0);
-          tb->unlock();
-        } else {
-          BOOST_LOG_TRIVIAL(error) << "\t - Unknown system type for Retune";
-        }
+std::vector<std::shared_ptr<trunking_decoder>> System_impl::get_decoders() {
+  std::vector<std::shared_ptr<trunking_decoder>> result;
+  for (auto &entry : decoders) {
+    result.push_back(entry.decoder);
+  }
+  return result;
+}
+
+void System_impl::setup_decoders(gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources) {
+  for (auto &freq : control_channels) {
+    std::shared_ptr<Source> src;
+    for (auto &s : sources) {
+      if (s->get_min_hz() <= freq && s->get_max_hz() >= freq) {
+        src = s;
         break;
       }
     }
-    if (!source_found) {
-      BOOST_LOG_TRIVIAL(error) << "\t - Unable to retune System control channel, freq not covered by any source.";
+    if (!src) {
+      BOOST_LOG_TRIVIAL(warning) << "[" << short_name << "] No source covers control channel " << format_freq(freq) << ", skipping";
+      continue;
+    }
+
+    std::shared_ptr<trunking_decoder> decoder;
+    if (system_type == SYS_SMARTNET) {
+      auto sn = smartnet_impl::make(freq, src->get_center(), src->get_rate(), get_msg_queue(), get_sys_num());
+      if (d_msg_cb) sn->set_msg_callback(d_msg_cb);
+      tb->connect(src->get_src_block(), 0, sn, 0);
+      decoder = sn;
+    } else if (system_type == SYS_P25) {
+      auto p25 = make_p25_trunking(freq, src->get_center(), src->get_rate(), get_msg_queue(), qpsk_mod, get_sys_num());
+      if (d_msg_cb) p25->set_msg_callback(d_msg_cb);
+      tb->connect(src->get_src_block(), 0, p25, 0);
+      decoder = p25;
+    } else {
+      continue;
+    }
+
+    BOOST_LOG_TRIVIAL(info) << "[" << short_name << "] Decoder started on control channel " << format_freq(freq);
+    decoders.push_back({decoder, src, freq});
+  }
+
+  if (!decoders.empty()) {
+    set_source(decoders[0].source);
+    if (decoders.size() > 1) {
+      BOOST_LOG_TRIVIAL(warning) << "[" << short_name << "] " << decoders.size()
+        << " decoders active, but system source set to first decoder's source only (autotune will only apply to first)";
     }
   }
 }

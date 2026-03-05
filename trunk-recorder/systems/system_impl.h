@@ -6,11 +6,9 @@
 #include <memory>
 #include <stdio.h>
 //#include "../source.h"
-#include "p25_trunking.h"
 #include "parser.h"
-//#include "smartnet_trunking.h"
-#include "smartnet_impl.h"
 #include "system.h"
+#include "trunking_decoder.h"
 
 #ifdef __GNUC__
 #pragma GCC diagnostic push
@@ -60,7 +58,6 @@ public:
   SystemType system_type;
   int message_count;
   int decode_rate;
-  int retune_attempts;
   std::string bandplan;
   int bandfreq;
   double bandplan_base;
@@ -89,8 +86,12 @@ public:
   std::vector<sigmf_recorder_sptr> conventionalSIGMF_recorders;
   bool record_unknown;
 
-  smartnet_impl::sptr smartnet_trunking;
-  p25_trunking_sptr p25_trunking;
+  struct decoder_entry {
+    std::shared_ptr<trunking_decoder> decoder;
+    std::shared_ptr<Source> source;
+    double freq;
+  };
+  std::vector<decoder_entry> decoders;
 
   std::string get_short_name() override;
   void set_short_name(std::string short_name) override;
@@ -223,12 +224,10 @@ public:
   unsigned long get_multiSiteSystemNumber() override;
   void set_multiSiteSystemNumber(unsigned long multiSiteSystemNumber) override;
 
-  int get_retune_attempts() override;
-  void set_retune_attempts(int attempts) override;
   bool add_ota_unit_tag(const OTAAlias &ota_alias) override;
-  void setup_trunking(const std::shared_ptr<Source> &source, gr::top_block_sptr &tb) override;
-  void retune_trunking(gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources) override;
+  void setup_decoders(gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources) override;
   void set_msg_callback(std::function<void(gr::message::sptr)> cb) override;
+  std::vector<std::shared_ptr<trunking_decoder>> get_decoders() override;
 
 private:
   TalkgroupDisplayFormat talkgroup_display_format;

@@ -11,6 +11,7 @@
 #include <stdio.h>
 //#include "../source.h"
 #include "parser.h"
+#include "trunking_decoder.h"
 #include <iomanip>
 
 #ifdef __GNUC__
@@ -171,12 +172,10 @@ public:
   virtual unsigned long get_multiSiteSystemNumber() = 0;
   virtual void set_multiSiteSystemNumber(unsigned long multiSiteSystemName) = 0;
 
-  virtual int get_retune_attempts() = 0;
-  virtual void set_retune_attempts(int attempts) = 0;
   virtual bool add_ota_unit_tag(const OTAAlias &ota_alias) = 0;
 
-  virtual void setup_trunking(const std::shared_ptr<Source> &source, gr::top_block_sptr &tb) = 0;
-  virtual void retune_trunking(gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources) = 0;
+  virtual void setup_decoders(gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources) = 0;
   virtual void set_msg_callback(std::function<void(gr::message::sptr)> cb) {}
+  virtual std::vector<std::shared_ptr<trunking_decoder>> get_decoders() = 0;
 };
 #endif
