@@ -1,4 +1,5 @@
 #include "xlat_channelizer.h"
+#include <cmath>
 #include <stdexcept>
 
 xlat_channelizer::sptr xlat_channelizer::make(double input_rate, int samples_per_symbol, double symbol_rate, double bandwidth, double center_freq, bool use_squelch, double excess_bw) {
@@ -115,6 +116,10 @@ xlat_channelizer::xlat_channelizer(double input_rate, int samples_per_symbol, do
 
   squelch = callback_pwr_squelch_cc::make(squelch_db, 0.0001, 0, true);
 
+  // Power probe: taps off the filtered signal to measure average magnitude
+  // without affecting the main signal path. alpha=0.0001 for a slow average.
+  pwr_probe = gr::analog::probe_avg_mag_sqrd_c::make(-200.0, 0.0001);
+
   rms_agc = gr::blocks::rms_agc::make(0.45, 0.85);
   fll_band_edge = gr::digital::fll_band_edge_cc::make(d_samples_per_symbol, excess_bw, 2 * d_samples_per_symbol + 1, (2.0 * pi) / d_samples_per_symbol / 250); // OP25 has this set to 350 instead of 250
 
@@ -138,6 +143,9 @@ xlat_channelizer::xlat_channelizer(double input_rate, int samples_per_symbol, do
     }
   }
 
+  // Tap the power probe off the channel filter output (before resampling/squelch)
+  connect(channel_lpf, 0, pwr_probe, 0);
+
   connect(rms_agc, 0, fll_band_edge, 0);
   connect(fll_band_edge, 0, self(), 0);
 }
@@ -153,11 +161,11 @@ bool xlat_channelizer::is_squelched() {
 }
 
 double xlat_channelizer::get_pwr() {
-  if (d_use_squelch) {
-    return squelch->get_pwr();
-  } else {
-    return DB_UNSET;
+  double level = pwr_probe->level();
+  if (level > 0.0) {
+    return 10.0 * std::log10(level);
   }
+  return DB_UNSET;
 }
 
 void xlat_channelizer::tune_offset(double f) {

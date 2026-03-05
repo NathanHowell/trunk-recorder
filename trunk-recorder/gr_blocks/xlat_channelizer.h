@@ -16,6 +16,7 @@
 #include <gnuradio/filter/pfb_arb_resampler_ccf.h>
 #include <gnuradio/hier_block2.h>
 
+#include <gnuradio/analog/probe_avg_mag_sqrd.h>
 #include <gnuradio/analog/sig_source.h>
 #include <gnuradio/blocks/multiply.h>
 #include <gnuradio/blocks/multiply_const.h>
@@ -95,6 +96,7 @@ private:
   gr::filter::fft_filter_ccf::sptr cutoff_filter;
 
   gr::filter::pfb_arb_resampler_ccf::sptr arb_resampler;
+  gr::analog::probe_avg_mag_sqrd_c::sptr pwr_probe;
 
   static DecimSettings get_decim(long speed);
 };
