@@ -9,7 +9,6 @@
 #include "./global_structs.h"
 #include "call.h"
 #include "call_conventional.h"
-#include "config.h"
 #include "source.h"
 #include "systems/system.h"
 
