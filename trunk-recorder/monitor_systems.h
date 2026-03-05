@@ -1,8 +1,8 @@
 #ifndef MONITOR_SYSTEMS_H
 #define MONITOR_SYSTEMS_H
 
-// monitor_systems.h — formerly declared monitor_messages().
-// All monitoring logic has moved to Rust. This header is kept for compilation
-// compatibility but declares no functions.
+#include <string>
+
+void set_logging_level(const std::string &log_level);
 
 #endif
