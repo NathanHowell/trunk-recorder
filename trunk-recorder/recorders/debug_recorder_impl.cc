@@ -237,12 +237,13 @@ void debug_recorder_impl::stop() {
   }
 }
 
-bool debug_recorder_impl::start(const std::shared_ptr<Call> &call) {
+bool debug_recorder_impl::start(const RecorderConfig &config) {
   if (state == REC_INACTIVE) {
     starttime = std::chrono::steady_clock::now();
 
-    talkgroup = call->get_talkgroup();
-    chan_freq = call->get_freq();
+    talkgroup = config.talkgroup;
+    chan_freq = config.freq;
+    rust_call_id = config.rust_call_id;
 
     BOOST_LOG_TRIVIAL(info) << "debug_recorder.cc: Starting Logger   \t[ " << rec_num << " ] - freq[ " << chan_freq << "] \t talkgroup[ " << talkgroup << " ]";
 

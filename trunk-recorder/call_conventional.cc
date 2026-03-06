@@ -1,6 +1,7 @@
 
 #include "call_conventional.h"
 #include "formatter.h"
+#include "recorder_config.h"
 #include "recorders/recorder.h"
 #include <boost/algorithm/string.hpp>
 
@@ -19,7 +20,16 @@ void Call_conventional::restart_call() {
   tdma_slot = 0;
   auto rec = recorder.lock();
   if (rec) {
-    rec->start(shared_from_this());
+    rec->start(RecorderConfig{
+        .talkgroup = talkgroup,
+        .call_num = call_num,
+        .freq = curr_freq,
+        .short_name = sys->get_short_name(),
+        .temp_dir = config.temp_dir,
+        .squelch_db = squelch_db,
+        .digital_levels = sys->get_digital_levels(),
+        .rust_call_id = rust_call_id,
+    });
   }
 }
 

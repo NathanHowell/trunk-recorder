@@ -62,7 +62,7 @@ class sigmf_recorder_impl : public sigmf_recorder {
 
 public:
   sigmf_recorder_impl(const std::shared_ptr<Source> &src, Recorder_Type type);
-  bool start(const std::shared_ptr<Call> &call);
+  bool start(const RecorderConfig &config) override;
   void stop();
   double get_freq();
   int get_freq_error();
@@ -89,7 +89,6 @@ private:
 
   const Config &config;
   std::shared_ptr<Source> source;
-  std::shared_ptr<Call> call;
   char filename[255];
   // int num;
   RecorderState state;

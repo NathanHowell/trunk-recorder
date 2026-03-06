@@ -15,7 +15,7 @@ class EventSink {
 public:
   virtual ~EventSink() = default;
 
-  virtual void audio_callback(const std::shared_ptr<Call> &call, const std::shared_ptr<Recorder> &recorder,
+  virtual void audio_callback(const std::shared_ptr<Recorder> &recorder,
                               int16_t *samples, int sampleCount) = 0;
   virtual void setup_recorder(const std::shared_ptr<Recorder> &recorder) = 0;
   virtual void unit_alias_discovered(const std::shared_ptr<System> &system,

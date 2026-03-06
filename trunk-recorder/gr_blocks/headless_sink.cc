@@ -10,7 +10,7 @@
 
 #include "headless_sink.h"
 
-#include "../../trunk-recorder/call.h"
+#include "../../trunk-recorder/recorder_config.h"
 
 #include <cstring>
 #include <gnuradio/io_signature.h>
@@ -36,21 +36,19 @@ headless_sink::headless_sink(int n_channels, unsigned int sample_rate, int /*bit
       d_talkgroup(0),
       d_freq(0.0) {}
 
-bool headless_sink::start_recording(const std::shared_ptr<Call> &call) {
+bool headless_sink::start_recording(const RecorderConfig &config) {
   d_state = REC_IDLE;
   d_start_time = std::chrono::system_clock::now();
   d_stop_time = std::chrono::steady_clock::now();
   d_sample_count = 0;
   d_last_write_time = std::chrono::steady_clock::now();
-  if (call) {
-    d_talkgroup = call->get_talkgroup();
-    d_freq = call->get_freq();
-  }
+  d_talkgroup = config.talkgroup;
+  d_freq = config.freq;
   return true;
 }
 
-bool headless_sink::start_recording(const std::shared_ptr<Call> &call, int /*slot*/) {
-  return start_recording(call);
+bool headless_sink::start_recording(const RecorderConfig &config, int /*slot*/) {
+  return start_recording(config);
 }
 
 void headless_sink::stop_recording() {

@@ -34,6 +34,7 @@
 #include <gnuradio/blocks/head.h>
 
 #include "../call.h"
+#include "../recorder_config.h"
 #include "../state.h"
 #include <gnuradio/blocks/file_sink.h>
 
@@ -63,7 +64,7 @@ public:
 
   virtual void tune_offset(double f){};
   virtual void tune_freq(double f){};
-  virtual bool start(const std::shared_ptr<Call> &call) { return false; };
+  virtual bool start(const RecorderConfig &config) { return false; };
   virtual void stop(){};
   virtual void set_tdma_slot(int slot){};
   virtual double get_freq() { return 0; };
@@ -88,9 +89,13 @@ public:
   virtual void process_message_queues(void){};
   virtual double get_output_sample_rate() { return 0; }
   virtual int get_output_channels() { return 1; }
+
+  uint64_t get_rust_call_id() const { return rust_call_id; }
+
 protected:
   Recorder_Type  type;
   int autotune_offset = 0;
+  uint64_t rust_call_id = 0;
 };
 
 typedef std::shared_ptr<Recorder> Recorder_sptr;

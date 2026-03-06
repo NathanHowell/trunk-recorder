@@ -53,7 +53,7 @@ public:
   void set_source(long src);
   void set_xor_mask(const std::string &mask);
   void switch_tdma(bool phase2_tdma);
-  void start(const std::shared_ptr<Call> &call);
+  void start(const RecorderConfig &config);
   std::chrono::duration<double> since_last_write();
   void stop();
   void reset();

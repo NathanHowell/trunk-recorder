@@ -72,7 +72,7 @@ protected:
 public:
   dmr_recorder_impl(const std::shared_ptr<Source> &src, Recorder_Type type);
   void tune_freq(double f);
-  bool start(const std::shared_ptr<Call> &call);
+  bool start(const RecorderConfig &config) override;
   void stop();
   double get_freq();
   int get_freq_error();
@@ -101,7 +101,6 @@ protected:
   std::chrono::steady_clock::time_point starttime;
   long talkgroup;
   std::string short_name;
-  std::shared_ptr<Call> call;
   const Config &config;
   std::shared_ptr<Source> source;
   double chan_freq;

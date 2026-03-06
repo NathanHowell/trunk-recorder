@@ -28,16 +28,17 @@ void p25_recorder_decode::stop() {
   d_call = nullptr;
 }
 
-void p25_recorder_decode::start(const std::shared_ptr<Call> &call) {
-  levels->set_k(call->get_system()->get_digital_levels());
+void p25_recorder_decode::start(const RecorderConfig &config) {
+  levels->set_k(config.digital_levels);
 
-  if(call->get_phase2_tdma()){
-    wav_sink->start_recording(call, call->get_tdma_slot());
+  if (config.phase2_tdma) {
+    wav_sink->start_recording(config, config.tdma_slot);
   } else {
-    wav_sink->start_recording(call);
+    wav_sink->start_recording(config);
   }
 
-  d_call = call;
+  // d_call is NOT set here — during-call reads (alias validation)
+  // will be addressed separately when we remove the Call dependency.
 }
 
 void p25_recorder_decode::set_xor_mask(const std::string &mask) {
@@ -111,9 +112,7 @@ void p25_recorder_decode::initialize(int silence_frames, bool d_soft_vocoder) {
 }
 
 void p25_recorder_decode::plugin_callback_handler(int16_t *samples, int sampleCount) {
-  if (d_call) {
-    d_config.event_sink->audio_callback(d_call, d_recorder, samples, sampleCount);
-  }
+  d_config.event_sink->audio_callback(d_recorder, samples, sampleCount);
 }
 
 

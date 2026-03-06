@@ -306,7 +306,7 @@ void analog_recorder::decoder_callback_handler(long unitId, const char *signalin
 
 void analog_recorder::plugin_callback_handler(int16_t *samples, int sampleCount) {
   auto self = std::dynamic_pointer_cast<Recorder>(shared_from_this());
-  config.event_sink->audio_callback(call, self, samples, sampleCount);
+  config.event_sink->audio_callback(self, samples, sampleCount);
 }
 
 void analog_recorder::setup_decoders_for_system(const std::shared_ptr<System> &system) {
@@ -316,20 +316,14 @@ void analog_recorder::setup_decoders_for_system(const std::shared_ptr<System> &s
   decoder_sink->set_tps_enabled(system->get_tps_enabled());
 }
 
-bool analog_recorder::start(const std::shared_ptr<Call> &call) {
+bool analog_recorder::start(const RecorderConfig &config) {
+  setup_decoders_for_system(system);
   starttime = std::chrono::steady_clock::now();
-  auto system = call->get_system();
-  this->call = call;
 
-  setup_decoders_for_system(call->get_system());
+  talkgroup = config.talkgroup;
+  chan_freq = config.freq;
+  rust_call_id = config.rust_call_id;
 
-  talkgroup = call->get_talkgroup();
-  chan_freq = call->get_freq();
-
-
-
-  // BOOST_LOG_TRIVIAL(error) << "Setting squelch to: " << squelch_db << " block says: " << squelch->threshold();
-  
   levels->set_k(system->get_analog_levels());
   int d_max_dev = system->get_max_dev();
   prefilter->set_max_dev(d_max_dev);
@@ -338,18 +332,15 @@ bool analog_recorder::start(const std::shared_ptr<Call> &call) {
   int offset_amount = (center_freq - chan_freq);
   prefilter->tune_offset(offset_amount);
 
-  wav_sink->start_recording(call);
+  wav_sink->start_recording(config);
 
   state = REC_ACTIVE;
-  if (conventional) {
-    auto conventional_call = std::dynamic_pointer_cast<Call_conventional>(call);
-    squelch_db = conventional_call->get_squelch_db();
-  } else {
-    squelch_db = system->get_squelch_db();
+  squelch_db = config.squelch_db;
+  if (!conventional) {
     set_enabled(true);
   }
-  
-  std::string loghdr = log_header(call->get_short_name(),call->get_call_num(),this->call->get_talkgroup(),chan_freq);
+
+  std::string loghdr = log_header(config.short_name, config.call_num, config.talkgroup, chan_freq);
   BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[32mStarting Analog Recorder Num [" << rec_num << "]\u001b[0m \tSquelch: " << squelch_db << " Max Dev: " << d_max_dev << " Gain: " << quad_gain;
   prefilter->set_squelch_db(squelch_db);
   return true;

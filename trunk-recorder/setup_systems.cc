@@ -1,5 +1,6 @@
 #include "./setup_systems.h"
 #include "event_sink.h"
+#include "recorder_config.h"
 using namespace std;
 bool setup_conventional_channel(const std::shared_ptr<System> &system, double frequency, long channel_index, Config &config, gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources, std::vector<std::shared_ptr<Call>> &calls) {
   bool channel_added = false;
@@ -41,7 +42,15 @@ bool setup_conventional_channel(const std::shared_ptr<System> &system, double fr
         } else {
           rec = source->create_conventional_recorder(tb);
         }
-        rec->start(call);
+        rec->start(RecorderConfig{
+            .talkgroup = call->get_talkgroup(),
+            .call_num = call->get_call_num(),
+            .freq = call->get_freq(),
+            .short_name = call->get_short_name(),
+            .temp_dir = config.temp_dir,
+            .squelch_db = call->get_squelch_db(),
+            .digital_levels = system->get_digital_levels(),
+        });
         rec->set_tau(system->get_tau()); //set the tau value for the recorder from the system config
         call->set_recorder(rec);
         system->add_conventional_recorder(rec);

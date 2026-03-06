@@ -108,7 +108,7 @@ void dmr_recorder_impl::initialize(const std::shared_ptr<Source> &src) {
 
 void dmr_recorder_impl::plugin_callback_handler(int16_t *samples, int sampleCount) {
   auto self = std::dynamic_pointer_cast<Recorder>(shared_from_this());
-  config.event_sink->audio_callback(call, self, samples, sampleCount);
+  config.event_sink->audio_callback(self, samples, sampleCount);
 }
 
 void dmr_recorder_impl::switch_tdma(bool phase2) {
@@ -238,36 +238,32 @@ void dmr_recorder_impl::set_tdma_slot(int slot) {
   tdma_slot = slot;
 }
 
-bool dmr_recorder_impl::start(const std::shared_ptr<Call> &call) {
+bool dmr_recorder_impl::start(const RecorderConfig &config) {
   if (state == REC_INACTIVE) {
-    auto system = call->get_system();
     set_tdma_slot(0);
 
     starttime = std::chrono::steady_clock::now();
 
-    talkgroup = call->get_talkgroup();
-    short_name = call->get_short_name();
-    chan_freq = call->get_freq();
-    this->call = call;
-    std::string loghdr = log_header(this->call->get_short_name(),this->call->get_call_num(),this->call->get_talkgroup(),chan_freq);
-    BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[32mStarting DMR Recorder Num [" << rec_num << "]\u001b[0m\tTDMA: " << call->get_phase2_tdma() << "\tSlot: " << call->get_tdma_slot();
+    talkgroup = config.talkgroup;
+    short_name = config.short_name;
+    chan_freq = config.freq;
+    rust_call_id = config.rust_call_id;
+    std::string loghdr = log_header(config.short_name, config.call_num, config.talkgroup, chan_freq);
+    BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[32mStarting DMR Recorder Num [" << rec_num << "]\u001b[0m\tTDMA: " << config.phase2_tdma << "\tSlot: " << config.tdma_slot;
 
     int offset_amount = (center_freq - chan_freq);
 
     prefilter->tune_offset(offset_amount);
-    levels->set_k(call->get_system()->get_digital_levels());
-    wav_sink_slot0->start_recording(call, 0);
-    wav_sink_slot1->start_recording(call, 1);
+    levels->set_k(config.digital_levels);
+    wav_sink_slot0->start_recording(config, 0);
+    wav_sink_slot1->start_recording(config, 1);
     state = REC_ACTIVE;
 
-  if (conventional) {
-    auto conventional_call = std::dynamic_pointer_cast<Call_conventional>(call);
-    squelch_db = conventional_call->get_squelch_db();
-  } else {
-    squelch_db = system->get_squelch_db();
-    set_enabled(true);
-  }
-  prefilter->set_squelch_db(squelch_db);
+    squelch_db = config.squelch_db;
+    if (!conventional) {
+      set_enabled(true);
+    }
+    prefilter->set_squelch_db(squelch_db);
 
   } else {
     BOOST_LOG_TRIVIAL(error) << "dmr_recorder.cc: Trying to Start an already Active Logger!!!";

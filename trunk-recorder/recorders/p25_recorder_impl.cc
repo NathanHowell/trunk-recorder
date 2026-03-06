@@ -258,8 +258,7 @@ void p25_recorder_impl::stop() {
       // Send last tuning measurements to autotune manager
       source->add_autotune_error_measurement(this->get_freq_error(), autotune_offset);
     }
-    std::string loghdr = log_header(this->call->get_short_name(),this->call->get_call_num(),this->call->get_talkgroup(),chan_freq);
-    BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[33mStopping P25 Recorder Num [" << rec_num << "]\u001b[0m\tTDMA: " << d_phase2_tdma << "\tSlot: " << tdma_slot << "\tTuningErr: " << std::showpos << this->get_freq_error() << std::noshowpos << " Hz";
+    BOOST_LOG_TRIVIAL(info) << "\u001b[33mStopping P25 Recorder Num [" << rec_num << "]\u001b[0m\tTG: " << talkgroup << "\tFreq: " << chan_freq << "\tTDMA: " << d_phase2_tdma << "\tSlot: " << tdma_slot << "\tTuningErr: " << std::showpos << this->get_freq_error() << std::noshowpos << " Hz";
 
     state = REC_INACTIVE;
     set_enabled(false);
@@ -284,20 +283,18 @@ void p25_recorder_impl::set_tdma_slot(int slot) {
   tdma_slot = slot;
 }
 
-bool p25_recorder_impl::start(const std::shared_ptr<Call> &call) {
+bool p25_recorder_impl::start(const RecorderConfig &config) {
   if (state == REC_INACTIVE) {
-    auto system = call->get_system();
-    qpsk_mod = system->get_qpsk_mod();
-    set_tdma(call->get_phase2_tdma());
-    if (call->get_phase2_tdma()) {
+    set_tdma(config.phase2_tdma);
+    if (config.phase2_tdma) {
       if (!qpsk_mod) {
         BOOST_LOG_TRIVIAL(error) << "Error - Modulation is FSK4 but receiving Phase 2 call, this will not work";
         return false;
       }
-      set_tdma_slot(call->get_tdma_slot());
+      set_tdma_slot(config.tdma_slot);
 
-      if (!call->get_xor_mask().empty()) {
-        qpsk_p25_decode->set_xor_mask(call->get_xor_mask());
+      if (!config.xor_mask.empty()) {
+        qpsk_p25_decode->set_xor_mask(config.xor_mask);
       } else {
         BOOST_LOG_TRIVIAL(info) << "Error - can't set XOR Mask for TDMA";
         return false;
@@ -308,22 +305,21 @@ bool p25_recorder_impl::start(const std::shared_ptr<Call> &call) {
 
     starttime = std::chrono::steady_clock::now();
 
-    talkgroup = call->get_talkgroup();
-    short_name = call->get_short_name();
-    chan_freq = call->get_freq();
-    this->call = call;
+    talkgroup = config.talkgroup;
+    short_name = config.short_name;
+    chan_freq = config.freq;
+    rust_call_id = config.rust_call_id;
 
-    std::string loghdr = log_header(this->call->get_short_name(),this->call->get_call_num(),this->call->get_talkgroup(),chan_freq);
+    std::string loghdr = log_header(config.short_name, config.call_num, config.talkgroup, chan_freq);
     autotune_offset = 0;
     std::ostringstream autotune_info;
 
     if (source->get_autotune_source()) {
-      // Retrieve current autotune offset from the source's autotune manager
       autotune_offset = source->get_source_error();
       autotune_info << " AutoTune: " << std::showpos << autotune_offset << std::noshowpos << " Hz";
     }
 
-    BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[32mStarting P25 Recorder Num [" << rec_num << "]\u001b[0m\tTDMA: " << call->get_phase2_tdma() << "\tSlot: " << call->get_tdma_slot() << "\tQPSK: " << qpsk_mod << autotune_info.str();
+    BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[32mStarting P25 Recorder Num [" << rec_num << "]\u001b[0m\tTDMA: " << config.phase2_tdma << "\tSlot: " << config.tdma_slot << "\tQPSK: " << qpsk_mod << autotune_info.str();
 
     int offset_amount = (center_freq - chan_freq + autotune_offset);
 
@@ -331,22 +327,18 @@ bool p25_recorder_impl::start(const std::shared_ptr<Call> &call) {
 
     if (qpsk_mod) {
       modulation_selector->set_output_index(1);
-      qpsk_p25_decode->start(call);
+      qpsk_p25_decode->start(config);
     } else {
       modulation_selector->set_output_index(0);
-      fsk4_p25_decode->start(call);
+      fsk4_p25_decode->start(config);
     }
     state = REC_ACTIVE;
 
-    if (conventional) {
-      auto conventional_call = std::dynamic_pointer_cast<Call_conventional>(call);
-      squelch_db = conventional_call->get_squelch_db();
-    } else {
-      squelch_db = system->get_squelch_db();
+    squelch_db = config.squelch_db;
+    if (!conventional) {
       set_enabled(true);
     }
     prefilter->set_squelch_db(squelch_db);
-
 
   } else {
     BOOST_LOG_TRIVIAL(error) << "p25_recorder.cc: Trying to Start an already Active Logger!!!";

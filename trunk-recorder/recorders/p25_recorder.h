@@ -28,7 +28,7 @@ public:
   p25_recorder(){};
   virtual ~p25_recorder(){};
   virtual void tune_freq(double f) = 0;
-  virtual bool start(const std::shared_ptr<Call> &call) = 0;
+  virtual bool start(const RecorderConfig &config) = 0;
   virtual void stop() = 0;
   virtual void clear() = 0;
   virtual double get_freq() = 0;

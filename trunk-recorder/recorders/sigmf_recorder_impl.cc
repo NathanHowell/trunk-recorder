@@ -112,8 +112,7 @@ RecorderState sigmf_recorder_impl::get_state() {
 
 void sigmf_recorder_impl::stop() {
   if (state == REC_ACTIVE) {
-    std::string loghdr = log_header(this->call->get_short_name(),this->call->get_call_num(),this->call->get_talkgroup(),freq);
-    BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[32mStopping SigMF Recorder Num [" << rec_num << "]\u001b[0m";
+    BOOST_LOG_TRIVIAL(info) << "\u001b[32mStopping SigMF Recorder Num [" << rec_num << "]\u001b[0m TG: " << talkgroup << " Freq: " << freq;
 
     state = REC_INACTIVE;
     set_enabled(false);
@@ -123,32 +122,29 @@ void sigmf_recorder_impl::stop() {
   }
 }
 
-bool sigmf_recorder_impl::start(const std::shared_ptr<Call> &call) {
+bool sigmf_recorder_impl::start(const RecorderConfig &config) {
   if (state == REC_INACTIVE) {
     starttime = std::chrono::steady_clock::now();
     int nchars;
     time_t wall_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     tm *ltm = localtime(&wall_time);
-    this->call = call;
-    auto system = call->get_system();
-    talkgroup = call->get_talkgroup();
-    freq = call->get_freq();
-    
+    talkgroup = config.talkgroup;
+    freq = config.freq;
+    rust_call_id = config.rust_call_id;
+
     int offset_amount = (center - freq);
     prefilter->tune_offset(offset_amount);
-    
-    //freq_xlat->set_center_freq(-offset_amount);
-    std::string loghdr = log_header(this->call->get_short_name(),this->call->get_call_num(),this->call->get_talkgroup(),freq);
+
+    std::string loghdr = log_header(config.short_name, config.call_num, config.talkgroup, freq);
     BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[32mStarting SigMF Recorder Num [" << rec_num << "]\u001b[0m";
 
     std::stringstream path_stream;
 
-    // Found some good advice on Streams and Strings here: https://blog.sensecodons.com/2013/04/dont-let-stdstringstreamstrcstr-happen.html
-    path_stream << call->get_temp_dir() << "/" << call->get_short_name() << "/" << 1900 + ltm->tm_year << "/" << 1 + ltm->tm_mon << "/" << ltm->tm_mday;
+    path_stream << config.temp_dir << "/" << config.short_name << "/" << 1900 + ltm->tm_year << "/" << 1 + ltm->tm_mon << "/" << ltm->tm_mday;
     std::string path_string = path_stream.str();
     std::filesystem::create_directories(path_string);
 
-    nchars = snprintf(filename, 255, "%s/%ld-%ld_%.0f-call_%lu.sigmf-data", path_string.c_str(), talkgroup, (long)wall_time, call->get_freq(), call->get_call_num());
+    nchars = snprintf(filename, 255, "%s/%ld-%ld_%.0f-call_%lu.sigmf-data", path_string.c_str(), talkgroup, (long)wall_time, config.freq, config.call_num);
     if (nchars >= 255) {
       BOOST_LOG_TRIVIAL(error) << "SigMF-meta: Path longer than 255 charecters";
     }
@@ -156,14 +152,11 @@ bool sigmf_recorder_impl::start(const std::shared_ptr<Call> &call) {
     raw_sink->open(filename);
     state = REC_ACTIVE;
 
-  if (conventional) {
-    auto conventional_call = std::dynamic_pointer_cast<Call_conventional>(call);
-    squelch_db = conventional_call->get_squelch_db();
-  } else {
-    squelch_db = system->get_squelch_db();
-    set_enabled(true);
-  }
-  prefilter->set_squelch_db(squelch_db);
+    squelch_db = config.squelch_db;
+    if (!conventional) {
+      set_enabled(true);
+    }
+    prefilter->set_squelch_db(squelch_db);
 
     std::string src_description = source->get_driver() + ": " + source->get_device() + " - " + source->get_antenna();
     time_t now;
@@ -190,7 +183,7 @@ bool sigmf_recorder_impl::start(const std::shared_ptr<Call> &call) {
       {"annotations", nlohmann::json::array({})}
     };
 
-    nchars = snprintf(filename, 255, "%s/%ld-%ld_%.0f-call_%lu.sigmf-meta", path_string.c_str(), talkgroup, starttime, call->get_freq(), call->get_call_num());
+    nchars = snprintf(filename, 255, "%s/%ld-%ld_%.0f-call_%lu.sigmf-meta", path_string.c_str(), talkgroup, starttime, config.freq, config.call_num);
     if (nchars >= 255) {
       BOOST_LOG_TRIVIAL(error) << "SigMF-meta: Path longer than 255 charecters";
     }

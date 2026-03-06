@@ -21,7 +21,7 @@
 #include <gnuradio/blocks/api.h>
 #include <gnuradio/sync_block.h>
 
-class Call;
+struct RecorderConfig;
 
 namespace gr {
 namespace blocks {
@@ -48,8 +48,8 @@ public:
                 unsigned int sample_rate,
                 int bits_per_sample);
 
-  bool start_recording(const std::shared_ptr<Call> &call);
-  bool start_recording(const std::shared_ptr<Call> &call, int slot);
+  bool start_recording(const RecorderConfig &config);
+  bool start_recording(const RecorderConfig &config, int slot);
   void stop_recording();
 
   void set_source(long src);

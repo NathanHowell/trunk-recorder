@@ -74,7 +74,7 @@ public:
   void initialize_fsk4();
   void initialize_p25();
   void tune_freq(double f);
-  bool start(const std::shared_ptr<Call> &call);
+  bool start(const RecorderConfig &config) override;
   void stop();
   void clear();
   double get_freq();
@@ -104,7 +104,6 @@ protected:
   std::chrono::steady_clock::time_point starttime;
   long talkgroup;
   std::string short_name;
-  std::shared_ptr<Call> call;
   const Config &config;
   std::shared_ptr<Source> source;
   double chan_freq;
