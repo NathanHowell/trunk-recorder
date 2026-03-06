@@ -449,52 +449,7 @@ bool Source::get_autotune_source() {
 
 /* -- Recorders -- */
 
-std::vector<std::shared_ptr<Recorder>> Source::find_conventional_recorders_by_freq(Detected_Signal signal) {
-  double freq = center + signal.center_freq;
-
-  std::vector<std::shared_ptr<Recorder>> recorders;
-  long max_freq_diff = 12500;
-  for (auto &rx : digital_conv_recorders) {
-    if (std::abs(freq - rx->get_freq()) < max_freq_diff) {
-      recorders.push_back(rx);
-    }
-  }
-
-  for (auto &rx : dmr_conv_recorders) {
-    if (std::abs(freq - rx->get_freq()) < max_freq_diff) {
-      recorders.push_back(rx);
-    }
-  }
-
-  for (auto &rx : analog_conv_recorders) {
-    if (std::abs(freq - rx->get_freq()) < max_freq_diff) {
-      recorders.push_back(rx);
-    }
-  }
-
-  return recorders;
-}
-
-void Source::enable_detected_recorders() {
-  std::vector<Detected_Signal> signals = signal_detector->get_detected_signals();
-
-  for (std::vector<Detected_Signal>::iterator it = signals.begin(); it != signals.end(); it++) {
-    Detected_Signal signal = *it;
-
-    float rssi = signal.max_rssi;
-    float threshold = signal.threshold;
-
-    auto recorders = find_conventional_recorders_by_freq(signal);
-    for (auto &recorder : recorders) {
-      if (!recorder->is_enabled()) {
-        recorder->set_enabled(true);
-        BOOST_LOG_TRIVIAL(info) << "\t[ " << recorder->get_num() << " ] " << recorder->get_type_string() << "\tEnabled - Freq: " << format_freq(recorder->get_freq()) << "\t Detected Signal: " << floor(rssi) << "dBM (Threshold: " << floor(threshold) << "dBM)";
-      }
-    }
-  }
-}
-
-void Source::set_detection_callback(std::function<void()> cb) {
+void Source::set_detection_callback(std::function<void(std::vector<Detected_Signal>)> cb) {
   if (signal_detector) {
     signal_detector->set_detection_callback(std::move(cb));
   }

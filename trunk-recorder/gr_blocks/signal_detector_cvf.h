@@ -113,13 +113,11 @@ public:
      *  Takes integers and does internal cast to firdes::win_type
      */
     virtual void set_window_type(int d_window) = 0;
-    virtual std::vector<Detected_Signal> get_detected_signals() = 0; 
-
     virtual void set_threshold(float d_threshold) = 0;
     virtual void set_sensitivity(float d_sensitivity) = 0;
     virtual void set_auto_threshold(bool d_auto_threshold) = 0;
     virtual void set_average(float d_average) = 0;
-    virtual void set_detection_callback(std::function<void()> cb) = 0;
+    virtual void set_detection_callback(std::function<void(std::vector<Detected_Signal>)> cb) = 0;
 };
 
 //} // namespace inspector

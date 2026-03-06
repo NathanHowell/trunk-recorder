@@ -34,7 +34,6 @@ namespace inspector {*/
 
 class signal_detector_cvf_impl : public signal_detector_cvf {
 private:
-  std::mutex d_mutex;
   bool d_auto_threshold;
   unsigned int d_fft_len;
   unsigned int d_tmpbuflen;
@@ -48,7 +47,6 @@ private:
   std::vector<float> d_window;
   std::vector<std::vector<float>> d_signal_edges;
   std::vector<std::vector<float>> d_rf_map;
-  std::vector<Detected_Signal> d_detected_signals;
   gr::fft::fft_complex_fwd *d_fft;
   std::vector<float> d_freq;
   const char *d_filename;
@@ -80,8 +78,6 @@ public:
 
   // PSD estimation
   void periodogram(float *pxx, const gr_complex *signal);
-
-  std::vector<Detected_Signal> get_detected_signals();
 
   int work(int noutput_items,
            gr_vector_const_void_star &input_items,
@@ -118,12 +114,12 @@ public:
     signal_detector_cvf_impl::d_quantization = d_quantization;
   }
 
-  void set_detection_callback(std::function<void()> cb) override {
+  void set_detection_callback(std::function<void(std::vector<Detected_Signal>)> cb) override {
     d_detection_cb = std::move(cb);
   }
 
 private:
-  std::function<void()> d_detection_cb;
+  std::function<void(std::vector<Detected_Signal>)> d_detection_cb;
 };
 
 //} // namespace inspector

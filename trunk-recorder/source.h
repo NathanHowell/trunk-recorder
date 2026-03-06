@@ -130,9 +130,7 @@ public:
   int get_num_available_analog_recorders();
   int get_num_available_digital_recorders();
   void set_signal_detector_threshold(float t);
-  std::vector<std::shared_ptr<Recorder>> find_conventional_recorders_by_freq(Detected_Signal ds);
-  void enable_detected_recorders();
-  void set_detection_callback(std::function<void()> cb);
+  void set_detection_callback(std::function<void(std::vector<Detected_Signal>)> cb);
   void set_selector_port_enabled(unsigned int port, bool enabled);
   bool is_selector_port_enabled(unsigned int port);
   void create_debug_recorder(gr::top_block_sptr tb, int source_num);

@@ -91,7 +91,6 @@ signal_detector_cvf_impl::signal_detector_cvf_impl(double samp_rate,
   d_min_bw = min_bw;
   d_max_bw = max_bw;
   d_filename = filename;
-  d_detected_signals = std::vector<Detected_Signal>();
   last_conventional_channel_detection_check = time_since_epoch_millisec();
 
 
@@ -356,14 +355,6 @@ std::vector<Detected_Signal> signal_detector_cvf_impl::find_signal_edges() {
       return flanks;*/
 }
 
-std::vector<Detected_Signal> signal_detector_cvf_impl::get_detected_signals() {
-  std::lock_guard<std::mutex> guard(d_mutex);
-  // BOOST_LOG_TRIVIAL(info) << "get_detected_freqs" << std::endl;
-  // BOOST_LOG_TRIVIAL(info) << "d_detected_freqs.size() = " << d_detected_freqs.size() << std::endl;
-  std::vector<Detected_Signal> safe_version = d_detected_signals;
-  return safe_version;
-}
-
 //</editor-fold>
 
 //<editor-fold desc="GR Stuff">
@@ -372,10 +363,9 @@ int signal_detector_cvf_impl::work(int noutput_items,
                                    gr_vector_const_void_star &input_items,
                                    gr_vector_void_star &output_items) {
   const gr_complex *in = (const gr_complex *)input_items[0];
-  // float* out = (float*)output_items[0];
 
     uint64_t current_time_ms = time_since_epoch_millisec();
-    if ((current_time_ms - last_conventional_channel_detection_check) >= 100.0) { //0.05) {
+    if ((current_time_ms - last_conventional_channel_detection_check) >= 100.0) {
 
       periodogram(d_pxx, in);
 
@@ -388,14 +378,12 @@ int signal_detector_cvf_impl::work(int noutput_items,
         build_threshold();
       }
 
-      std::lock_guard<std::mutex> guard(d_mutex);
-      d_detected_signals = find_signal_edges();
+      auto signals = find_signal_edges();
       last_conventional_channel_detection_check = current_time_ms;
-      if (d_detection_cb && !d_detected_signals.empty()) {
-        d_detection_cb();
+      if (d_detection_cb && !signals.empty()) {
+        d_detection_cb(std::move(signals));
       }
     }
-  // BOOST_LOG_TRIVIAL(info) << "d_detected_signals.size() = " << d_detected_signals.size() << std::endl;
 
   return 1; // one vector has been processed
 }
