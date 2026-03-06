@@ -1,44 +1,18 @@
 #ifndef RECORDER_H
 #define RECORDER_H
 
-#include <cstdio>
+#include <chrono>
 #include <functional>
-#include <fstream>
-#include <iostream>
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <unistd.h>
+#include <memory>
+#include <string>
+#include <vector>
 
-
-#include <gnuradio/filter/firdes.h>
-#include <gnuradio/hier_block2.h>
-#include <gnuradio/io_signature.h>
-
-#include <gnuradio/analog/sig_source.h>
-#include <gnuradio/blocks/multiply.h>
-#include <gnuradio/blocks/multiply_const.h>
-#include <gnuradio/filter/fir_filter_blk.h>
-#include <gnuradio/filter/freq_xlating_fir_filter.h>
-#include <gnuradio/filter/rational_resampler.h>
-
-#include <gnuradio/analog/quadrature_demod_cf.h>
-
-#include <gnuradio/blocks/file_sink.h>
-
-#include <gnuradio/block.h>
-#include <gnuradio/blocks/copy.h>
-#include <gnuradio/blocks/null_sink.h>
-
-#include <gnuradio/blocks/head.h>
-
-#include "../call.h"
+#include "../global_structs.h"
 #include "../recorder_config.h"
 #include "../state.h"
 
+class Source;
 class System;
-#include <gnuradio/blocks/file_sink.h>
 
 class Recorder {
 

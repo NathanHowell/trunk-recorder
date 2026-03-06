@@ -3,13 +3,7 @@
 
 #define _USE_MATH_DEFINES
 
-#include <cstdio>
-#include <iostream>
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-
+#include <gnuradio/hier_block2.h>
 
 #include "../gr_blocks/freq_xlating_fft_filter.h"
 #include "recorder.h"
