@@ -5,7 +5,7 @@
 #include "recorders/recorder.h"
 #include <boost/algorithm/string.hpp>
 
-Call_conventional::Call_conventional(long t, double f, const std::shared_ptr<System> &s, Config c, double squelch_db, bool signal_detection) : Call_impl(t, f, s, c) {
+Call_conventional::Call_conventional(long t, double f, const std::shared_ptr<System> &s, Config c, double squelch_db, bool signal_detection) : Call(t, f, s, c) {
   this->squelch_db = squelch_db;
   this->signal_detection = signal_detection;
   BOOST_LOG_TRIVIAL(info) << "[" << sys->get_short_name() << "]\tFreq: " << format_freq(f) << "\tSquelch: " << squelch_db << " dB\tSignal Detection: " << signal_detection;
@@ -33,7 +33,7 @@ void Call_conventional::restart_call() {
   }
 }
 
-time_t Call_conventional::get_start_time() {
+time_t Call_conventional::get_start_time() const {
   return std::chrono::system_clock::to_time_t(start_time);
 }
 
@@ -42,10 +42,10 @@ void Call_conventional::set_recorder(const std::shared_ptr<Recorder> &r) {
   BOOST_LOG_TRIVIAL(info) << "[" << sys->get_short_name() << "]\tTG: " << this->get_talkgroup() << "\tFreq: " << format_freq(this->get_freq());
 }
 
-double Call_conventional::get_squelch_db() {
+double Call_conventional::get_squelch_db() const {
   return squelch_db;
 }
 
-bool Call_conventional::get_signal_detection() {
+bool Call_conventional::get_signal_detection() const {
   return signal_detection;
 }

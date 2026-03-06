@@ -49,7 +49,7 @@ bool setup_conventional_channel(const std::shared_ptr<System> &system, double fr
             .short_name = call->get_short_name(),
             .temp_dir = config.temp_dir,
             .squelch_db = call->get_squelch_db(),
-            .digital_levels = system->get_digital_levels(),
+            .digital_levels = call->get_system()->get_digital_levels(),
         });
         rec->set_tau(system->get_tau()); //set the tau value for the recorder from the system config
         call->set_recorder(rec);

@@ -299,7 +299,7 @@ void analog_recorder::tune_freq(double f) {
 }
 
 void analog_recorder::decoder_callback_handler(long unitId, const char *signaling_type, gr::blocks::SignalType signal) {
-  if (call != nullptr) {
+  if (state == REC_ACTIVE) {
     wav_sink->set_source(unitId);
   }
 }

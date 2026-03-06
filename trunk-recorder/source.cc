@@ -582,25 +582,23 @@ void Source::create_debug_recorder(gr::top_block_sptr tb, int source_num) {
   tb->connect(source_block, 0, log, 0);
 }
 
-std::shared_ptr<Recorder> Source::get_analog_recorder(const std::shared_ptr<Call> &call) {
+std::shared_ptr<Recorder> Source::get_analog_recorder() {
   for (auto &rx : analog_recorders) {
     if (rx->get_state() == REC_AVAILABLE) {
       return rx;
     }
   }
-  std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup(), call->get_freq());
-  BOOST_LOG_TRIVIAL(error) << loghdr << "[ " << device << " ] No Analog Recorders Available.";
+  BOOST_LOG_TRIVIAL(error) << "[ " << device << " ] No Analog Recorders Available.";
   return nullptr;
 }
 
-std::shared_ptr<Recorder> Source::get_digital_recorder(const std::shared_ptr<Call> &call) {
+std::shared_ptr<Recorder> Source::get_digital_recorder() {
   for (auto &rx : digital_recorders) {
     if (rx->get_state() == REC_AVAILABLE) {
       return rx;
     }
   }
-  std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup(), call->get_freq());
-  BOOST_LOG_TRIVIAL(error) << loghdr << "[ " << device << " ] No Digital Recorders Available.";
+  BOOST_LOG_TRIVIAL(error) << "[ " << device << " ] No Digital Recorders Available.";
 
   for (auto &rx : digital_recorders) {
     BOOST_LOG_TRIVIAL(info) << "[ " << rx->get_num() << " ] State: " << format_state(rx->get_state()) << " Freq: " << rx->get_freq();
