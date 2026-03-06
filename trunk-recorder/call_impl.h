@@ -14,118 +14,76 @@ class System;
 
 #include "call.h"
 #include "state.h"
-#include "systems/parser.h"
 #include "systems/system.h"
-#include "systems/system_impl.h"
-#include <op25_repeater/include/op25_repeater/rx_status.h>
-// enum  CallState { MONITORING=0, recording=1, stopping=2};
 
 class Call_impl : public Call {
 public:
   Call_impl(long t, double f, const std::shared_ptr<System> &s, Config c);
   Call_impl(TrunkMessage message, const std::shared_ptr<System> &s, Config c);
 
-  long get_call_num();
-  virtual void restart_call();
-  void conclude_call();
+  // Recorder plumbing
+  virtual void set_recorder(const std::shared_ptr<Recorder> &r);
+  std::shared_ptr<Recorder> get_recorder();
   void set_sigmf_recorder(const std::shared_ptr<Recorder> &r);
   std::shared_ptr<Recorder> get_sigmf_recorder();
   void set_debug_recorder(const std::shared_ptr<Recorder> &r);
   std::shared_ptr<Recorder> get_debug_recorder();
-  virtual void set_recorder(const std::shared_ptr<Recorder> &r);
-  std::shared_ptr<Recorder> get_recorder();
-  double get_freq();
-  int get_sys_num();
-  std::string get_short_name();
-  std::string get_temp_dir();
-  void set_freq(double f);
-  long get_talkgroup();
-
-  bool update(TrunkMessage message);
-  int get_idle_count();
-  void increase_idle_count();
-  void reset_idle_count();
-  std::chrono::duration<double> since_last_update();
-  std::chrono::duration<double> elapsed();
-
-  double get_current_length();
   void set_debug_recording(bool m);
   bool get_debug_recording();
   void set_sigmf_recording(bool m);
   bool get_sigmf_recording();
-  void set_state(CallState s);
-  CallState get_state();
-  void set_monitoring_state(MonitoringState s);
-  MonitoringState get_monitoring_state();
+
+  // Identity (read by recorders)
+  long get_talkgroup();
+  long get_call_num();
+  double get_freq();
+  void set_freq(double f);
+  int get_sys_num();
+  std::string get_short_name();
+  std::string get_temp_dir();
+  const std::string& get_xor_mask();
+  std::shared_ptr<System> get_system();
+  long get_current_source_id();
+  void set_current_source_id(long src);
+
+  // P25/DMR fields
   void set_phase2_tdma(bool m);
   bool get_phase2_tdma();
   void set_tdma_slot(int s);
   int get_tdma_slot();
-  bool get_is_analog();
-  void set_is_analog(bool a);
-  const std::string& get_xor_mask();
+
+  // Conventional
+  virtual void restart_call();
   virtual time_t get_start_time() { return std::chrono::system_clock::to_time_t(start_time); }
   bool is_conventional() { return false; }
-  void set_encrypted(bool m);
-  bool get_encrypted();
-  void set_emergency(bool m);
-  bool get_emergency();
-  int get_priority();
-  bool get_mode();
-  bool get_duplex();
-  double get_signal();
-  double get_noise();
   int get_freq_error();
-  void set_signal(double s);
-  void set_noise(double n);
-  SystemType get_system_type();
-  long get_current_source_id();
-  void set_current_source_id(long src);
-  void set_last_update();
-  bool get_conversation_mode();
-  std::shared_ptr<System> get_system();
-  std::vector<Transmission> get_transmissions();
+
+  // Rust call ID
+  void set_rust_call_id(uint64_t id);
+  uint64_t get_rust_call_id();
 
 protected:
-  CallState state;
-  MonitoringState monitoringState;
   static long call_counter;
   long call_num;
   long talkgroup;
   double curr_freq;
-  double noise;
-  double signal;
   int freq_error;
-  std::vector<Transmission> transmission_list;
-  std::shared_ptr<System> sys;
-  std::string short_name;
   long curr_src_id;
-  long error_list_count;
-  long freq_count;
-  std::chrono::steady_clock::time_point last_update;
-  int idle_count;
-  std::chrono::system_clock::time_point stop_time;
-  std::chrono::system_clock::time_point start_time;
-  bool debug_recording;
-  bool sigmf_recording;
-  bool was_update;
-  bool encrypted;
-  bool emergency;
-  bool mode;
-  bool duplex;
-  bool is_analog;
-  int priority;
   bool phase2_tdma;
   int tdma_slot;
-  double final_length;
 
+  std::chrono::system_clock::time_point start_time;
+
+  bool debug_recording;
+  bool sigmf_recording;
+
+  std::shared_ptr<System> sys;
   Config config;
   std::weak_ptr<Recorder> recorder;
   std::weak_ptr<Recorder> debug_recorder;
   std::weak_ptr<Recorder> sigmf_recorder;
 
-public:
-  bool add_source(long src);
+  uint64_t rust_call_id;
 };
 
 #endif

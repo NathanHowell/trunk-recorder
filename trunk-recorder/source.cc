@@ -582,26 +582,6 @@ void Source::create_debug_recorder(gr::top_block_sptr tb, int source_num) {
   tb->connect(source_block, 0, log, 0);
 }
 
-std::shared_ptr<Recorder> Source::get_analog_recorder(const std::shared_ptr<Talkgroup> &talkgroup, int priority, const std::shared_ptr<Call> &call) {
-  int num_available_recorders = get_num_available_analog_recorders();
-  std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup(), call->get_freq());
-  if (talkgroup && (priority == -1)) {
-    call->set_state(MONITORING);
-    call->set_monitoring_state(IGNORED_TG);
-    BOOST_LOG_TRIVIAL(info) << loghdr << "Not recording talkgroup - Priority is -1 (Disabled).";
-    return nullptr;
-  }
-
-  if (talkgroup && priority > num_available_recorders) { // a high priority is bad. You need at least the number of availalbe recorders to your priority
-    call->set_state(MONITORING);
-    call->set_monitoring_state(NO_RECORDER);
-    BOOST_LOG_TRIVIAL(error) << loghdr << "Not recording talkgroup. Priority is " << priority << " but only " << num_available_recorders << " recorders are available.";
-    return nullptr;
-  }
-
-  return get_analog_recorder(call);
-}
-
 std::shared_ptr<Recorder> Source::get_analog_recorder(const std::shared_ptr<Call> &call) {
   for (auto &rx : analog_recorders) {
     if (rx->get_state() == REC_AVAILABLE) {
@@ -611,27 +591,6 @@ std::shared_ptr<Recorder> Source::get_analog_recorder(const std::shared_ptr<Call
   std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup(), call->get_freq());
   BOOST_LOG_TRIVIAL(error) << loghdr << "[ " << device << " ] No Analog Recorders Available.";
   return nullptr;
-}
-
-std::shared_ptr<Recorder> Source::get_digital_recorder(const std::shared_ptr<Talkgroup> &talkgroup, int priority, const std::shared_ptr<Call> &call) {
-  int num_available_recorders = get_num_available_digital_recorders();
-  std::string loghdr = log_header( call->get_short_name(), call->get_call_num(), call->get_talkgroup(), call->get_freq());
-
-  if (talkgroup && (priority == -1)) {
-    call->set_state(MONITORING);
-    call->set_monitoring_state(IGNORED_TG);
-    BOOST_LOG_TRIVIAL(info) << loghdr << "Not recording talkgroup - Priority is -1 (Disabled).";
-    return nullptr;
-  }
-
-  if (talkgroup && priority > num_available_recorders) { // a high priority is bad. You need at least the number of availalbe recorders to your priority
-    call->set_state(MONITORING);
-    call->set_monitoring_state(NO_RECORDER);
-    BOOST_LOG_TRIVIAL(error) << loghdr << "Not recording talkgroup. Priority is " << priority << " but only " << num_available_recorders << " recorders are available.";
-    return nullptr;
-  }
-
-  return get_digital_recorder(call);
 }
 
 std::shared_ptr<Recorder> Source::get_digital_recorder(const std::shared_ptr<Call> &call) {

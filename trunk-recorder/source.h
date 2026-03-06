@@ -145,9 +145,7 @@ public:
   dmr_recorder_sptr create_dmr_conventional_recorder(gr::top_block_sptr tb);
 
   std::shared_ptr<Recorder> get_digital_recorder(const std::shared_ptr<Call> &call);
-  std::shared_ptr<Recorder> get_digital_recorder(const std::shared_ptr<Talkgroup> &talkgroup, int priority, const std::shared_ptr<Call> &call);
   std::shared_ptr<Recorder> get_analog_recorder(const std::shared_ptr<Call> &call);
-  std::shared_ptr<Recorder> get_analog_recorder(const std::shared_ptr<Talkgroup> &talkgroup, int priority, const std::shared_ptr<Call> &call);
   std::shared_ptr<Recorder> get_debug_recorder();
   std::shared_ptr<Recorder> get_sigmf_recorder();
   std::vector<std::shared_ptr<Recorder>> get_recorders();

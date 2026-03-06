@@ -43,9 +43,7 @@ bool setup_conventional_channel(const std::shared_ptr<System> &system, double fr
         }
         rec->start(call);
         rec->set_tau(system->get_tau()); //set the tau value for the recorder from the system config
-        call->set_is_analog(true);
         call->set_recorder(rec);
-        call->set_state(RECORDING);
         system->add_conventional_recorder(rec);
         calls.push_back(call);
         config.event_sink->setup_recorder(rec);
