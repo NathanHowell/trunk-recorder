@@ -16,7 +16,8 @@ p25_recorder_decode::p25_recorder_decode(const std::shared_ptr<Recorder> &record
     : gr::hier_block2("p25_recorder_decode",
                       gr::io_signature::make(1, 1, sizeof(float)),
                       gr::io_signature::make(0, 0, sizeof(float))),
-      d_config(config) {
+      d_config(config),
+      d_source_id(-1) {
   d_recorder = recorder;
 }
 
@@ -25,20 +26,23 @@ p25_recorder_decode::~p25_recorder_decode() {
 
 void p25_recorder_decode::stop() {
   wav_sink->stop_recording();
-  d_call = nullptr;
+  d_system = nullptr;
+  d_source_id = -1;
+}
+
+void p25_recorder_decode::set_system(const std::shared_ptr<System> &sys) {
+  d_system = sys;
 }
 
 void p25_recorder_decode::start(const RecorderConfig &config) {
   levels->set_k(config.digital_levels);
+  d_source_id = -1;
 
   if (config.phase2_tdma) {
     wav_sink->start_recording(config, config.tdma_slot);
   } else {
     wav_sink->start_recording(config);
   }
-
-  // d_call is NOT set here — during-call reads (alias validation)
-  // will be addressed separately when we remove the Call dependency.
 }
 
 void p25_recorder_decode::set_xor_mask(const std::string &mask) {
@@ -46,6 +50,7 @@ void p25_recorder_decode::set_xor_mask(const std::string &mask) {
 }
 
 void p25_recorder_decode::set_source(long src) {
+  d_source_id = src;
   wav_sink->set_source(src);
 }
 
@@ -167,9 +172,8 @@ void p25_recorder_decode::handle_alias_message(const nlohmann::json& j) {
   } else if (j["type"] == "motorola_alias_p2") {
     result = UnitTagsOTA::decode_motorola_alias_p2(alias_buffer, messages);
   } else if (j["type"] == "harris_alias_p1") {
-    auto sys = d_call->get_system();
-    std::string wacn = sys ? std::to_string(sys->get_wacn()) : "";
-    std::string sys_id = sys ? std::to_string(sys->get_sys_id()) : "";
+    std::string wacn = d_system ? std::to_string(d_system->get_wacn()) : "";
+    std::string sys_id = d_system ? std::to_string(d_system->get_sys_id()) : "";
     
     long unit_id = -1;
     long talkgroup = -1;
@@ -195,8 +199,8 @@ void p25_recorder_decode::handle_alias_message(const nlohmann::json& j) {
 
     // Check that the alias matches the current call to avoid applying an alias that may have been captured
     // in advance of decoding the new unit ID in back-to-back transmissions
-    long call_talkgroup = d_call->get_talkgroup();
-    long call_src_id = d_call->get_current_source_id();
+    long call_talkgroup = d_recorder->get_talkgroup();
+    long call_src_id = d_source_id;
     if (talkgroup != call_talkgroup || call_src_id != unit_id) {
       BOOST_LOG_TRIVIAL(debug) << "Harris P2 alias deferred - talkgroup/id mismatch (OP25 cache=" 
                                << talkgroup << ", call TG=" << call_talkgroup << " src=" << unit_id << ", call ID=" << call_src_id << ")";
@@ -213,9 +217,8 @@ void p25_recorder_decode::handle_alias_message(const nlohmann::json& j) {
     
     result = UnitTagsOTA::decode_harris_alias(alias_buffer, unit_id, talkgroup, wacn, sys_id);
   } else if (j["type"] == "harris_alias_p2") {
-    auto sys = d_call->get_system();
-    std::string wacn = sys ? std::to_string(sys->get_wacn()) : "";
-    std::string sys_id = sys ? std::to_string(sys->get_sys_id()) : "";
+    std::string wacn = d_system ? std::to_string(d_system->get_wacn()) : "";
+    std::string sys_id = d_system ? std::to_string(d_system->get_sys_id()) : "";
     
     long unit_id = -1;
     long talkgroup = -1;
@@ -241,8 +244,8 @@ void p25_recorder_decode::handle_alias_message(const nlohmann::json& j) {
 
     // Check that the alias matches the current call to avoid applying an alias that may have been captured
     // in advance of decoding the new unit ID in back-to-back transmissions
-    long call_talkgroup = d_call->get_talkgroup();
-    long call_src_id = d_call->get_current_source_id();
+    long call_talkgroup = d_recorder->get_talkgroup();
+    long call_src_id = d_source_id;
     if (talkgroup != call_talkgroup || call_src_id != unit_id) {
       BOOST_LOG_TRIVIAL(debug) << "Harris P2 alias deferred - talkgroup/id mismatch (OP25 cache=" 
                                << talkgroup << ", call TG=" << call_talkgroup << " src=" << unit_id << ", call ID=" << call_src_id << ")";
@@ -261,27 +264,22 @@ void p25_recorder_decode::handle_alias_message(const nlohmann::json& j) {
   }
   
   if (result.success && !result.alias.empty()) {
-    std::string loghdr = log_header(d_call->get_short_name(),d_call->get_call_num(),d_call->get_talkgroup(),d_call->get_freq());
-    
-    BOOST_LOG_TRIVIAL(debug) << loghdr << "Alias OTA: " << result.radio_id << " = \"" << result.alias << "\" [" << result.source << "]";
-    
-    auto sys = d_call->get_system();
-    if (sys) {
-      if (sys->add_ota_unit_tag(result)) {
-        BOOST_LOG_TRIVIAL(info) << loghdr << Color::BMAG << "New " << result.source << " alias: " << Color::RST
+    BOOST_LOG_TRIVIAL(debug) << "Alias OTA: " << result.radio_id << " = \"" << result.alias << "\" [" << result.source << "]";
+
+    if (d_system) {
+      if (d_system->add_ota_unit_tag(result)) {
+        BOOST_LOG_TRIVIAL(info) << Color::BMAG << "New " << result.source << " alias: " << Color::RST
                                 << result.radio_id << " (" << Color::BLU << result.alias << Color::RST << ")";
         if (d_config.event_sink) {
-          d_config.event_sink->unit_alias_discovered(sys, result);
+          d_config.event_sink->unit_alias_discovered(d_system, result);
         }
-      } else {
-        BOOST_LOG_TRIVIAL(debug) << loghdr << "Alias for " << result.radio_id << " already exists";
       }
     }
   }
 }
 
 void p25_recorder_decode::check_message_queue() {
-  if (!rx_queue || !d_call) {
+  if (!rx_queue || !d_system) {
     return;
   }
 

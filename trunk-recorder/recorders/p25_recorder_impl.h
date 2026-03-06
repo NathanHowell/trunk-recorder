@@ -84,6 +84,7 @@ public:
   void switch_tdma(bool phase2);
   void set_tdma_slot(int slot);
   void set_source(long src);
+  void set_system(const std::shared_ptr<System> &sys) override;
   std::chrono::duration<double> since_last_write();
   void process_message_queues();
   double get_current_length();

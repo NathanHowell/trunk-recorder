@@ -244,6 +244,11 @@ void p25_recorder_impl::set_source(long src) {
   }
 }
 
+void p25_recorder_impl::set_system(const std::shared_ptr<System> &sys) {
+  qpsk_p25_decode->set_system(sys);
+  fsk4_p25_decode->set_system(sys);
+}
+
 std::vector<Transmission> p25_recorder_impl::get_transmission_list() {
   if (qpsk_mod) {
     return qpsk_p25_decode->get_transmission_list();

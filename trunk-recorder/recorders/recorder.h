@@ -36,6 +36,8 @@
 #include "../call.h"
 #include "../recorder_config.h"
 #include "../state.h"
+
+class System;
 #include <gnuradio/blocks/file_sink.h>
 
 class Recorder {
@@ -85,6 +87,7 @@ public:
   virtual std::chrono::duration<double> since_last_write() = 0;
   virtual void clear(){};
 
+  virtual void set_system(const std::shared_ptr<System> &){};
   virtual void set_squelch_callback(std::function<void(bool, double)> cb) {}
   virtual void process_message_queues(void){};
   virtual double get_output_sample_rate() { return 0; }
