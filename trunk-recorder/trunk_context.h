@@ -10,12 +10,10 @@
 
 class Source;
 class System;
-class Call;
 
 struct TrunkContext {
   std::vector<std::shared_ptr<Source>> sources;
   std::vector<std::shared_ptr<System>> systems;
-  std::vector<std::shared_ptr<Call>> calls;
   gr::top_block_sptr tb;
   Config config;
 };

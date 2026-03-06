@@ -241,7 +241,6 @@ list(APPEND trunk_recorder_sources
   trunk-recorder/recorders/p25_recorder_decode.cc
   trunk-recorder/sources/iq_file_source.cc
   trunk-recorder/csv_helper.cc
-  trunk-recorder/setup_systems.cc
   trunk-recorder/monitor_systems.cc
   trunk-recorder/talkgroup.cc
   trunk-recorder/talkgroups.cc
