@@ -341,11 +341,6 @@ bool p25_recorder_impl::start(const std::shared_ptr<Call> &call) {
     if (conventional) {
       auto conventional_call = std::dynamic_pointer_cast<Call_conventional>(call);
       squelch_db = conventional_call->get_squelch_db();
-      if (conventional_call->get_signal_detection()) {
-        set_enabled(false);
-      } else {
-        set_enabled(true); // If signal detection is not being used, open up the Value/Selector from the start
-      }
     } else {
       squelch_db = system->get_squelch_db();
       set_enabled(true);

@@ -18,8 +18,8 @@ bool setup_conventional_channel(const std::shared_ptr<System> &system, double fr
       }
 
       std::shared_ptr<Call_conventional> call;
-      if (system->has_channel_file()) {
-        auto tg = system->find_talkgroup_by_freq(frequency);
+      auto tg = system->find_talkgroup_by_freq(frequency);
+      if (tg) {
         tone_freq = tg->tone;
 
         // If there is a per channel squelch setting, use it, otherwise use the system squelch setting
@@ -87,8 +87,8 @@ bool setup_conventional_channel(const std::shared_ptr<System> &system, double fr
 bool setup_conventional_system(const std::shared_ptr<System> &system, Config &config, gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources, std::vector<std::shared_ptr<Call>> &calls) {
   bool system_added = false;
 
-  if (system->has_channel_file()) {
-    auto talkgroups = system->get_talkgroups();
+  auto talkgroups = system->get_talkgroups();
+  if (!talkgroups.empty()) {
     for (auto tg_it = talkgroups.begin(); tg_it != talkgroups.end(); tg_it++) {
       auto &tg = *tg_it;
 
