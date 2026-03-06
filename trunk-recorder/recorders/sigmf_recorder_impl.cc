@@ -135,9 +135,6 @@ bool sigmf_recorder_impl::start(const RecorderConfig &config) {
     int offset_amount = (center - freq);
     prefilter->tune_offset(offset_amount);
 
-    std::string loghdr = log_header(config.short_name, config.call_num, config.talkgroup, freq);
-    BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[32mStarting SigMF Recorder Num [" << rec_num << "]\u001b[0m";
-
     std::stringstream path_stream;
 
     path_stream << config.temp_dir << "/" << config.short_name << "/" << 1900 + ltm->tm_year << "/" << 1 + ltm->tm_mon << "/" << ltm->tm_mday;

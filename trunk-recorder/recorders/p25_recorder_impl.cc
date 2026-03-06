@@ -310,16 +310,10 @@ bool p25_recorder_impl::start(const RecorderConfig &config) {
     chan_freq = config.freq;
     rust_call_id = config.rust_call_id;
 
-    std::string loghdr = log_header(config.short_name, config.call_num, config.talkgroup, chan_freq);
     autotune_offset = 0;
-    std::ostringstream autotune_info;
-
     if (source->get_autotune_source()) {
       autotune_offset = source->get_source_error();
-      autotune_info << " AutoTune: " << std::showpos << autotune_offset << std::noshowpos << " Hz";
     }
-
-    BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[32mStarting P25 Recorder Num [" << rec_num << "]\u001b[0m\tTDMA: " << config.phase2_tdma << "\tSlot: " << config.tdma_slot << "\tQPSK: " << qpsk_mod << autotune_info.str();
 
     int offset_amount = (center_freq - chan_freq + autotune_offset);
 

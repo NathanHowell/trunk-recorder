@@ -340,8 +340,6 @@ bool analog_recorder::start(const RecorderConfig &config) {
     set_enabled(true);
   }
 
-  std::string loghdr = log_header(config.short_name, config.call_num, config.talkgroup, chan_freq);
-  BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[32mStarting Analog Recorder Num [" << rec_num << "]\u001b[0m \tSquelch: " << squelch_db << " Max Dev: " << d_max_dev << " Gain: " << quad_gain;
   prefilter->set_squelch_db(squelch_db);
   return true;
 }

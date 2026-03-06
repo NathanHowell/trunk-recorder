@@ -1,8 +1,7 @@
-
 #include "dmr_recorder_impl.h"
 
 #include "../event_sink.h"
-#include "../formatter.h"
+
 #include "../gr_blocks/plugin_wrapper_impl.h"
 #include <boost/log/trivial.hpp>
 
@@ -248,9 +247,6 @@ bool dmr_recorder_impl::start(const RecorderConfig &config) {
     short_name = config.short_name;
     chan_freq = config.freq;
     rust_call_id = config.rust_call_id;
-    std::string loghdr = log_header(config.short_name, config.call_num, config.talkgroup, chan_freq);
-    BOOST_LOG_TRIVIAL(info) << loghdr << "\u001b[32mStarting DMR Recorder Num [" << rec_num << "]\u001b[0m\tTDMA: " << config.phase2_tdma << "\tSlot: " << config.tdma_slot;
-
     int offset_amount = (center_freq - chan_freq);
 
     prefilter->tune_offset(offset_amount);
