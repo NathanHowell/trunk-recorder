@@ -1,5 +1,6 @@
 
 #include "p25_recorder_decode.h"
+#include "../systems/system.h"
 #include "../event_sink.h"
 #include "../gr_blocks/plugin_wrapper_impl.h"
 #include "../formatter.h"
