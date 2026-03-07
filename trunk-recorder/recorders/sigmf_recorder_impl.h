@@ -74,7 +74,6 @@ public:
   std::chrono::duration<double> since_last_write() const override;
   void set_system(const std::shared_ptr<System> &) override;
   void set_squelch_callback(std::function<void(bool, double)> cb) override;
-  void process_message_queues() override;
 
 
 private:

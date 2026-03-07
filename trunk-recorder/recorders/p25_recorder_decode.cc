@@ -6,6 +6,7 @@
 #include "../formatter.h"
 #include "../unit_tags_ota.h"
 #include <chrono>
+#include <gnuradio/msg_queue.h>
 
 p25_recorder_decode_sptr make_p25_recorder_decode(const std::shared_ptr<Recorder> &recorder, const Config &config, int silence_frames, bool d_soft_vocoder) {
   auto decoder = new p25_recorder_decode(recorder, config);
@@ -27,17 +28,22 @@ p25_recorder_decode::~p25_recorder_decode() {
 
 void p25_recorder_decode::stop() {
   wav_sink->stop_recording();
+  std::lock_guard<std::mutex> lock(d_state_mutex);
   d_system = nullptr;
   d_source_id = -1;
 }
 
 void p25_recorder_decode::set_system(const std::shared_ptr<System> &sys) {
+  std::lock_guard<std::mutex> lock(d_state_mutex);
   d_system = sys;
 }
 
 void p25_recorder_decode::start(const RecorderConfig &config) {
   levels->set_k(config.digital_levels);
-  d_source_id = -1;
+  {
+    std::lock_guard<std::mutex> lock(d_state_mutex);
+    d_source_id = -1;
+  }
 
   if (config.phase2_tdma) {
     wav_sink->start_recording(config, config.tdma_slot);
@@ -51,7 +57,10 @@ void p25_recorder_decode::set_xor_mask(const std::string &mask) {
 }
 
 void p25_recorder_decode::set_source(long src) {
-  d_source_id = src;
+  {
+    std::lock_guard<std::mutex> lock(d_state_mutex);
+    d_source_id = src;
+  }
   wav_sink->set_source(src);
 }
 
@@ -87,8 +96,7 @@ void p25_recorder_decode::initialize(int silence_frames, bool d_soft_vocoder) {
   // recorder->initialize(src);
 
   // OP25 Frame Assembler
-  traffic_queue = gr::msg_queue::make(2);
-  rx_queue = gr::msg_queue::make(100);
+  auto rx_queue = gr::msg_queue::make(1);
 
   int udp_port = 0;
   int verbosity = 0; // 10 = lots of debug messages
@@ -101,6 +109,23 @@ void p25_recorder_decode::initialize(int silence_frames, bool d_soft_vocoder) {
   bool do_nocrypt = 1;
 
   op25_frame_assembler = gr::op25_repeater::p25_frame_assembler::make(silence_frames, d_soft_vocoder, udp_host, udp_port, verbosity, do_imbe, do_output, do_msgq, rx_queue, do_audio_output, do_tdma, do_nocrypt);
+
+  // Wire callback to bypass the msg_queue — alias messages are processed
+  // directly on the GR thread instead of being polled from Rust.
+  op25_frame_assembler->set_msg_callback([this](gr::message::sptr msg) {
+    if (msg->type() != -3) return; // Only M_P25_JSON_DATA
+    try {
+      auto j = nlohmann::json::parse(msg->to_string());
+      if (!j.contains("type")) return;
+      std::string t = j["type"];
+      if (t == "motorola_alias_p1" || t == "motorola_alias_p2" ||
+          t == "harris_alias_p1" || t == "harris_alias_p2") {
+        handle_alias_message(j);
+      }
+    } catch (const std::exception &e) {
+      BOOST_LOG_TRIVIAL(debug) << "Malformed P25 JSON message: " << e.what();
+    }
+  });
   levels = gr::blocks::multiply_const_ss::make(1);
 
   plugin_sink = gr::blocks::plugin_wrapper_impl::make(std::bind(&p25_recorder_decode::plugin_callback_handler, this, std::placeholders::_1, std::placeholders::_2));
@@ -144,6 +169,7 @@ gr::op25_repeater::p25_frame_assembler::sptr p25_recorder_decode::get_transmissi
 }
 
 void p25_recorder_decode::handle_alias_message(const nlohmann::json& j) {
+  std::lock_guard<std::mutex> lock(d_state_mutex);
   int messages = j.contains("messages") ? j["messages"].get<int>() : 0;
   std::array<std::vector<uint8_t>, 10> alias_buffer;
   
@@ -265,34 +291,3 @@ void p25_recorder_decode::handle_alias_message(const nlohmann::json& j) {
   }
 }
 
-void p25_recorder_decode::check_message_queue() {
-  if (!rx_queue || !d_system) {
-    return;
-  }
-
-  gr::message::sptr msg;
-  while ((msg = rx_queue->delete_head_nowait())) {
-    long msg_type = msg->type();
-    
-    if (msg_type == -3) { // M_P25_JSON_DATA
-      std::string msg_str(msg->to_string());
-      
-      try {
-        auto j = nlohmann::json::parse(msg_str);
-        
-        if (j.contains("type")) {
-          std::string json_msg_type = j["type"];
-          
-          if (json_msg_type == "motorola_alias_p1" || json_msg_type == "motorola_alias_p2" ||
-              json_msg_type == "harris_alias_p1" || json_msg_type == "harris_alias_p2") {
-            handle_alias_message(j);
-          }
-          // Add some more JSON handlers as we find other things to decode!
-        }
-        
-      } catch (const std::exception& e) {
-        BOOST_LOG_TRIVIAL(debug) << "Malformed P25 JSON message: " << e.what();
-      }
-    }
-  }
-}

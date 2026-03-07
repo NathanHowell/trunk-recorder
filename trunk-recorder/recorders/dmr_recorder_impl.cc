@@ -122,7 +122,6 @@ void dmr_recorder_impl::set_tdma(bool phase2) {
 void dmr_recorder_impl::tune_offset(double f) { prefilter->tune_offset(f); }
 void dmr_recorder_impl::set_source(long) {}
 void dmr_recorder_impl::set_system(const std::shared_ptr<System> &) {}
-void dmr_recorder_impl::process_message_queues() {}
 
 std::shared_ptr<Source> dmr_recorder_impl::get_source() {
   return source;

@@ -33,7 +33,6 @@
 
 #include <gnuradio/blocks/copy.h>
 #include <gnuradio/message.h>
-#include <gnuradio/msg_queue.h>
 
 namespace gr {
 namespace blocks {
@@ -60,8 +59,6 @@ private:
 public:
   typedef std::shared_ptr<tps_decoder_sink_impl> sptr;
 
-  gr::msg_queue::sptr rx_queue;
-
   static sptr make(unsigned int sample_rate, decoder_callback callback);
 
   tps_decoder_sink_impl(unsigned int sample_rate, decoder_callback callback);
@@ -71,8 +68,6 @@ public:
   bool get_enabled();
 
   void log_decoder_msg(long unitId, const char *signaling_type, SignalType signal);
-
-  void process_message_queues(void);
 };
 
 } /* namespace blocks */

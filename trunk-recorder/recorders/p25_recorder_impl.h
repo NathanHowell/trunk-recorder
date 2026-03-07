@@ -35,7 +35,6 @@
 #include <gnuradio/blocks/head.h>
 #include <gnuradio/digital/fll_band_edge_cc.h>
 #include <gnuradio/message.h>
-#include <gnuradio/msg_queue.h>
 #include <gnuradio/runtime_types.h>
 
 #include "../gr_blocks/channelizer.h"
@@ -84,7 +83,6 @@ public:
   void set_source(long src) override;
   void set_system(const std::shared_ptr<System> &sys) override;
   std::chrono::duration<double> since_last_write() const override;
-  void process_message_queues() override;
   void set_enabled(bool enabled) override;
   RecorderState get_state() const override;
   void set_squelch_callback(std::function<void(bool, double)> cb) override;

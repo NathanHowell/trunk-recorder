@@ -35,6 +35,7 @@
 #include <cstring>
 #include <fcntl.h>
 #include <gnuradio/io_signature.h>
+#include <gnuradio/msg_queue.h>
 #include <gnuradio/thread/thread.h>
 #include <iostream>
 #include <op25_repeater/lib/op25_msg_types.h>
@@ -55,8 +56,6 @@ tps_decoder_sink_impl::tps_decoder_sink_impl(unsigned int sample_rate, decoder_c
                   io_signature::make(1, 1, sizeof(float)),
                   io_signature::make(0, 0, 0)),
       d_callback(callback) {
-  rx_queue = gr::msg_queue::make(100);
-
   valve = gr::blocks::copy::make(sizeof(float));
   valve->set_enabled(false);
 
@@ -197,10 +196,6 @@ void tps_decoder_sink_impl::process_message(gr::message::sptr msg) {
     // Not supported yet...
   }
 }
-void tps_decoder_sink_impl::process_message_queues() {
-  process_message(rx_queue->delete_head_nowait());
-}
-
 void tps_decoder_sink_impl::set_enabled(bool b) { valve->set_enabled(b); };
 
 bool tps_decoder_sink_impl::get_enabled() { return valve->enabled(); };
@@ -219,6 +214,7 @@ void tps_decoder_sink_impl::initialize_p25() {
   const int debug = 0;
   slicer = gr::op25_repeater::fsk4_slicer_fb::make(msgq_id, debug, slices);
 
+  auto rx_queue = gr::msg_queue::make(1);
   int udp_port = 0;
   int verbosity = 0;
   const char *wireshark_host = "127.0.0.1";
@@ -231,6 +227,12 @@ void tps_decoder_sink_impl::initialize_p25() {
   bool do_crypt = 0;
   bool soft_vocoder = false;
   op25_frame_assembler = gr::op25_repeater::p25_frame_assembler::make(silence_frames, soft_vocoder, wireshark_host, udp_port, verbosity, do_imbe, do_output, do_msgq, rx_queue, do_audio_output, do_tdma, do_crypt);
+
+  // Wire callback to bypass the msg_queue — messages are processed
+  // directly on the GR thread instead of being polled from Rust.
+  op25_frame_assembler->set_msg_callback([this](gr::message::sptr msg) {
+    process_message(msg);
+  });
 
   connect(self(), 0, valve, 0);
   connect(valve, 0, slicer, 0);

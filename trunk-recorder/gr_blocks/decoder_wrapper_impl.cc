@@ -75,9 +75,5 @@ void decoder_wrapper_impl::log_decoder_msg(long unitId, const char *signaling_ty
     d_callback(unitId, signaling_type, signal);
   }
 }
-
-void decoder_wrapper_impl::process_message_queues() {
-  d_tps_decoder_sink->process_message_queues();
-}
 } /* namespace blocks */
 } /* namespace gr */

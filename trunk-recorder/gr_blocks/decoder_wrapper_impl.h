@@ -62,7 +62,6 @@ public:
   bool get_tps_enabled();
 
   void log_decoder_msg(long unitId, const char *signaling_type, SignalType signal);
-  void process_message_queues(void);
 };
 
 } /* namespace blocks */

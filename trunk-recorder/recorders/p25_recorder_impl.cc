@@ -160,14 +160,6 @@ std::chrono::duration<double> p25_recorder_impl::since_last_write() const {
   }
 }
 
-void p25_recorder_impl::process_message_queues() {
-  if (qpsk_mod) {
-    qpsk_p25_decode->check_message_queue();
-  } else {
-    fsk4_p25_decode->check_message_queue();
-  }
-}
-
 RecorderState p25_recorder_impl::get_state() const {
   if (qpsk_mod) {
     return qpsk_p25_decode->get_state();

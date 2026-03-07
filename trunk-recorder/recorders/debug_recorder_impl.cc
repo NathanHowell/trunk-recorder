@@ -168,7 +168,6 @@ debug_recorder_impl::debug_recorder_impl(const std::shared_ptr<Source> &src, std
 void debug_recorder_impl::set_source(long) {}
 void debug_recorder_impl::set_system(const std::shared_ptr<System> &) {}
 void debug_recorder_impl::set_squelch_callback(std::function<void(bool, double)>) {}
-void debug_recorder_impl::process_message_queues() {}
 void debug_recorder_impl::set_enabled(bool) {}
 int debug_recorder_impl::get_freq_error() const { return 0; }
 double debug_recorder_impl::get_pwr() const { return 0; }

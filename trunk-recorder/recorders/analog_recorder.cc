@@ -225,10 +225,6 @@ void analog_recorder::stop() {
   decoder_sink->set_tps_enabled(false);
 }
 
-void analog_recorder::process_message_queues() {
-  decoder_sink->process_message_queues();
-}
-
 void analog_recorder::set_enabled(bool enabled) {
   source->set_selector_port_enabled(selector_port, enabled);
 }

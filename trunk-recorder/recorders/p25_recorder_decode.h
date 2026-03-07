@@ -7,7 +7,7 @@
 #include <gnuradio/blocks/short_to_float.h>
 #include <gnuradio/hier_block2.h>
 #include <gnuradio/io_signature.h>
-#include <gnuradio/msg_queue.h>
+#include <mutex>
 
 #include <op25_repeater/fsk4_slicer_fb.h>
 #include <op25_repeater/costas_loop_cc.h>
@@ -39,8 +39,6 @@ protected:
   std::shared_ptr<System> d_system;
   long d_source_id;
   gr::op25_repeater::p25_frame_assembler::sptr op25_frame_assembler;
-  gr::msg_queue::sptr traffic_queue;
-  gr::msg_queue::sptr rx_queue;
   gr::op25_repeater::fsk4_slicer_fb::sptr slicer;
   gr::blocks::short_to_float::sptr converter;
   gr::blocks::multiply_const_ss::sptr levels;
@@ -67,9 +65,9 @@ public:
   double get_output_sample_rate();
   RecorderState get_state();
   gr::op25_repeater::p25_frame_assembler::sptr get_transmission_sink();
-  void check_message_queue();
 
 private:
   void handle_alias_message(const nlohmann::json& j);
+  mutable std::mutex d_state_mutex;
 };
 #endif

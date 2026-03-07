@@ -66,7 +66,6 @@ void sigmf_recorder_impl::tune_offset(double f) { prefilter->tune_offset(f); }
 void sigmf_recorder_impl::tune_freq(double) {}
 void sigmf_recorder_impl::set_source(long) {}
 void sigmf_recorder_impl::set_system(const std::shared_ptr<System> &) {}
-void sigmf_recorder_impl::process_message_queues() {}
 double sigmf_recorder_impl::get_pwr() const { return prefilter->get_pwr(); }
 std::vector<Transmission> sigmf_recorder_impl::get_transmission_list() { return {}; }
 

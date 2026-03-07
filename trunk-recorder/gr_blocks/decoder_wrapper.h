@@ -66,8 +66,6 @@ public:
   virtual bool get_fsync_enabled() { return false; };
   virtual bool get_star_enabled() { return false; };
   virtual bool get_tps_enabled() { return false; }
-
-  virtual void process_message_queues(void){};
 };
 
 } /* namespace blocks */

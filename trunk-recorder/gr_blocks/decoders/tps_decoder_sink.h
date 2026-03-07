@@ -47,8 +47,6 @@ public:
   virtual void set_enabled(bool b){};
 
   virtual bool get_enabled() { return false; };
-
-  virtual void process_message_queues(void){};
 };
 
 } /* namespace blocks */
