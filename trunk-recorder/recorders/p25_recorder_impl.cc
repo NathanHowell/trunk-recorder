@@ -209,8 +209,6 @@ std::vector<Transmission> p25_recorder_impl::get_transmission_list() {
 
 void p25_recorder_impl::stop() {
   if (state == REC_ACTIVE) {
-    BOOST_LOG_TRIVIAL(info) << "\u001b[33mStopping P25 Recorder Num [" << rec_num << "]\u001b[0m\tTG: " << talkgroup << "\tFreq: " << chan_freq << "\tTDMA: " << d_phase2_tdma << "\tSlot: " << tdma_slot << "\tTuningErr: " << std::showpos << this->get_freq_error() << std::noshowpos << " Hz";
-
     state = REC_INACTIVE;
     set_enabled(false);
 
