@@ -47,7 +47,6 @@ public:
   std::unique_ptr<UnitTags> unit_tags;
   std::unique_ptr<p25p2_lfsr> lfsr;
   std::shared_ptr<Source> source;
-  std::string talkgroups_file;
   std::string channel_file;
   std::string unit_tags_file;
   std::string unit_tags_ota_file;
@@ -56,8 +55,6 @@ public:
   std::string short_name;
   std::string default_mode;
   SystemType system_type;
-  int message_count;
-  int decode_rate;
   std::string bandplan;
   int bandfreq;
   double bandplan_base;
@@ -66,10 +63,6 @@ public:
   int bandplan_offset;
   int max_dev;
   double filter_width;
-  double min_call_duration;
-  double max_call_duration;
-  double min_transmission_duration;
-  bool conversation_mode;
   bool qpsk_mod;
   double squelch_db;
   float tau;
@@ -84,7 +77,6 @@ public:
   std::vector<p25_recorder_sptr> conventionalP25_recorders;
   std::vector<dmr_recorder_sptr> conventionalDMR_recorders;
   std::vector<sigmf_recorder_sptr> conventionalSIGMF_recorders;
-  bool record_unknown;
 
   struct decoder_entry {
     std::shared_ptr<trunking_decoder> decoder;
@@ -95,16 +87,6 @@ public:
 
   std::string get_short_name() override;
   void set_short_name(std::string short_name) override;
-  double get_min_duration() override;
-  void set_min_duration(double duration) override;
-  double get_max_duration() override;
-  void set_max_duration(double duration) override;
-  double get_min_tx_duration() override;
-  void set_min_tx_duration(double duration) override;
-  bool get_record_unknown() override;
-  void set_record_unknown(bool) override;
-  bool get_conversation_mode() override;
-  void set_conversation_mode(bool mode) override;
   void set_mdc_enabled(bool b) override;
   void set_fsync_enabled(bool b) override;
   void set_star_enabled(bool b) override;
@@ -142,15 +124,10 @@ public:
   bool update_sysid(TrunkMessage message) override;
   int get_sys_num() override;
   void set_system_type(SystemType) override;
-  std::string get_talkgroups_file() override;
-  std::string get_unit_tags_file() override;
   std::shared_ptr<Source> get_source() override;
   void set_source(const std::shared_ptr<Source> &) override;
-  std::shared_ptr<Talkgroup> find_talkgroup(long tg) override;
-  std::shared_ptr<Talkgroup> find_talkgroup_by_freq(double freq) override;
   std::string find_unit_tag(long unitID) override;
   void add_unit_tag(std::string pattern, std::string tag) override;
-  void set_talkgroups_file(std::string) override;
   void set_channel_file(std::string channel_file) override;
   bool has_channel_file() override;
   void set_unit_tags_file(std::string) override;
@@ -162,10 +139,6 @@ public:
   std::string get_custom_freq_table_file() override;
   bool has_custom_freq_table_file() override;
   int control_channel_count() override;
-  int get_message_count() override;
-  void set_message_count(int count) override;
-  int get_decode_rate() override;
-  void set_decode_rate(int rate) override;
   void add_control_channel(double channel) override;
   double get_next_control_channel() override;
   double get_current_control_channel() override;
@@ -197,16 +170,6 @@ public:
   double get_bandplan_spacing() override;
   void set_bandplan_offset(int) override;
   int get_bandplan_offset() override;
-  void set_talkgroup_display_format(TalkgroupDisplayFormat format) override;
-  TalkgroupDisplayFormat get_talkgroup_display_format() override;
-
-  bool get_hideEncrypted() override;
-  void set_hideEncrypted(bool hideEncrypted) override;
-  bool get_monitorEncrypted() override;
-  void set_monitorEncrypted(bool monitorEncrypted) override;
-
-  bool get_hideUnknown() override;
-  void set_hideUnknown(bool hideUnknown) override;
 
   double get_control_channel_pwr() override;
   int get_freq_error() override;
@@ -214,30 +177,12 @@ public:
   int get_autotune_offset() override;
   void set_autotune_offset(int offset) override;
 
-
-  bool get_multiSite() override;
-  void set_multiSite(bool multiSite) override;
-
-  std::string get_multiSiteSystemName() override;
-  void set_multiSiteSystemName(std::string multiSiteSystemName) override;
-
-  unsigned long get_multiSiteSystemNumber() override;
-  void set_multiSiteSystemNumber(unsigned long multiSiteSystemNumber) override;
-
   bool add_ota_unit_tag(const OTAAlias &ota_alias) override;
   void setup_decoders(gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources) override;
   void set_msg_callback(std::function<void(gr::message::sptr)> cb) override;
   std::vector<std::shared_ptr<trunking_decoder>> get_decoders() override;
 
 private:
-  TalkgroupDisplayFormat talkgroup_display_format;
-  bool d_hideEncrypted;
-  bool d_monitorEncrypted;
-  bool d_hideUnknown;
-  bool d_multiSite;
-  std::string d_multiSiteSystemName;
-  unsigned long d_multiSiteSystemNumber;
-
   bool d_mdc_enabled;
   bool d_fsync_enabled;
   bool d_star_enabled;

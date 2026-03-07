@@ -1,6 +1,5 @@
 #ifndef GLOBAL_STRUCTS_H
 #define GLOBAL_STRUCTS_H
-#include <chrono>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -32,26 +31,6 @@ struct Config {
   std::shared_ptr<EventSink> event_sink;
 };
 
-struct Call_Source {
-  long source;
-  double position;
-  bool emergency;
-  std::string signal_system;
-  std::string tag;
-};
-
-struct Call_Error {
-  double position;
-  double total_len;
-  double error_count;
-  double spike_count;
-};
-
-enum Call_Data_Status { INITIAL,
-                        SUCCESS,
-                        RETRY,
-                        FAILED };
-                  
 enum SystemType {
   SYS_CONVENTIONAL,
   SYS_CONVENTIONAL_P25,
@@ -97,42 +76,5 @@ enum Recorder_Type { DEBUG,
                       P25C,
                       DMR,
                       SMARTNET };
-
-struct Call_Data_t {
-  long talkgroup;
-  unsigned int color_code;
-  std::vector<unsigned long> patched_talkgroups;
-  long call_num;
-  double freq;
-  int freq_error;
-  int source_num;
-  int recorder_num;
-  double signal;
-  double noise;
-  long start_time;
-  long stop_time;
-  long error_count;
-  long spike_count;
-  bool encrypted;
-  bool emergency;
-  int priority;
-  bool mode;
-  bool duplex;
-  int min_transmissions_removed;
-
-  int sys_num;
-  std::string short_name;
-  std::string audio_type;
-
-  int tdma_slot;
-  double length;
-  bool phase2_tdma;
-
-  std::vector<Call_Source> transmission_source_list;
-  std::vector<Call_Error> transmission_error_list;
-  std::vector<Transmission> transmission_list;
-
-  Call_Data_Status status;
-};
 
 #endif

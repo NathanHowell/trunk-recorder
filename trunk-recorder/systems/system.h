@@ -30,9 +30,6 @@ class analog_recorder;
 class p25_recorder;
 class dmr_recorder;
 class sigmf_recorder;
-enum TalkgroupDisplayFormat { talkGroupDisplayFormat_id = 0,
-                              talkGroupDisplayFormat_id_tag = 1,
-                              talkGroupDisplayFormat_tag_id = 2 };
 
 typedef std::shared_ptr<analog_recorder> analog_recorder_sptr;
 typedef std::shared_ptr<p25_recorder> p25_recorder_sptr;
@@ -45,16 +42,6 @@ public:
   static std::shared_ptr<System> make(int sys_id);
   virtual std::string get_short_name() = 0;
   virtual void set_short_name(std::string short_name) = 0;
-  virtual double get_min_duration() = 0;
-  virtual void set_min_duration(double duration) = 0;
-  virtual double get_max_duration() = 0;
-  virtual void set_max_duration(double duration) = 0;
-  virtual double get_min_tx_duration() = 0;
-  virtual void set_min_tx_duration(double duration) = 0;
-  virtual bool get_record_unknown() = 0;
-  virtual void set_record_unknown(bool) = 0;
-  virtual bool get_conversation_mode() = 0;
-  virtual void set_conversation_mode(bool mode) = 0;
   virtual void set_mdc_enabled(bool b) = 0;
   virtual void set_fsync_enabled(bool b) = 0;
   virtual void set_star_enabled(bool b) = 0;
@@ -92,15 +79,10 @@ public:
   virtual bool update_sysid(TrunkMessage message) = 0;
   virtual int get_sys_num() = 0;
   virtual void set_system_type(SystemType) = 0;
-  virtual std::string get_talkgroups_file() = 0;
-  virtual std::string get_unit_tags_file() = 0;
   virtual std::shared_ptr<Source> get_source() = 0;
   virtual void set_source(const std::shared_ptr<Source> &) = 0;
-  virtual std::shared_ptr<Talkgroup> find_talkgroup(long tg) = 0;
-  virtual std::shared_ptr<Talkgroup> find_talkgroup_by_freq(double freq) = 0;
   virtual std::string find_unit_tag(long unitID) = 0;
   virtual void add_unit_tag(std::string pattern, std::string tag) = 0;
-  virtual void set_talkgroups_file(std::string) = 0;
   virtual void set_channel_file(std::string channel_file) = 0;
   virtual bool has_channel_file() = 0;
   virtual void set_unit_tags_file(std::string) = 0;
@@ -116,10 +98,6 @@ public:
   virtual double get_next_control_channel() = 0;
   virtual double get_current_control_channel() = 0;
   virtual int channel_count() = 0;
-  virtual int get_message_count() = 0;
-  virtual void set_message_count(int count) = 0;
-  virtual void set_decode_rate(int rate) = 0;
-  virtual int get_decode_rate() = 0;
   virtual void add_channel(double channel) = 0;
   virtual void add_conventional_recorder(analog_recorder_sptr rec) = 0;
   virtual void add_conventionalSIGMF_recorder(sigmf_recorder_sptr rec) = 0;
@@ -145,32 +123,12 @@ public:
   virtual double get_bandplan_spacing() = 0;
   virtual void set_bandplan_offset(int) = 0;
   virtual int get_bandplan_offset() = 0;
-  virtual void set_talkgroup_display_format(TalkgroupDisplayFormat format) = 0;
-  virtual TalkgroupDisplayFormat get_talkgroup_display_format() = 0;
-
-  virtual bool get_hideEncrypted() = 0;
-  virtual void set_hideEncrypted(bool hideEncrypted) = 0;
-  virtual bool get_monitorEncrypted() = 0;
-  virtual void set_monitorEncrypted(bool monitorEncrypted) = 0;
-
-  virtual bool get_hideUnknown() = 0;
-  virtual void set_hideUnknown(bool hideUnknown) = 0;
 
   virtual double get_control_channel_pwr() = 0;
   virtual int get_freq_error() = 0;
   virtual void finetune_control_freq(double f) = 0;
   virtual int get_autotune_offset() = 0;
   virtual void set_autotune_offset(int offset) = 0;
-
-
-  virtual bool get_multiSite() = 0;
-  virtual void set_multiSite(bool multiSite) = 0;
-
-  virtual std::string get_multiSiteSystemName() = 0;
-  virtual void set_multiSiteSystemName(std::string multiSiteSystemName) = 0;
-
-  virtual unsigned long get_multiSiteSystemNumber() = 0;
-  virtual void set_multiSiteSystemNumber(unsigned long multiSiteSystemName) = 0;
 
   virtual bool add_ota_unit_tag(const OTAAlias &ota_alias) = 0;
 

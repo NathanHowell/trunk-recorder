@@ -10,11 +10,13 @@ class Recorder;
 class Call_conventional : public Call {
 public:
   Call_conventional(long t, double f, const std::shared_ptr<System> &s, Config c, double squelch_db, bool signal_detection);
-  void restart_call() override;
+  void restart_call(const RecorderConfig &cfg) override;
   void set_recorder(const std::shared_ptr<Recorder> &r) override;
 private:
   double squelch_db;
   bool signal_detection;
+  long talkgroup;
+  double freq;
 };
 
 #endif

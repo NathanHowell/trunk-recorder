@@ -19,30 +19,6 @@ void System_impl::set_short_name(std::string short_name) {
   this->short_name = short_name;
 }
 
-double System_impl::get_min_duration() {
-  return this->min_call_duration;
-}
-
-void System_impl::set_min_duration(double duration) {
-  this->min_call_duration = duration;
-}
-
-double System_impl::get_max_duration() {
-  return this->max_call_duration;
-}
-
-void System_impl::set_max_duration(double duration) {
-  this->max_call_duration = duration;
-}
-
-double System_impl::get_min_tx_duration() {
-  return this->min_transmission_duration;
-}
-
-void System_impl::set_min_tx_duration(double duration) {
-  this->min_transmission_duration = duration;
-}
-
 System_impl::System_impl(int sys_num) {
   this->sys_num = sys_num;
   sys_id = 0;
@@ -55,15 +31,10 @@ System_impl::System_impl(int sys_num) {
   talkgroups = std::make_unique<Talkgroups>();
   // Setup the unit tags from the CSV file
   unit_tags = std::make_unique<UnitTags>();
-  d_hideEncrypted = false;
-  d_monitorEncrypted = false;
-  d_hideUnknown = false;
   d_mdc_enabled = false;
   d_fsync_enabled = false;
   d_star_enabled = false;
   d_tps_enabled = false;
-  message_count = 0;
-  decode_rate = 0;
   msg_queue = gr::msg_queue::make(100);
 }
 
@@ -117,7 +88,7 @@ bool System_impl::update_sysid(TrunkMessage message) {
  gr::msg_queue::sptr System_impl::get_msg_queue() {
   return msg_queue;
  }
- 
+
 const std::string& System_impl::get_xor_mask() {
   return xor_mask;
 }
@@ -212,28 +183,12 @@ bool System_impl::get_fsync_enabled() { return d_fsync_enabled; };
 bool System_impl::get_star_enabled() { return d_star_enabled; };
 bool System_impl::get_tps_enabled() { return d_tps_enabled; };
 
-bool System_impl::get_record_unknown() {
-  return this->record_unknown;
-}
-
-void System_impl::set_record_unknown(bool unknown) {
-  this->record_unknown = unknown;
-}
-
 SystemType System_impl::get_system_type() {
   return this->system_type;
 }
 
 void System_impl::set_system_type(SystemType sys_type) {
   this->system_type = sys_type;
-}
-
-std::string System_impl::get_talkgroups_file() {
-  return this->talkgroups_file;
-}
-
-std::string System_impl::get_unit_tags_file() {
-  return this->unit_tags_file;
 }
 
 void System_impl::set_channel_file(std::string channel_file) {
@@ -251,12 +206,6 @@ bool System_impl::has_channel_file() {
   } else {
     return false;
   }
-}
-
-void System_impl::set_talkgroups_file(std::string talkgroups_file) {
-  BOOST_LOG_TRIVIAL(info) << "Loading Talkgroups...";
-  this->talkgroups_file = talkgroups_file;
-  this->talkgroups->load_talkgroups(sys_num, talkgroups_file);
 }
 
 void System_impl::set_unit_tags_file(std::string unit_tags_file) {
@@ -315,13 +264,6 @@ void System_impl::set_source(const std::shared_ptr<Source> &s) {
   this->source = s;
 }
 
-std::shared_ptr<Talkgroup> System_impl::find_talkgroup(long tg_number) {
-  return talkgroups->find_talkgroup(sys_num, tg_number);
-}
-
-std::shared_ptr<Talkgroup> System_impl::find_talkgroup_by_freq(double freq) {
-  return talkgroups->find_talkgroup_by_freq(sys_num, freq);
-}
 std::string System_impl::find_unit_tag(long unitID) {
   return unit_tags->find_unit_tag(unitID);
 }
@@ -396,21 +338,6 @@ std::vector<double> System_impl::get_control_channels() {
   return control_channels;
 }
 
-int System_impl::get_message_count() {
-  return message_count;
-}
-void System_impl::set_message_count(int count) {
-  message_count = count;
-}
-
-void System_impl::set_decode_rate(int rate) {
-  decode_rate = rate;
-}
-
-int System_impl::get_decode_rate() {
-  return decode_rate;
-}
-
 void System_impl::add_control_channel(double control_channel) {
   if (control_channels.size() == 0) {
     control_channels.push_back(control_channel);
@@ -432,14 +359,6 @@ double System_impl::get_next_control_channel() {
     current_control_channel = 0;
   }
   return this->control_channels[current_control_channel];
-}
-
-void System_impl::set_conversation_mode(bool mode) {
-  this->conversation_mode = mode;
-}
-
-bool System_impl::get_conversation_mode() {
-  return this->conversation_mode;
 }
 
 void System_impl::set_bandplan(std::string bandplan) {
@@ -490,35 +409,6 @@ int System_impl::get_bandplan_offset() {
   return this->bandplan_offset;
 }
 
-void System_impl::set_talkgroup_display_format(TalkgroupDisplayFormat format) {
-  talkgroup_display_format = format;
-}
-
-TalkgroupDisplayFormat System_impl::get_talkgroup_display_format() {
-  return talkgroup_display_format;
-}
-
-bool System_impl::get_hideEncrypted() {
-  return d_hideEncrypted;
-}
-void System_impl::set_hideEncrypted(bool hideEncrypted) {
-  d_hideEncrypted = hideEncrypted;
-}
-bool System_impl::get_monitorEncrypted() {
-  return d_monitorEncrypted;
-}
-void System_impl::set_monitorEncrypted(bool monitorEncrypted) {
-  d_monitorEncrypted = monitorEncrypted;
-}
-
-bool System_impl::get_hideUnknown() {
-  return d_hideUnknown;
-}
-
-void System_impl::set_hideUnknown(bool hideUnknown) {
-  d_hideUnknown = hideUnknown;
-}
-
 double System_impl::get_control_channel_pwr() {
   double best = std::numeric_limits<double>::quiet_NaN();
   for (auto &entry : decoders) {
@@ -566,30 +456,6 @@ void System_impl::set_autotune_offset(int offset) {
   if (!decoders.empty()) {
     decoders[0].decoder->set_autotune_offset(offset);
   }
-}
-
-
-bool System_impl::get_multiSite() {
-  return d_multiSite;
-}
-void System_impl::set_multiSite(bool multiSite) {
-  d_multiSite = multiSite;
-}
-
-std::string System_impl::get_multiSiteSystemName() {
-  return d_multiSiteSystemName;
-}
-
-void System_impl::set_multiSiteSystemName(std::string multiSiteSystemName) {
-  d_multiSiteSystemName = multiSiteSystemName;
-}
-
-unsigned long System_impl::get_multiSiteSystemNumber() {
-  return d_multiSiteSystemNumber;
-}
-
-void System_impl::set_multiSiteSystemNumber(unsigned long multiSiteSystemNumber) {
-  d_multiSiteSystemNumber = multiSiteSystemNumber;
 }
 
 bool System_impl::add_ota_unit_tag(const OTAAlias &ota_alias) {
