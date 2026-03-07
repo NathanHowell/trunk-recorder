@@ -227,14 +227,6 @@ double p25_recorder_impl::get_freq() const {
   return chan_freq;
 }
 
-double p25_recorder_impl::get_current_length() const {
-  if (qpsk_mod) {
-    return qpsk_p25_decode->get_current_length();
-  } else {
-    return fsk4_p25_decode->get_current_length();
-  }
-}
-
 void p25_recorder_impl::tune_freq(double f) {
   chan_freq = f;
   float freq = (center_freq - f);

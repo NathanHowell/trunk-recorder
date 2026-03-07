@@ -292,10 +292,6 @@ std::shared_ptr<Source> analog_recorder::get_source() {
   return source;
 }
 
-double analog_recorder::get_current_length() const {
-  return wav_sink->total_length_in_seconds();
-}
-
 void analog_recorder::tune_freq(double f) {
   chan_freq = f;
   int offset_amount = (center_freq - f);

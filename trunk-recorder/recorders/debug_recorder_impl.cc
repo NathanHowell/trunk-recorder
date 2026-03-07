@@ -202,10 +202,6 @@ double debug_recorder_impl::get_freq() const {
   return chan_freq;
 }
 
-double debug_recorder_impl::get_current_length() const {
-  return 0; // wav_sink->length_in_seconds();
-}
-
 std::chrono::duration<double> debug_recorder_impl::since_last_write() const {
   return std::chrono::duration<double>::zero(); // debug recorders stream continuously and never time out
 }

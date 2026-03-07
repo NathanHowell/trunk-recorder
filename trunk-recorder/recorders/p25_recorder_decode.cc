@@ -64,10 +64,6 @@ void p25_recorder_decode::set_tdma_slot(int slot) {
   tdma_slot = slot;
   op25_frame_assembler->set_slotid(tdma_slot);
 }
-double p25_recorder_decode::get_current_length() {
-  return wav_sink->total_length_in_seconds();
-}
-
 RecorderState p25_recorder_decode::get_state() {
   return wav_sink->get_state();
 }

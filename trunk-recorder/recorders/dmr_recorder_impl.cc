@@ -195,10 +195,6 @@ int dmr_recorder_impl::get_freq_error() const { // get frequency error from FLL 
   return prefilter->get_freq_error();
 }
 
-double dmr_recorder_impl::get_current_length() const {
-  return wav_sink_slot0->total_length_in_seconds();
-}
-
 void dmr_recorder_impl::tune_freq(double f) {
   chan_freq = f;
   float freq = (center_freq - f);

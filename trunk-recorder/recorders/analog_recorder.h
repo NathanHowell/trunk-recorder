@@ -80,7 +80,6 @@ public:
   bool is_analog() const override;
   bool is_idle() const override;
   bool is_squelched() const override;
-  double get_current_length() const override;
   std::chrono::duration<double> since_last_write() const override;
   void clear() override;
   void set_system(const std::shared_ptr<System> &) override;

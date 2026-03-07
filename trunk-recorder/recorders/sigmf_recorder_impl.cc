@@ -105,10 +105,6 @@ int sigmf_recorder_impl::get_freq_error() const { // get frequency error from FL
   return prefilter->get_freq_error();
 }
 
-double sigmf_recorder_impl::get_current_length() const {
-  return 0;
-}
-
 std::chrono::duration<double> sigmf_recorder_impl::since_last_write() const {
   return std::chrono::duration<double>::zero(); // sigmf recorders write continuously and never time out
 }

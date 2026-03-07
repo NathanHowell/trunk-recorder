@@ -89,7 +89,6 @@ public:
   void set_system(const std::shared_ptr<System> &) override;
   std::chrono::duration<double> since_last_write() const override;
   void process_message_queues() override;
-  double get_current_length() const override;
   void set_enabled(bool enabled) override;
   bool is_enabled() const override;
   bool is_active() const override;

@@ -99,10 +99,6 @@ std::vector<Transmission> headless_sink::get_transmission_list() {
   return {t};
 }
 
-double headless_sink::total_length_in_seconds() {
-  return length_in_seconds();
-}
-
 double headless_sink::length_in_seconds() {
   if (d_sample_rate == 0) {
     return 0.0;

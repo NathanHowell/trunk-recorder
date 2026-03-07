@@ -56,7 +56,6 @@ public:
   virtual bool is_analog() const = 0;
   virtual bool is_idle() const = 0;
   virtual bool is_squelched() const = 0;
-  virtual double get_current_length() const = 0;
   virtual std::chrono::duration<double> since_last_write() const = 0;
   virtual void clear() = 0;
   virtual void set_system(const std::shared_ptr<System> &) = 0;
