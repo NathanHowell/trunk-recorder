@@ -17,7 +17,7 @@ namespace Color {
   constexpr const char* MAG = "\033[0;35m";  // Magenta
   constexpr const char* CYN = "\033[0;36m";  // Cyan
   constexpr const char* WHT = "\033[0;37m";  // White
-  
+
   constexpr const char* BBLK = "\033[0;90m"; // Bright Black (Gray)
   constexpr const char* BRED = "\033[0;91m"; // Bright Red
   constexpr const char* BGRN = "\033[0;92m"; // Bright Green
@@ -30,11 +30,6 @@ namespace Color {
 
 extern boost::format format_freq(double f);
 extern boost::format FormatSamplingRate(float f);
-extern std::string format_state(CallState state, MonitoringState monitoringState = UNSPECIFIED);
 extern std::string format_state(RecorderState state);
-std::string get_frequency_format();
-extern std::string log_header(std::string short_name,long call_num, long talkgroup, double freq);
-extern int frequency_format;
-extern bool statusAsString;
 
 #endif // FORMATTER_H

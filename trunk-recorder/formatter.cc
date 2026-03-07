@@ -1,76 +1,24 @@
 #include "formatter.h"
 
-int frequency_format = 0;
-bool statusAsString = true;
-
 boost::format format_freq(double f) {
-  if (frequency_format == 1)
-    return boost::format("%10.6f MHz") % (f / 1000000.0);
-  else if (frequency_format == 2)
-    return boost::format("%.0f Hz") % f;
-  else
-    return boost::format("%e") % f;
-}
-
-std::string get_frequency_format() {
-  if (frequency_format == 1)
-    return "mhz";
-  else if (frequency_format == 2)
-    return "hz";
-  else
-    return "exp";
+  return boost::format("%e") % f;
 }
 
 boost::format FormatSamplingRate(float f) {
   return boost::format("%.0f") % f;
 }
 
-std::string format_state(CallState state, MonitoringState monitoringState) {
-  if (statusAsString) {
-    std::stringstream ss;
-    switch (state) {
-      case MONITORING: ss << Color::CYN << "Monitoring" << Color::RST;
-        switch (monitoringState) {
-          case UNKNOWN_TG:   ss << ": UNKNOWN TG"; break;
-          case IGNORED_TG:   ss << ": IGNORED TG"; break;
-          case NO_SOURCE:    ss << ": " << Color::YEL << "NO SOURCE COVERING FREQ" << Color::RST; break;
-          case NO_RECORDER:  ss << ": " << Color::YEL << "NO RECORDER AVAILABLE" << Color::RST; break;
-          case ENCRYPTED:    ss << ": " << Color::RED << "ENCRYPTED" << Color::RST; break;
-          case DUPLICATE:    ss << ": " << Color::CYN << "DUPLICATE" << Color::RST; break;
-          case SUPERSEDED:   ss << ": " << Color::CYN << "SUPERSEDED" << Color::RST; break;
-          default: break;  // UNSPECIFIED
-        }
-        break;
-
-      case RECORDING:  ss << Color::RED << "Recording"  << Color::RST; break;
-      default:         ss << "Unknown"; break;
-    }
-    return ss.str();
-  }
-  return std::to_string(static_cast<int>(state));
-}
-
 std::string format_state(RecorderState state) {
-  if (statusAsString) {
-    std::stringstream ss;
-    switch (state) {
-      case REC_RECORDING: ss << Color::RED << "Recording"  << Color::RST; break;
-      case REC_INACTIVE:  ss << Color::BLU << "Inactive"   << Color::RST; break;
-      case REC_ACTIVE:    ss << Color::YEL << "Active"     << Color::RST; break;
-      case REC_IDLE:      ss << "Idle"; break;
-      case REC_STOPPED:   ss << Color::MAG << "Stopped"    << Color::RST; break;
-      case REC_AVAILABLE: ss << Color::GRN << "Available"  << Color::RST; break;
-      case REC_IGNORE:    ss << "Ignored"; break;
-      default:            ss << "Unknown"; break;
-    }
-    return ss.str();
-  }
-  return std::to_string(static_cast<int>(state));
-}
-
-std::string log_header(std::string short_name,long call_num, long talkgroup, double freq) {
   std::stringstream ss;
-  ss << "[" << short_name << "]\t" << Color::BLU << call_num << "C" << Color::RST
-     << "\tTG: " << Color::MAG << talkgroup << Color::RST << "\tFreq: " << format_freq(freq) << "\t";
+  switch (state) {
+    case REC_RECORDING: ss << Color::RED << "Recording"  << Color::RST; break;
+    case REC_INACTIVE:  ss << Color::BLU << "Inactive"   << Color::RST; break;
+    case REC_ACTIVE:    ss << Color::YEL << "Active"     << Color::RST; break;
+    case REC_IDLE:      ss << "Idle"; break;
+    case REC_STOPPED:   ss << Color::MAG << "Stopped"    << Color::RST; break;
+    case REC_AVAILABLE: ss << Color::GRN << "Available"  << Color::RST; break;
+    case REC_IGNORE:    ss << "Ignored"; break;
+    default:            ss << "Unknown"; break;
+  }
   return ss.str();
 }

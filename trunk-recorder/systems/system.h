@@ -68,8 +68,6 @@ public:
   virtual bool update_sysid(TrunkMessage message) = 0;
   virtual int get_sys_num() = 0;
   virtual void set_system_type(SystemType) = 0;
-  virtual std::shared_ptr<Source> get_source() = 0;
-  virtual void set_source(const std::shared_ptr<Source> &) = 0;
   virtual int control_channel_count() = 0;
   virtual void add_control_channel(double channel) = 0;
   virtual double get_next_control_channel() = 0;

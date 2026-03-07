@@ -7,8 +7,6 @@ std::shared_ptr<Call> Call::make(const std::shared_ptr<System> &s) {
 
 Call::Call(const std::shared_ptr<System> &s) {
   sys = s;
-  debug_recording = false;
-  sigmf_recording = false;
   rust_call_id = 0;
 }
 
@@ -41,22 +39,6 @@ std::shared_ptr<Recorder> Call::get_recorder() const {
 
 std::shared_ptr<System> Call::get_system() const {
   return sys;
-}
-
-void Call::set_debug_recording(bool m) {
-  debug_recording = m;
-}
-
-bool Call::get_debug_recording() const {
-  return debug_recording;
-}
-
-void Call::set_sigmf_recording(bool m) {
-  sigmf_recording = m;
-}
-
-bool Call::get_sigmf_recording() const {
-  return sigmf_recording;
 }
 
 void Call::set_rust_call_id(uint64_t id) {

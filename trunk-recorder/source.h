@@ -4,7 +4,6 @@
 #include "./global_structs.h"
 #include "./gr_blocks/selector.h"
 #include "./gr_blocks/signal_detector_cvf.h"
-#include "./autotune.h"
 #include "recorders/analog_recorder.h"
 #include "recorders/debug_recorder.h"
 #include "recorders/dmr_recorder.h"
@@ -57,7 +56,6 @@ class Source : public std::enable_shared_from_this<Source> {
   int next_selector_port;
   int silence_frames;
   const Config &config;
-  bool autotune_source;
 
   std::vector<p25_recorder_sptr> digital_recorders;
   std::vector<p25_recorder_sptr> digital_conv_recorders;
@@ -149,12 +147,6 @@ public:
   std::shared_ptr<Recorder> get_debug_recorder();
   std::shared_ptr<Recorder> get_sigmf_recorder();
   std::vector<std::shared_ptr<Recorder>> get_recorders();
-
-  std::unique_ptr<AutotuneManager> autotune_manager;
-  void set_autotune_source(bool m);
-  bool get_autotune_source();
-  void add_autotune_error_measurement(int error, int offset);
-  int get_source_error();
 
 #ifdef HAVE_OSMOSDR
   inline osmosdr::source::sptr cast_to_osmo_sptr(gr::basic_block_sptr p) {

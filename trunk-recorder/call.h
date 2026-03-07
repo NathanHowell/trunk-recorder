@@ -24,10 +24,6 @@ public:
   std::shared_ptr<Recorder> get_debug_recorder() const;
   void set_sigmf_recorder(const std::shared_ptr<Recorder> &r);
   std::shared_ptr<Recorder> get_sigmf_recorder() const;
-  bool get_debug_recording() const;
-  void set_debug_recording(bool m);
-  bool get_sigmf_recording() const;
-  void set_sigmf_recording(bool m);
 
   // Identity
   std::shared_ptr<System> get_system() const;
@@ -40,9 +36,6 @@ public:
   uint64_t get_rust_call_id() const;
 
 protected:
-  bool debug_recording;
-  bool sigmf_recording;
-
   std::shared_ptr<System> sys;
   std::weak_ptr<Recorder> recorder;
   std::weak_ptr<Recorder> debug_recorder;

@@ -20,7 +20,6 @@ class System_impl : public System {
 
 public:
   std::unique_ptr<UnitTags> unit_tags;
-  std::shared_ptr<Source> source;
   std::string short_name;
   SystemType system_type;
   std::string bandplan;
@@ -73,8 +72,6 @@ public:
   bool update_sysid(TrunkMessage message) override;
   int get_sys_num() override;
   void set_system_type(SystemType) override;
-  std::shared_ptr<Source> get_source() override;
-  void set_source(const std::shared_ptr<Source> &) override;
   int control_channel_count() override;
   void add_control_channel(double channel) override;
   double get_next_control_channel() override;

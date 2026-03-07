@@ -244,7 +244,6 @@ list(APPEND trunk_recorder_sources
   trunk-recorder/monitor_systems.cc
   trunk-recorder/unit_tags.cc
   trunk-recorder/unit_tags_ota.cc
-  trunk-recorder/autotune.cc
   #lib/gr-latency/latency_probe.cc
   #lib/gr-latency/latency_tagger.cc
   #lib/gr-latency-manager/lib/latency_manager_impl.cc

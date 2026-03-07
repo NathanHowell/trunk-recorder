@@ -135,14 +135,6 @@ void System_impl::set_system_type(SystemType sys_type) {
   this->system_type = sys_type;
 }
 
-std::shared_ptr<Source> System_impl::get_source() {
-  return this->source;
-}
-
-void System_impl::set_source(const std::shared_ptr<Source> &s) {
-  this->source = s;
-}
-
 int System_impl::control_channel_count() {
   return control_channels.size();
 }
@@ -328,11 +320,8 @@ void System_impl::setup_decoders(gr::top_block_sptr &tb, std::vector<std::shared
     decoders.push_back({decoder, src, freq});
   }
 
-  if (!decoders.empty()) {
-    set_source(decoders[0].source);
-    if (decoders.size() > 1) {
-      BOOST_LOG_TRIVIAL(warning) << "[" << short_name << "] " << decoders.size()
-        << " decoders active, but system source set to first decoder's source only (autotune will only apply to first)";
-    }
+  if (decoders.size() > 1) {
+    BOOST_LOG_TRIVIAL(warning) << "[" << short_name << "] " << decoders.size()
+      << " decoders active";
   }
 }

@@ -217,10 +217,6 @@ std::vector<Transmission> p25_recorder_impl::get_transmission_list() {
 
 void p25_recorder_impl::stop() {
   if (state == REC_ACTIVE) {
-    if (source->get_autotune_source()) {
-      // Send last tuning measurements to autotune manager
-      source->add_autotune_error_measurement(this->get_freq_error(), autotune_offset);
-    }
     BOOST_LOG_TRIVIAL(info) << "\u001b[33mStopping P25 Recorder Num [" << rec_num << "]\u001b[0m\tTG: " << talkgroup << "\tFreq: " << chan_freq << "\tTDMA: " << d_phase2_tdma << "\tSlot: " << tdma_slot << "\tTuningErr: " << std::showpos << this->get_freq_error() << std::noshowpos << " Hz";
 
     state = REC_INACTIVE;
@@ -273,12 +269,7 @@ bool p25_recorder_impl::start(const RecorderConfig &config) {
     chan_freq = config.freq;
     rust_call_id = config.rust_call_id;
 
-    autotune_offset = 0;
-    if (source->get_autotune_source()) {
-      autotune_offset = source->get_source_error();
-    }
-
-    int offset_amount = (center_freq - chan_freq + autotune_offset);
+    int offset_amount = (center_freq - chan_freq);
 
     prefilter->tune_offset(offset_amount);
 
