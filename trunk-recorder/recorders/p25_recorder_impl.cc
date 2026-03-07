@@ -139,8 +139,6 @@ void p25_recorder_impl::autotune() {
 }
 
 void p25_recorder_impl::tune_offset(double f) { prefilter->tune_offset(f); }
-long p25_recorder_impl::get_wav_hz() const { return 8000; }
-long p25_recorder_impl::get_talkgroup() const { return 0; }
 
 int p25_recorder_impl::get_freq_error() const { // get frequency error from FLL and convert to Hz
   return prefilter->get_freq_error();
@@ -178,19 +176,8 @@ RecorderState p25_recorder_impl::get_state() const {
   }
 }
 
-bool p25_recorder_impl::is_enabled() const {
-  return source->is_selector_port_enabled(selector_port);
-}
-
 void p25_recorder_impl::set_enabled(bool enabled) {
   source->set_selector_port_enabled(selector_port, enabled);
-}
-
-bool p25_recorder_impl::is_squelched() const {
-  if (state == REC_ACTIVE) {
-    return prefilter->is_squelched();
-  }
-  return true;
 }
 
 double p25_recorder_impl::get_pwr() const {

@@ -191,11 +191,7 @@ analog_recorder::analog_recorder(const std::shared_ptr<Source> &src, const std::
 analog_recorder::~analog_recorder() {}
 
 void analog_recorder::tune_offset(double f) { prefilter->tune_offset(f); }
-void analog_recorder::set_tdma_slot(int) {}
-void analog_recorder::clear() {}
 void analog_recorder::set_system(const std::shared_ptr<System> &) {}
-
-long analog_recorder::get_wav_hz() const { return wav_sample_rate; };
 
 RecorderState analog_recorder::get_state() const {
   return wav_sink->get_state();
@@ -233,16 +229,8 @@ void analog_recorder::process_message_queues() {
   decoder_sink->process_message_queues();
 }
 
-bool analog_recorder::is_enabled() const {
-  return source->is_selector_port_enabled(selector_port);
-}
-
 void analog_recorder::set_enabled(bool enabled) {
   source->set_selector_port_enabled(selector_port, enabled);
-}
-
-bool analog_recorder::is_squelched() const {
-  return prefilter->is_squelched();
 }
 
 double analog_recorder::get_pwr() const {
@@ -251,10 +239,6 @@ double analog_recorder::get_pwr() const {
 
 void analog_recorder::set_squelch_callback(std::function<void(bool, double)> cb) {
   prefilter->set_squelch_callback(std::move(cb));
-}
-
-long analog_recorder::get_talkgroup() const {
-  return talkgroup;
 }
 
 int analog_recorder::get_freq_error() const { // get frequency error from FLL and convert to Hz

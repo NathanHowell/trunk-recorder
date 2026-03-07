@@ -64,23 +64,14 @@ sigmf_recorder_impl::sigmf_recorder_impl(const std::shared_ptr<Source> &src, Rec
 
 void sigmf_recorder_impl::tune_offset(double f) { prefilter->tune_offset(f); }
 void sigmf_recorder_impl::tune_freq(double) {}
-void sigmf_recorder_impl::set_tdma_slot(int) {}
 void sigmf_recorder_impl::set_source(long) {}
 void sigmf_recorder_impl::set_system(const std::shared_ptr<System> &) {}
 void sigmf_recorder_impl::process_message_queues() {}
-void sigmf_recorder_impl::clear() {}
 double sigmf_recorder_impl::get_pwr() const { return prefilter->get_pwr(); }
 std::vector<Transmission> sigmf_recorder_impl::get_transmission_list() { return {}; }
-long sigmf_recorder_impl::get_wav_hz() const { return 8000; }
-long sigmf_recorder_impl::get_talkgroup() const { return 0; }
-bool sigmf_recorder_impl::is_squelched() const { return prefilter->is_squelched(); }
 
 int sigmf_recorder_impl::get_num() const {
   return rec_num;
-}
-
-bool sigmf_recorder_impl::is_enabled() const {
-  return source->is_selector_port_enabled(selector_port);
 }
 
 void sigmf_recorder_impl::set_enabled(bool enabled) {

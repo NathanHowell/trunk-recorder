@@ -165,20 +165,14 @@ debug_recorder_impl::debug_recorder_impl(const std::shared_ptr<Source> &src, std
   connect(arb_resampler, 0, udp_sink, 0);
 }
 
-void debug_recorder_impl::set_tdma_slot(int) {}
 void debug_recorder_impl::set_source(long) {}
 void debug_recorder_impl::set_system(const std::shared_ptr<System> &) {}
 void debug_recorder_impl::set_squelch_callback(std::function<void(bool, double)>) {}
 void debug_recorder_impl::process_message_queues() {}
-void debug_recorder_impl::clear() {}
 void debug_recorder_impl::set_enabled(bool) {}
 int debug_recorder_impl::get_freq_error() const { return 0; }
 double debug_recorder_impl::get_pwr() const { return 0; }
 std::vector<Transmission> debug_recorder_impl::get_transmission_list() { return {}; }
-long debug_recorder_impl::get_wav_hz() const { return 8000; }
-long debug_recorder_impl::get_talkgroup() const { return 0; }
-bool debug_recorder_impl::is_enabled() const { return false; }
-bool debug_recorder_impl::is_squelched() const { return true; }
 
 std::shared_ptr<Source> debug_recorder_impl::get_source() {
   return source;

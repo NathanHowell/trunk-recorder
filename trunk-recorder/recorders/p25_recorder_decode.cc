@@ -194,38 +194,36 @@ void p25_recorder_decode::handle_alias_message(const nlohmann::json& j) {
       }
     }
 
-    // Check that the alias matches the current call to avoid applying an alias that may have been captured
-    // in advance of decoding the new unit ID in back-to-back transmissions
-    long call_talkgroup = d_recorder->get_talkgroup();
+    // Check that the alias source matches the current call
     long call_src_id = d_source_id;
-    if (talkgroup != call_talkgroup || call_src_id != unit_id) {
-      BOOST_LOG_TRIVIAL(debug) << "Harris P2 alias deferred - talkgroup/id mismatch (OP25 cache=" 
-                               << talkgroup << ", call TG=" << call_talkgroup << " src=" << unit_id << ", call ID=" << call_src_id << ")";
-      return;  // Skip and wait for retransmission with IDs matching current call
+    if (call_src_id != unit_id) {
+      BOOST_LOG_TRIVIAL(debug) << "Harris P1 alias deferred - source id mismatch (OP25 src="
+                               << unit_id << ", call ID=" << call_src_id << ")";
+      return;
     }
-    
+
     if (unit_id <= 0 || talkgroup <= 0) {
-      BOOST_LOG_TRIVIAL(debug) << "Harris P1 alias deferred - OP25 cache not yet populated (src=" 
+      BOOST_LOG_TRIVIAL(debug) << "Harris P1 alias deferred - OP25 cache not yet populated (src="
                                << unit_id << ", grp=" << talkgroup << ")";
       return;  // Skip and wait for retransmission with valid cached IDs
     }
-    
+
     BOOST_LOG_TRIVIAL(debug) << "Harris P1 using OP25-cached IDs: src=" << unit_id << ", grp=" << talkgroup;
-    
+
     result = UnitTagsOTA::decode_harris_alias(alias_buffer, unit_id, talkgroup, wacn, sys_id);
   } else if (j["type"] == "harris_alias_p2") {
     std::string wacn = d_system ? std::to_string(d_system->get_wacn()) : "";
     std::string sys_id = d_system ? std::to_string(d_system->get_sys_id()) : "";
-    
+
     long unit_id = -1;
     long talkgroup = -1;
-    
+
     // Get OP25-captured IDs
     if (j.contains("op25_src_id") && j.contains("op25_grp_id")) {
       unit_id = j["op25_src_id"].get<long>();
       talkgroup = j["op25_grp_id"].get<long>();
     }
-    
+
     // Check cache age - if IDs were cached too long ago, they may be stale
     // This handles the case where message queue processing is delayed
     if (j.contains("cache_age_ms")) {
@@ -233,20 +231,18 @@ void p25_recorder_decode::handle_alias_message(const nlohmann::json& j) {
       long cache_threshold = 300;
       // If cache is older, the IDs may be from a previous transmission
       if (cache_age > cache_threshold) {
-        BOOST_LOG_TRIVIAL(debug) << "Harris P2 alias deferred - cache too old (" 
+        BOOST_LOG_TRIVIAL(debug) << "Harris P2 alias deferred - cache too old ("
                                   << cache_age << "ms > " << cache_threshold << "ms threshold)";
         return;  // Skip and wait for retransmission with fresher IDs
       }
     }
 
-    // Check that the alias matches the current call to avoid applying an alias that may have been captured
-    // in advance of decoding the new unit ID in back-to-back transmissions
-    long call_talkgroup = d_recorder->get_talkgroup();
+    // Check that the alias source matches the current call
     long call_src_id = d_source_id;
-    if (talkgroup != call_talkgroup || call_src_id != unit_id) {
-      BOOST_LOG_TRIVIAL(debug) << "Harris P2 alias deferred - talkgroup/id mismatch (OP25 cache=" 
-                               << talkgroup << ", call TG=" << call_talkgroup << " src=" << unit_id << ", call ID=" << call_src_id << ")";
-      return;  // Skip and wait for retransmission with IDs matching current call
+    if (call_src_id != unit_id) {
+      BOOST_LOG_TRIVIAL(debug) << "Harris P2 alias deferred - source id mismatch (OP25 src="
+                               << unit_id << ", call ID=" << call_src_id << ")";
+      return;
     }
     
     if (unit_id <= 0 || talkgroup <= 0) {

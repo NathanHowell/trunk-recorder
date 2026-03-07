@@ -29,7 +29,6 @@ public:
   bool conventional;
   unsigned int selector_port;
 
-  int get_selector_port() const { return selector_port;}
   void set_selector_port(unsigned int port) {selector_port = port;}
   Recorder(Recorder_Type  type);
   int get_num() const { return rec_num; };
@@ -41,19 +40,13 @@ public:
   virtual void tune_freq(double f) = 0;
   virtual bool start(const RecorderConfig &config) = 0;
   virtual void stop() = 0;
-  virtual void set_tdma_slot(int slot) = 0;
   virtual int get_freq_error() const = 0;
   virtual double get_pwr() const = 0;
   virtual std::vector<Transmission> get_transmission_list() = 0;
   virtual void set_source(long src) = 0;
-  virtual long get_wav_hz() const = 0;
-  virtual long get_talkgroup() const = 0;
   virtual RecorderState get_state() const = 0;
   virtual void set_enabled(bool enabled) = 0;
-  virtual bool is_enabled() const = 0;
-  virtual bool is_squelched() const = 0;
   virtual std::chrono::duration<double> since_last_write() const = 0;
-  virtual void clear() = 0;
   virtual void set_system(const std::shared_ptr<System> &) = 0;
   virtual void set_squelch_callback(std::function<void(bool, double)> cb) = 0;
   virtual void process_message_queues() = 0;

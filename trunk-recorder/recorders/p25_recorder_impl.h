@@ -77,23 +77,17 @@ public:
   void tune_freq(double f) override;
   bool start(const RecorderConfig &config) override;
   void stop() override;
-  void clear() override;
   int get_num() const;
   int get_freq_error() const override;
   double get_pwr() const override;
   std::vector<Transmission> get_transmission_list() override;
   void set_tdma(bool phase2);
   void switch_tdma(bool phase2);
-  void set_tdma_slot(int slot) override;
   void set_source(long src) override;
   void set_system(const std::shared_ptr<System> &sys) override;
   std::chrono::duration<double> since_last_write() const override;
   void process_message_queues() override;
   void set_enabled(bool enabled) override;
-  bool is_enabled() const override;
-  bool is_squelched() const override;
-  long get_wav_hz() const override;
-  long get_talkgroup() const override;
   RecorderState get_state() const override;
   void set_squelch_callback(std::function<void(bool, double)> cb) override;
   std::shared_ptr<Source> get_source();
@@ -120,6 +114,8 @@ protected:
   xlat_channelizer::sptr prefilter;
 
 private:
+  void set_tdma_slot(int slot);
+  void clear();
   int silence_frames;
   int tdma_slot;
   bool d_phase2_tdma;

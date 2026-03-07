@@ -120,12 +120,9 @@ void dmr_recorder_impl::set_tdma(bool phase2) {
 }
 
 void dmr_recorder_impl::tune_offset(double f) { prefilter->tune_offset(f); }
-void dmr_recorder_impl::clear() {}
 void dmr_recorder_impl::set_source(long) {}
 void dmr_recorder_impl::set_system(const std::shared_ptr<System> &) {}
 void dmr_recorder_impl::process_message_queues() {}
-long dmr_recorder_impl::get_wav_hz() const { return 8000; }
-long dmr_recorder_impl::get_talkgroup() const { return 0; }
 
 std::shared_ptr<Source> dmr_recorder_impl::get_source() {
   return source;
@@ -143,19 +140,8 @@ RecorderState dmr_recorder_impl::get_state() const {
   return wav_sink_slot0->get_state();
 }
 
-bool dmr_recorder_impl::is_enabled() const {
-  return source->is_selector_port_enabled(selector_port);
-}
-
 void dmr_recorder_impl::set_enabled(bool enabled) {
   source->set_selector_port_enabled(selector_port, enabled);
-}
-
-bool dmr_recorder_impl::is_squelched() const {
-  if (state == REC_ACTIVE) {
-    return prefilter->is_squelched();
-  }
-  return true;
 }
 
 double dmr_recorder_impl::get_pwr() const {
@@ -213,13 +199,9 @@ void dmr_recorder_impl::stop() {
   }
 }
 
-void dmr_recorder_impl::set_tdma_slot(int slot) {
-  tdma_slot = slot;
-}
-
 bool dmr_recorder_impl::start(const RecorderConfig &config) {
   if (state == REC_INACTIVE) {
-    set_tdma_slot(0);
+    tdma_slot = 0;
 
     starttime = std::chrono::steady_clock::now();
 
