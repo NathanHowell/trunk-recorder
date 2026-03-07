@@ -42,7 +42,6 @@ public:
   virtual bool start(const RecorderConfig &config) = 0;
   virtual void stop() = 0;
   virtual void set_tdma_slot(int slot) = 0;
-  virtual double get_freq() const = 0;
   virtual int get_freq_error() const = 0;
   virtual double get_pwr() const = 0;
   virtual std::vector<Transmission> get_transmission_list() = 0;
@@ -52,9 +51,6 @@ public:
   virtual RecorderState get_state() const = 0;
   virtual void set_enabled(bool enabled) = 0;
   virtual bool is_enabled() const = 0;
-  virtual bool is_active() const = 0;
-  virtual bool is_analog() const = 0;
-  virtual bool is_idle() const = 0;
   virtual bool is_squelched() const = 0;
   virtual std::chrono::duration<double> since_last_write() const = 0;
   virtual void clear() = 0;

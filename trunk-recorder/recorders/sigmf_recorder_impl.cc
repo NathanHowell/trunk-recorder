@@ -73,8 +73,6 @@ double sigmf_recorder_impl::get_pwr() const { return prefilter->get_pwr(); }
 std::vector<Transmission> sigmf_recorder_impl::get_transmission_list() { return {}; }
 long sigmf_recorder_impl::get_wav_hz() const { return 8000; }
 long sigmf_recorder_impl::get_talkgroup() const { return 0; }
-bool sigmf_recorder_impl::is_analog() const { return false; }
-bool sigmf_recorder_impl::is_idle() const { return state != REC_ACTIVE; }
 bool sigmf_recorder_impl::is_squelched() const { return prefilter->is_squelched(); }
 
 int sigmf_recorder_impl::get_num() const {
@@ -87,18 +85,6 @@ bool sigmf_recorder_impl::is_enabled() const {
 
 void sigmf_recorder_impl::set_enabled(bool enabled) {
   source->set_selector_port_enabled(selector_port, enabled);
-}
-
-bool sigmf_recorder_impl::is_active() const {
-  if (state == REC_ACTIVE) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
-double sigmf_recorder_impl::get_freq() const {
-  return freq;
 }
 
 int sigmf_recorder_impl::get_freq_error() const { // get frequency error from FLL and convert to Hz

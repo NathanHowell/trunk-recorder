@@ -67,7 +67,6 @@ public:
   void tune_offset(double f) override;
   void tune_freq(double f) override;
   void set_tdma_slot(int slot) override;
-  double get_freq() const override;
   int get_freq_error() const override;
   int get_num() const;
   double get_pwr() const override;
@@ -78,9 +77,6 @@ public:
   RecorderState get_state() const override;
   void set_enabled(bool enabled) override;
   bool is_enabled() const override;
-  bool is_active() const override;
-  bool is_analog() const override;
-  bool is_idle() const override;
   bool is_squelched() const override;
   std::chrono::duration<double> since_last_write() const override;
   void clear() override;

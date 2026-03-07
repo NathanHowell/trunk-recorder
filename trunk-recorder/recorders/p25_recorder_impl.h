@@ -78,7 +78,6 @@ public:
   bool start(const RecorderConfig &config) override;
   void stop() override;
   void clear() override;
-  double get_freq() const override;
   int get_num() const;
   int get_freq_error() const override;
   double get_pwr() const override;
@@ -92,9 +91,6 @@ public:
   void process_message_queues() override;
   void set_enabled(bool enabled) override;
   bool is_enabled() const override;
-  bool is_active() const override;
-  bool is_analog() const override;
-  bool is_idle() const override;
   bool is_squelched() const override;
   long get_wav_hz() const override;
   long get_talkgroup() const override;

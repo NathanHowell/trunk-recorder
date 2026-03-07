@@ -60,7 +60,6 @@ public:
   std::chrono::time_point<std::chrono::steady_clock> get_last_write_time();
 
   std::vector<Transmission> get_transmission_list();
-  double length_in_seconds();
 
   int work(int noutput_items,
            gr_vector_const_void_star &input_items,

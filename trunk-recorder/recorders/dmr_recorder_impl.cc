@@ -124,7 +124,6 @@ void dmr_recorder_impl::clear() {}
 void dmr_recorder_impl::set_source(long) {}
 void dmr_recorder_impl::set_system(const std::shared_ptr<System> &) {}
 void dmr_recorder_impl::process_message_queues() {}
-bool dmr_recorder_impl::is_analog() const { return false; }
 long dmr_recorder_impl::get_wav_hz() const { return 8000; }
 long dmr_recorder_impl::get_talkgroup() const { return 0; }
 
@@ -144,13 +143,6 @@ RecorderState dmr_recorder_impl::get_state() const {
   return wav_sink_slot0->get_state();
 }
 
-bool dmr_recorder_impl::is_active() const {
-  if (state == REC_ACTIVE) {
-    return true;
-  } else {
-    return false;
-  }
-}
 bool dmr_recorder_impl::is_enabled() const {
   return source->is_selector_port_enabled(selector_port);
 }
@@ -172,23 +164,6 @@ double dmr_recorder_impl::get_pwr() const {
 
 void dmr_recorder_impl::set_squelch_callback(std::function<void(bool, double)> cb) {
   prefilter->set_squelch_callback(std::move(cb));
-}
-
-bool dmr_recorder_impl::is_idle() const {
-  /*
-    if ((wav_sink_slot0->get_state() == REC_IDLE) || (wav_sink_slot0->get_state() == REC_STOPPED)) {
-      return true;
-    }
-
-    return false;*/
-  if (state == REC_ACTIVE) {
-    return prefilter->is_squelched();
-  }
-  return true;
-}
-
-double dmr_recorder_impl::get_freq() const {
-  return chan_freq;
 }
 
 int dmr_recorder_impl::get_freq_error() const { // get frequency error from FLL and convert to Hz

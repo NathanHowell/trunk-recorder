@@ -601,7 +601,7 @@ std::shared_ptr<Recorder> Source::get_digital_recorder() {
   BOOST_LOG_TRIVIAL(error) << "[ " << device << " ] No Digital Recorders Available.";
 
   for (auto &rx : digital_recorders) {
-    BOOST_LOG_TRIVIAL(info) << "[ " << rx->get_num() << " ] State: " << format_state(rx->get_state()) << " Freq: " << rx->get_freq();
+    BOOST_LOG_TRIVIAL(info) << "[ " << rx->get_num() << " ] State: " << format_state(rx->get_state());
   }
   return nullptr;
 }

@@ -20,7 +20,6 @@ struct Transmission {
   long spike_count;
   long error_count;
   double freq;
-  double length;
   char filename[255];
 };
 

@@ -233,18 +233,6 @@ void analog_recorder::process_message_queues() {
   decoder_sink->process_message_queues();
 }
 
-bool analog_recorder::is_analog() const {
-  return true;
-}
-
-bool analog_recorder::is_active() const {
-  if (state == REC_ACTIVE) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
 bool analog_recorder::is_enabled() const {
   return source->is_selector_port_enabled(selector_port);
 }
@@ -265,19 +253,8 @@ void analog_recorder::set_squelch_callback(std::function<void(bool, double)> cb)
   prefilter->set_squelch_callback(std::move(cb));
 }
 
-bool analog_recorder::is_idle() const {
-  if (state == REC_ACTIVE) {
-    return prefilter->is_squelched();
-  }
-  return true;
-}
-
 long analog_recorder::get_talkgroup() const {
   return talkgroup;
-}
-
-double analog_recorder::get_freq() const {
-  return chan_freq;
 }
 
 int analog_recorder::get_freq_error() const { // get frequency error from FLL and convert to Hz

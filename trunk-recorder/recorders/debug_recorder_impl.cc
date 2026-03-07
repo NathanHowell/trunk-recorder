@@ -178,8 +178,6 @@ std::vector<Transmission> debug_recorder_impl::get_transmission_list() { return 
 long debug_recorder_impl::get_wav_hz() const { return 8000; }
 long debug_recorder_impl::get_talkgroup() const { return 0; }
 bool debug_recorder_impl::is_enabled() const { return false; }
-bool debug_recorder_impl::is_analog() const { return false; }
-bool debug_recorder_impl::is_idle() const { return state != REC_ACTIVE; }
 bool debug_recorder_impl::is_squelched() const { return true; }
 
 std::shared_ptr<Source> debug_recorder_impl::get_source() {
@@ -188,18 +186,6 @@ std::shared_ptr<Source> debug_recorder_impl::get_source() {
 
 int debug_recorder_impl::get_num() const {
   return rec_num;
-}
-
-bool debug_recorder_impl::is_active() const {
-  if (state == REC_ACTIVE) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
-double debug_recorder_impl::get_freq() const {
-  return chan_freq;
 }
 
 std::chrono::duration<double> debug_recorder_impl::since_last_write() const {

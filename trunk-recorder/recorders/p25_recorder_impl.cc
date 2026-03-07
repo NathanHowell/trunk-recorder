@@ -139,7 +139,6 @@ void p25_recorder_impl::autotune() {
 }
 
 void p25_recorder_impl::tune_offset(double f) { prefilter->tune_offset(f); }
-bool p25_recorder_impl::is_analog() const { return false; }
 long p25_recorder_impl::get_wav_hz() const { return 8000; }
 long p25_recorder_impl::get_talkgroup() const { return 0; }
 
@@ -187,14 +186,6 @@ void p25_recorder_impl::set_enabled(bool enabled) {
   source->set_selector_port_enabled(selector_port, enabled);
 }
 
-bool p25_recorder_impl::is_active() const {
-  if (state == REC_ACTIVE) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
 bool p25_recorder_impl::is_squelched() const {
   if (state == REC_ACTIVE) {
     return prefilter->is_squelched();
@@ -208,23 +199,6 @@ double p25_recorder_impl::get_pwr() const {
 
 void p25_recorder_impl::set_squelch_callback(std::function<void(bool, double)> cb) {
   prefilter->set_squelch_callback(std::move(cb));
-}
-
-bool p25_recorder_impl::is_idle() const {
-  if (qpsk_mod) {
-    if ((qpsk_p25_decode->get_state() == REC_IDLE) || (qpsk_p25_decode->get_state() == REC_STOPPED)) {
-      return true;
-    }
-  } else {
-    if ((fsk4_p25_decode->get_state() == REC_IDLE) || (fsk4_p25_decode->get_state() == REC_STOPPED)) {
-      return true;
-    }
-  }
-  return false;
-}
-
-double p25_recorder_impl::get_freq() const {
-  return chan_freq;
 }
 
 void p25_recorder_impl::tune_freq(double f) {

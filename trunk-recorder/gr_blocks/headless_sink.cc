@@ -88,7 +88,6 @@ std::vector<Transmission> headless_sink::get_transmission_list() {
   t.start_time = std::chrono::system_clock::to_time_t(d_start_time);
   t.stop_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
   t.sample_count = d_sample_count.load();
-  t.length = length_in_seconds();
   t.source = 0;
   t.slot = 0;
   t.color_code = 0;
@@ -97,13 +96,6 @@ std::vector<Transmission> headless_sink::get_transmission_list() {
   t.filename[0] = '\0';
 
   return {t};
-}
-
-double headless_sink::length_in_seconds() {
-  if (d_sample_rate == 0) {
-    return 0.0;
-  }
-  return (double)d_sample_count / (double)d_sample_rate;
 }
 
 int headless_sink::work(int noutput_items,
