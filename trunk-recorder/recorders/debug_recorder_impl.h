@@ -67,6 +67,7 @@ public:
   // Recorder pure virtual overrides
   bool start(const RecorderConfig &config) override;
   void stop() override;
+  void flush_audio() override;
   int get_freq_error() const override;
   double get_pwr() const override;
   std::vector<Transmission> get_transmission_list() override;

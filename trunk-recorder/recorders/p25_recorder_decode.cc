@@ -33,6 +33,10 @@ void p25_recorder_decode::stop() {
   d_source_id = -1;
 }
 
+void p25_recorder_decode::flush_plugin() {
+  plugin_sink->flush();
+}
+
 void p25_recorder_decode::set_system(const std::shared_ptr<System> &sys) {
   std::lock_guard<std::mutex> lock(d_state_mutex);
   d_system = sys;

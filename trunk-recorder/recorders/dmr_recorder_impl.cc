@@ -198,6 +198,11 @@ void dmr_recorder_impl::stop() {
   }
 }
 
+void dmr_recorder_impl::flush_audio() {
+  plugin_sink_slot0->flush();
+  plugin_sink_slot1->flush();
+}
+
 bool dmr_recorder_impl::start(const RecorderConfig &config) {
   if (state == REC_INACTIVE) {
     tdma_slot = 0;

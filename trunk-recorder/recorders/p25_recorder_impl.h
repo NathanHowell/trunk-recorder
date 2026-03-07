@@ -74,6 +74,7 @@ public:
   void initialize_p25();
   bool start(const RecorderConfig &config) override;
   void stop() override;
+  void flush_audio() override;
   int get_num() const;
   int get_freq_error() const override;
   double get_pwr() const override;

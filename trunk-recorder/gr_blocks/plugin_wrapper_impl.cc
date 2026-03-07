@@ -64,5 +64,9 @@ int plugin_wrapper_impl::dowork(int noutput_items, gr_vector_const_void_star &in
   return noutput_items;
 }
 
+void plugin_wrapper_impl::flush() {
+  std::lock_guard<std::mutex> guard(d_mutex);
+}
+
 } /* namespace blocks */
 } /* namespace gr */

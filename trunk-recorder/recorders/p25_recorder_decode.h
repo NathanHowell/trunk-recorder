@@ -56,6 +56,7 @@ public:
   void start(const RecorderConfig &config);
   std::chrono::duration<double> since_last_write();
   void stop();
+  void flush_plugin();
   void reset();
   void reset_block(gr::basic_block_sptr block); 
   int tdma_slot;

@@ -191,7 +191,7 @@ analog_recorder::analog_recorder(const std::shared_ptr<Source> &src, const std::
 analog_recorder::~analog_recorder() {}
 
 void analog_recorder::tune_offset(double f) { prefilter->tune_offset(f); }
-void analog_recorder::set_system(const std::shared_ptr<System> &) {}
+void analog_recorder::set_system(const std::shared_ptr<System> &sys) { system = sys; }
 
 RecorderState analog_recorder::get_state() const {
   return wav_sink->get_state();
@@ -223,6 +223,10 @@ void analog_recorder::stop() {
   decoder_sink->set_fsync_enabled(false);
   decoder_sink->set_star_enabled(false);
   decoder_sink->set_tps_enabled(false);
+}
+
+void analog_recorder::flush_audio() {
+  plugin_sink->flush();
 }
 
 void analog_recorder::set_enabled(bool enabled) {

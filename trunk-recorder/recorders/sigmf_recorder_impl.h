@@ -64,6 +64,7 @@ public:
   sigmf_recorder_impl(const std::shared_ptr<Source> &src, Recorder_Type type);
   bool start(const RecorderConfig &config) override;
   void stop() override;
+  void flush_audio() override;
   int get_freq_error() const override;
   int get_num() const;
   double get_pwr() const override;

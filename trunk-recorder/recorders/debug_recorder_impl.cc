@@ -229,6 +229,10 @@ void debug_recorder_impl::stop() {
   }
 }
 
+void debug_recorder_impl::flush_audio() {
+  // No plugin_wrapper — debug recorder streams raw IQ over UDP.
+}
+
 bool debug_recorder_impl::start(const RecorderConfig &config) {
   if (state == REC_INACTIVE) {
     starttime = std::chrono::steady_clock::now();

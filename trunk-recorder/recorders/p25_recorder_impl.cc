@@ -225,6 +225,14 @@ void p25_recorder_impl::stop() {
   }
 }
 
+void p25_recorder_impl::flush_audio() {
+  if (qpsk_mod) {
+    qpsk_p25_decode->flush_plugin();
+  } else {
+    fsk4_p25_decode->flush_plugin();
+  }
+}
+
 void p25_recorder_impl::set_tdma_slot(int slot) {
   if (qpsk_mod) {
     qpsk_p25_decode->set_tdma_slot(slot);

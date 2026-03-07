@@ -44,6 +44,7 @@ public:
   virtual std::chrono::duration<double> since_last_write() const = 0;
   virtual void set_system(const std::shared_ptr<System> &) = 0;
   virtual void set_squelch_callback(std::function<void(bool, double)> cb) = 0;
+  virtual void flush_audio() = 0;
 
   uint64_t get_rust_call_id() const { return rust_call_id; }
 

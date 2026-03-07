@@ -46,6 +46,8 @@ public:
   // gr::blocks::plugin_wrapper::sptr
 
   typedef std::shared_ptr<plugin_wrapper> sptr;
+
+  virtual void flush() = 0;
 };
 
 } /* namespace blocks */
