@@ -197,8 +197,7 @@ std::vector<TrunkMessage> SmartnetParser::process_osws(time_t curr_time) {
                  int site = ((osw1.addr & 0xfc00) >> 10) + 1;
                  int cc_rx_chan = osw0.addr & 0x3ff;
                  double cc_rx_freq = get_freq(cc_rx_chan);
-                 double cc_tx_freq = osw2.f_tx;
-                 
+
                  this->rx_sys_id = system;
                  if (osw0.grp) {
                      if (this->debug_level >= 11) BOOST_LOG_TRIVIAL(info) << "[" << msgq_id << "] SMARTNET OBT ADJACENT SITE sys(" << std::hex << system << ") site(" << std::dec << site << ") freq(" << cc_rx_freq << ")";
@@ -217,7 +216,6 @@ std::vector<TrunkMessage> SmartnetParser::process_osws(time_t curr_time) {
         }
         else if (osw2.ch_tx && osw1.ch_rx && osw1.grp && osw1.addr != 0 && osw2.addr != 0) {
              // Two-OSW group voice grant Line 908
-             int mode = osw2.grp ? 0 : 1; 
              long src_rid = osw2.addr;
              long dst_tgid = osw1.addr;
              double vc_rx_freq = osw1.f_rx;
@@ -402,7 +400,6 @@ std::vector<TrunkMessage> SmartnetParser::process_osws(time_t curr_time) {
                     // System ID + adjacent/alternate control channel broadcast
                     int cc_rx_chan = osw1.addr & 0x3ff;
                     double cc_rx_freq = get_freq(cc_rx_chan);
-                    double cc_tx_freq = osw2.f_tx;
                     this->rx_sys_id = osw2.addr;
                     if (this->debug_level >= 11) BOOST_LOG_TRIVIAL(info) << "[" << msgq_id << "] SMARTNET ADJACENT/ALTERNATE CC sys(" << std::hex << this->rx_sys_id << ") freq(" << cc_rx_freq << ")";
                 } else if (osw1.grp) {  //extended functions on groups Line 1169
