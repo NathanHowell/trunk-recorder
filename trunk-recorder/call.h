@@ -1,25 +1,21 @@
 #ifndef CALL_H
 #define CALL_H
 
-#include "./global_structs.h"
+#include <cstdint>
 #include <memory>
-#include <string>
+#include <vector>
 
 class Recorder;
 class System;
 
 #include "recorder_config.h"
-#include "state.h"
-#include "systems/parser.h"
-#include "systems/system.h"
 
 class Call : public std::enable_shared_from_this<Call> {
 public:
-  Call(const std::shared_ptr<System> &s, Config c);
-  Call(TrunkMessage message, const std::shared_ptr<System> &s, Config c);
+  explicit Call(const std::shared_ptr<System> &s);
   virtual ~Call() {}
 
-  static std::shared_ptr<Call> make(TrunkMessage message, const std::shared_ptr<System> &s, Config c);
+  static std::shared_ptr<Call> make(const std::shared_ptr<System> &s);
 
   // Recorder plumbing (C++ owns shared_ptrs)
   virtual void set_recorder(const std::shared_ptr<Recorder> &r);
@@ -48,7 +44,6 @@ protected:
   bool sigmf_recording;
 
   std::shared_ptr<System> sys;
-  Config config;
   std::weak_ptr<Recorder> recorder;
   std::weak_ptr<Recorder> debug_recorder;
   std::weak_ptr<Recorder> sigmf_recorder;

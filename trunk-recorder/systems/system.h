@@ -54,18 +54,12 @@ public:
 
   virtual void set_analog_levels(double r) = 0;
   virtual double get_analog_levels() = 0;
-  virtual void set_digital_levels(double r) = 0;
-  virtual double get_digital_levels() = 0;
   virtual void set_qpsk_mod(bool m) = 0;
   virtual bool get_qpsk_mod() = 0;
-  virtual void set_squelch_db(double s) = 0;
-  virtual double get_squelch_db() = 0;
   virtual void set_tau(float tau) = 0;
   virtual float get_tau() const = 0;
   virtual void set_max_dev(int max_dev) = 0;
   virtual int get_max_dev() = 0;
-  virtual void set_filter_width(double f) = 0;
-  virtual double get_filter_width() = 0;
   virtual gr::msg_queue::sptr get_msg_queue() = 0;
   virtual SystemType get_system_type() = 0;
   virtual unsigned long get_sys_id() = 0;
@@ -83,9 +77,6 @@ public:
   virtual void set_source(const std::shared_ptr<Source> &) = 0;
   virtual std::string find_unit_tag(long unitID) = 0;
   virtual void add_unit_tag(std::string pattern, std::string tag) = 0;
-  virtual void set_channel_file(std::string channel_file) = 0;
-  virtual bool has_channel_file() = 0;
-  virtual void set_unit_tags_file(std::string) = 0;
   virtual void set_unit_tags_ota_file(std::string) = 0;
   virtual std::string get_unit_tags_ota_file() = 0;
   virtual void set_unit_tags_mode(std::string mode) = 0;
@@ -97,17 +88,6 @@ public:
   virtual void add_control_channel(double channel) = 0;
   virtual double get_next_control_channel() = 0;
   virtual double get_current_control_channel() = 0;
-  virtual int channel_count() = 0;
-  virtual void add_channel(double channel) = 0;
-  virtual void add_conventional_recorder(analog_recorder_sptr rec) = 0;
-  virtual void add_conventionalSIGMF_recorder(sigmf_recorder_sptr rec) = 0;
-  virtual void add_conventionalP25_recorder(p25_recorder_sptr rec) = 0;
-  virtual void add_conventionalDMR_recorder(dmr_recorder_sptr rec) = 0;
-  virtual std::vector<analog_recorder_sptr> get_conventional_recorders() = 0;
-  virtual std::vector<sigmf_recorder_sptr> get_conventionalSIGMF_recorders() = 0;
-  virtual std::vector<p25_recorder_sptr> get_conventionalP25_recorders() = 0;
-  virtual std::vector<dmr_recorder_sptr> get_conventionalDMR_recorders() = 0;
-  virtual std::vector<double> get_channels() = 0;
   virtual std::vector<double> get_control_channels() = 0;
   virtual void add_talkgroup(std::shared_ptr<Talkgroup> tg) = 0;
   virtual std::vector<std::shared_ptr<Talkgroup>> get_talkgroups() = 0;

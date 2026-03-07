@@ -1,20 +1,11 @@
 #include "call.h"
 #include "recorders/recorder.h"
 
-std::shared_ptr<Call> Call::make(TrunkMessage message, const std::shared_ptr<System> &s, Config c) {
-  return std::make_shared<Call>(message, s, c);
+std::shared_ptr<Call> Call::make(const std::shared_ptr<System> &s) {
+  return std::make_shared<Call>(s);
 }
 
-Call::Call(const std::shared_ptr<System> &s, Config c) {
-  config = c;
-  sys = s;
-  debug_recording = false;
-  sigmf_recording = false;
-  rust_call_id = 0;
-}
-
-Call::Call(TrunkMessage message, const std::shared_ptr<System> &s, Config c) {
-  config = c;
+Call::Call(const std::shared_ptr<System> &s) {
   sys = s;
   debug_recording = false;
   sigmf_recording = false;

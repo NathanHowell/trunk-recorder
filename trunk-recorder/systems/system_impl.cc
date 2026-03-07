@@ -117,13 +117,6 @@ int System_impl::get_sys_site_id(){
   return this->sys_site_id;
 }
 
-void System_impl::set_squelch_db(double s) {
-  squelch_db = s;
-}
-
-double System_impl::get_squelch_db() {
-  return squelch_db;
-}
 
 void System_impl::set_tau(float t){
   tau = t;
@@ -133,13 +126,6 @@ float System_impl::get_tau() const{
   return tau;
 }
 
-void System_impl::set_filter_width(double filter_width) {
-  this->filter_width = filter_width;
-}
-
-double System_impl::get_filter_width() {
-  return filter_width;
-}
 
 void System_impl::set_max_dev(int max_dev) {
   this->max_dev = max_dev;
@@ -157,13 +143,6 @@ double System_impl::get_analog_levels() {
   return analog_levels;
 }
 
-void System_impl::set_digital_levels(double r) {
-  digital_levels = r;
-}
-
-double System_impl::get_digital_levels() {
-  return digital_levels;
-}
 
 void System_impl::set_qpsk_mod(bool m) {
   qpsk_mod = m;
@@ -191,28 +170,6 @@ void System_impl::set_system_type(SystemType sys_type) {
   this->system_type = sys_type;
 }
 
-void System_impl::set_channel_file(std::string channel_file) {
-  BOOST_LOG_TRIVIAL(info) << "Loading Talkgroups...";
-  this->channel_file = channel_file;
-  this->talkgroups->load_channels(sys_num, channel_file);
-  for (auto& tg : this->get_talkgroups()) {
-    this->add_channel(tg->freq);
-  }
-}
-
-bool System_impl::has_channel_file() {
-  if (this->channel_file.length() > 0) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
-void System_impl::set_unit_tags_file(std::string unit_tags_file) {
-  BOOST_LOG_TRIVIAL(info) << "Loading Unit Tags...";
-  this->unit_tags_file = unit_tags_file;
-  this->unit_tags->load_unit_tags(unit_tags_file);
-}
 
 void System_impl::set_unit_tags_ota_file(std::string unit_tags_ota_file) {
   this->unit_tags_ota_file = unit_tags_ota_file;
@@ -272,9 +229,6 @@ void System_impl::add_unit_tag(std::string pattern, std::string tag) {
   unit_tags->add(std::move(pattern), std::move(tag));
 }
 
-std::vector<double> System_impl::get_channels() {
-  return channels;
-}
 
 void System_impl::add_talkgroup(std::shared_ptr<Talkgroup> tg) {
   talkgroups->add_talkgroup(std::move(tg));
@@ -285,50 +239,6 @@ std::vector<std::shared_ptr<Talkgroup>> System_impl::get_talkgroups() {
 }
 
 
-int System_impl::channel_count() {
-  return channels.size();
-}
-
-void System_impl::add_conventional_recorder(analog_recorder_sptr rec) {
-  conventional_recorders.push_back(rec);
-}
-std::vector<analog_recorder_sptr> System_impl::get_conventional_recorders() {
-  return conventional_recorders;
-}
-
-void System_impl::add_conventionalP25_recorder(p25_recorder_sptr rec) {
-  conventionalP25_recorders.push_back(rec);
-}
-
-void System_impl::add_conventionalDMR_recorder(dmr_recorder_sptr rec) {
-  conventionalDMR_recorders.push_back(rec);
-}
-
-void System_impl::add_conventionalSIGMF_recorder(sigmf_recorder_sptr rec) {
-  conventionalSIGMF_recorders.push_back(rec);
-}
-
-std::vector<sigmf_recorder_sptr> System_impl::get_conventionalSIGMF_recorders() {
-  return conventionalSIGMF_recorders;
-}
-
-std::vector<p25_recorder_sptr> System_impl::get_conventionalP25_recorders() {
-  return conventionalP25_recorders;
-}
-
-std::vector<dmr_recorder_sptr> System_impl::get_conventionalDMR_recorders() {
-  return conventionalDMR_recorders;
-}
-
-void System_impl::add_channel(double channel) {
-  if (channels.size() == 0) {
-    channels.push_back(channel);
-  } else {
-    if (std::find(channels.begin(), channels.end(), channel) == channels.end()) {
-      channels.push_back(channel);
-    }
-  }
-}
 
 int System_impl::control_channel_count() {
   return control_channels.size();

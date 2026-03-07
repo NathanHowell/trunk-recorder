@@ -24,15 +24,6 @@
 
 
 class Source;
-class analog_recorder;
-class p25_recorder;
-class dmr_recorder;
-class sigmf_recorder;
-
-typedef std::shared_ptr<analog_recorder> analog_recorder_sptr;
-typedef std::shared_ptr<p25_recorder> p25_recorder_sptr;
-typedef std::shared_ptr<dmr_recorder> dmr_recorder_sptr;
-typedef std::shared_ptr<sigmf_recorder> sigmf_recorder_sptr;
 
 class System_impl : public System {
   int sys_num;
@@ -47,13 +38,10 @@ public:
   std::unique_ptr<UnitTags> unit_tags;
   std::unique_ptr<p25p2_lfsr> lfsr;
   std::shared_ptr<Source> source;
-  std::string channel_file;
-  std::string unit_tags_file;
   std::string unit_tags_ota_file;
   std::string unit_tags_mode;
   std::string custom_freq_table_file;
   std::string short_name;
-  std::string default_mode;
   SystemType system_type;
   std::string bandplan;
   int bandfreq;
@@ -62,21 +50,13 @@ public:
   double bandplan_spacing;
   int bandplan_offset;
   int max_dev;
-  double filter_width;
   bool qpsk_mod;
-  double squelch_db;
   float tau;
   double analog_levels;
-  double digital_levels;
 
   std::string xor_mask;
   std::vector<double> control_channels;
   unsigned int current_control_channel;
-  std::vector<double> channels;
-  std::vector<analog_recorder_sptr> conventional_recorders;
-  std::vector<p25_recorder_sptr> conventionalP25_recorders;
-  std::vector<dmr_recorder_sptr> conventionalDMR_recorders;
-  std::vector<sigmf_recorder_sptr> conventionalSIGMF_recorders;
 
   struct decoder_entry {
     std::shared_ptr<trunking_decoder> decoder;
@@ -99,18 +79,12 @@ public:
 
   void set_analog_levels(double r) override;
   double get_analog_levels() override;
-  void set_digital_levels(double r) override;
-  double get_digital_levels() override;
   void set_qpsk_mod(bool m) override;
   bool get_qpsk_mod() override;
-  void set_squelch_db(double s) override;
-  double get_squelch_db() override;
   void set_tau(float tau) override;
   float get_tau() const override;
   void set_max_dev(int max_dev) override;
   int get_max_dev() override;
-  void set_filter_width(double f) override;
-  double get_filter_width() override;
   gr::msg_queue::sptr get_msg_queue() override;
   SystemType get_system_type() override;
   unsigned long get_sys_id() override;
@@ -128,9 +102,6 @@ public:
   void set_source(const std::shared_ptr<Source> &) override;
   std::string find_unit_tag(long unitID) override;
   void add_unit_tag(std::string pattern, std::string tag) override;
-  void set_channel_file(std::string channel_file) override;
-  bool has_channel_file() override;
-  void set_unit_tags_file(std::string) override;
   void set_unit_tags_ota_file(std::string) override;
   std::string get_unit_tags_ota_file() override;
   void set_unit_tags_mode(std::string mode) override;
@@ -142,17 +113,6 @@ public:
   void add_control_channel(double channel) override;
   double get_next_control_channel() override;
   double get_current_control_channel() override;
-  int channel_count() override;
-  void add_channel(double channel) override;
-  void add_conventional_recorder(analog_recorder_sptr rec) override;
-  void add_conventionalP25_recorder(p25_recorder_sptr rec) override;
-  void add_conventionalSIGMF_recorder(sigmf_recorder_sptr rec) override;
-  void add_conventionalDMR_recorder(dmr_recorder_sptr rec) override;
-  std::vector<p25_recorder_sptr> get_conventionalP25_recorders() override;
-  std::vector<analog_recorder_sptr> get_conventional_recorders() override;
-  std::vector<sigmf_recorder_sptr> get_conventionalSIGMF_recorders() override;
-  std::vector<dmr_recorder_sptr> get_conventionalDMR_recorders() override;
-  std::vector<double> get_channels() override;
   std::vector<double> get_control_channels() override;
   void add_talkgroup(std::shared_ptr<Talkgroup> tg) override;
   std::vector<std::shared_ptr<Talkgroup>> get_talkgroups() override;
