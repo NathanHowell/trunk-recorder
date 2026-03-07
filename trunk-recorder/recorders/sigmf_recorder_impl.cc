@@ -47,7 +47,7 @@ sigmf_recorder_impl::sigmf_recorder_impl(const std::shared_ptr<Source> &src, Rec
 
   // tm *ltm = localtime(&starttime);
 
-  int nchars = snprintf(filename, 160, "%ld-%ld_%g.raw", talkgroup, starttime, freq);
+  int nchars = snprintf(filename, 160, "%ld-%lld_%g.raw", talkgroup, static_cast<long long>(starttime.time_since_epoch().count()), freq);
 
   if (nchars >= 160) {
     BOOST_LOG_TRIVIAL(error) << "Analog Recorder: Path longer than 160 charecters";
@@ -172,7 +172,7 @@ bool sigmf_recorder_impl::start(const RecorderConfig &config) {
       {"annotations", nlohmann::json::array({})}
     };
 
-    nchars = snprintf(filename, 255, "%s/%ld-%ld_%.0f-call_%lu.sigmf-meta", path_string.c_str(), talkgroup, starttime, config.freq, config.call_num);
+    nchars = snprintf(filename, 255, "%s/%ld-%lld_%.0f-call_%lu.sigmf-meta", path_string.c_str(), talkgroup, static_cast<long long>(starttime.time_since_epoch().count()), config.freq, config.call_num);
     if (nchars >= 255) {
       BOOST_LOG_TRIVIAL(error) << "SigMF-meta: Path longer than 255 charecters";
     }

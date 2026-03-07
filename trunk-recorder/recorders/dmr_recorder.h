@@ -23,6 +23,7 @@ public:
   virtual ~dmr_recorder(){};
 
   // dmr-specific methods not in Recorder base
+  using Recorder::get_transmission_list;
   virtual void set_tdma(bool phase2) = 0;
   virtual void switch_tdma(bool phase2) = 0;
   virtual std::vector<Transmission> get_transmission_list(int slot) = 0;

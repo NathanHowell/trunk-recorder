@@ -63,8 +63,6 @@ xlat_channelizer::xlat_channelizer(double input_rate, int samples_per_symbol, do
   int decim = floor(initial_rate / channel_rate);
   double resampled_rate = double(initial_rate) / double(decim);
 
-  int decimation = floor(input_rate / channel_rate);
-  // double resampled_rate = float(input_rate) / float(decimation);
 
   std::vector<gr_complex> if_coeffs;
   if_coeffs = gr::filter::firdes::complex_band_pass_2(1, input_rate, -24000, 24000, 12000, 10);

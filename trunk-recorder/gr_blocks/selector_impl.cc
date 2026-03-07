@@ -42,10 +42,10 @@ selector_impl::selector_impl(size_t itemsize,
             io_signature::make(1, -1, itemsize)),
       d_itemsize(itemsize),
       d_enabled(true),
+      d_got_samples(true),
       d_input_index(input_index),
       d_output_index(output_index),
       d_num_inputs(0),
-      d_got_samples(true),
       d_num_outputs(0) {
 
   d_enabled_output_ports = std::vector<bool>(d_max_port, false);
