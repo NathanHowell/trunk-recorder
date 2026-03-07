@@ -2,8 +2,8 @@
 #include "p25_trunking.h"
 #include <boost/log/trivial.hpp>
 
-p25_trunking_sptr make_p25_trunking(double freq, double center, long s, gr::msg_queue::sptr queue, bool qpsk, int sys_num) {
-  return gnuradio::get_initial_sptr(new p25_trunking(freq, center, s, queue, qpsk, sys_num));
+p25_trunking_sptr make_p25_trunking(double freq, double center, long s, bool qpsk, int sys_num) {
+  return gnuradio::get_initial_sptr(new p25_trunking(freq, center, s, qpsk, sys_num));
 }
 
 void p25_trunking::initialize_fsk4() {
@@ -97,6 +97,7 @@ void p25_trunking::initialize_p25() {
   // OP25 Frame Assembler
   traffic_queue = gr::msg_queue::make(2);
   tune_queue = gr::msg_queue::make(2);
+  gr::msg_queue::sptr rx_queue = gr::msg_queue::make(1);
 
   int udp_port = 0;
   int verbosity = 0;
@@ -115,7 +116,7 @@ void p25_trunking::initialize_p25() {
   connect(slicer, 0, op25_frame_assembler, 0);
 }
 
-p25_trunking::p25_trunking(double f, double c, long s, gr::msg_queue::sptr queue, bool qpsk, int sys_num)
+p25_trunking::p25_trunking(double f, double c, long s, bool qpsk, int sys_num)
     : gr::hier_block2("p25_trunking",
                       gr::io_signature::make(1, 1, sizeof(gr_complex)),
                       gr::io_signature::make(0, 0, sizeof(float))) {
@@ -124,7 +125,6 @@ p25_trunking::p25_trunking(double f, double c, long s, gr::msg_queue::sptr queue
   chan_freq = f;
   center_freq = c;
   input_rate = s;
-  rx_queue = queue;
   qpsk_mod = qpsk;
 
   prefilter = xlat_channelizer::make(input_rate, channelizer::phase1_samples_per_symbol, channelizer::phase1_symbol_rate, xlat_channelizer::channel_bandwidth, center_freq, false);

@@ -257,16 +257,10 @@ void p25_recorder_decode::handle_alias_message(const nlohmann::json& j) {
   }
   
   if (result.success && !result.alias.empty()) {
-    BOOST_LOG_TRIVIAL(debug) << "Alias OTA: " << result.radio_id << " = \"" << result.alias << "\" [" << result.source << "]";
-
-    if (d_system) {
-      if (d_system->add_ota_unit_tag(result)) {
-        BOOST_LOG_TRIVIAL(info) << Color::BMAG << "New " << result.source << " alias: " << Color::RST
-                                << result.radio_id << " (" << Color::BLU << result.alias << Color::RST << ")";
-        if (d_config.event_sink) {
-          d_config.event_sink->unit_alias_discovered(d_system, result);
-        }
-      }
+    BOOST_LOG_TRIVIAL(info) << Color::BMAG << "New " << result.source << " alias: " << Color::RST
+                            << result.radio_id << " (" << Color::BLU << result.alias << Color::RST << ")";
+    if (d_config.event_sink && d_system) {
+      d_config.event_sink->unit_alias_discovered(d_system, result);
     }
   }
 }

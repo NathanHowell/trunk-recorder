@@ -242,7 +242,6 @@ list(APPEND trunk_recorder_sources
   trunk-recorder/sources/iq_file_source.cc
   trunk-recorder/csv_helper.cc
   trunk-recorder/monitor_systems.cc
-  trunk-recorder/unit_tags.cc
   trunk-recorder/unit_tags_ota.cc
   #lib/gr-latency/latency_probe.cc
   #lib/gr-latency/latency_tagger.cc

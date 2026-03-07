@@ -1,18 +1,18 @@
 #include "smartnet_fsk2_demod.h"
 
-smartnet_fsk2_demod::sptr smartnet_fsk2_demod::make(gr::msg_queue::sptr queue) {
-  smartnet_fsk2_demod *recorder = new smartnet_fsk2_demod(queue);
+smartnet_fsk2_demod::sptr smartnet_fsk2_demod::make() {
+  smartnet_fsk2_demod *recorder = new smartnet_fsk2_demod();
 
   recorder->initialize();
   return gnuradio::get_initial_sptr(recorder);
 }
 
-smartnet_fsk2_demod::smartnet_fsk2_demod(gr::msg_queue::sptr queue)
+smartnet_fsk2_demod::smartnet_fsk2_demod()
     : gr::hier_block2("smartnet_fsk2_demod",
                       gr::io_signature::make(1, 1, sizeof(gr_complex)),
                       gr::io_signature::make(0, 0, sizeof(float))) {
 
-    rx_queue = queue;
+    rx_queue = gr::msg_queue::make(1);
 }
 
 smartnet_fsk2_demod::~smartnet_fsk2_demod() {

@@ -26,12 +26,10 @@ System_impl::System_impl(int sys_num) {
   sysid_received = false;
   status_received = false;
   current_control_channel = 0;
-  unit_tags = std::make_unique<UnitTags>();
   d_mdc_enabled = false;
   d_fsync_enabled = false;
   d_star_enabled = false;
   d_tps_enabled = false;
-  msg_queue = gr::msg_queue::make(100);
 }
 
 void System_impl::set_xor_mask(unsigned long sys_id, unsigned long wacn, unsigned long nac) {
@@ -66,10 +64,6 @@ bool System_impl::update_sysid(TrunkMessage message) {
   }
   return false;
 }
-
- gr::msg_queue::sptr System_impl::get_msg_queue() {
-  return msg_queue;
- }
 
 int System_impl::get_sys_num() {
   return this->sys_num;
@@ -263,13 +257,6 @@ void System_impl::set_autotune_offset(int offset) {
   }
 }
 
-bool System_impl::add_ota_unit_tag(const OTAAlias &ota_alias) {
-  if (unit_tags) {
-    return unit_tags->add_ota(ota_alias);
-  }
-  return false;
-}
-
 void System_impl::set_msg_callback(std::function<void(gr::message::sptr)> cb) {
   d_msg_cb = std::move(cb);
   if (d_msg_cb) {
@@ -303,12 +290,12 @@ void System_impl::setup_decoders(gr::top_block_sptr &tb, std::vector<std::shared
 
     std::shared_ptr<trunking_decoder> decoder;
     if (system_type == SYS_SMARTNET) {
-      auto sn = smartnet_impl::make(freq, src->get_center(), src->get_rate(), get_msg_queue(), get_sys_num());
+      auto sn = smartnet_impl::make(freq, src->get_center(), src->get_rate(), get_sys_num());
       if (d_msg_cb) sn->set_msg_callback(d_msg_cb);
       tb->connect(src->get_src_block(), 0, sn, 0);
       decoder = sn;
     } else if (system_type == SYS_P25) {
-      auto p25 = make_p25_trunking(freq, src->get_center(), src->get_rate(), get_msg_queue(), qpsk_mod, get_sys_num());
+      auto p25 = make_p25_trunking(freq, src->get_center(), src->get_rate(), qpsk_mod, get_sys_num());
       if (d_msg_cb) p25->set_msg_callback(d_msg_cb);
       tb->connect(src->get_src_block(), 0, p25, 0);
       decoder = p25;

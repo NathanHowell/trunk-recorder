@@ -21,13 +21,13 @@
 
 class smartnet_fsk2_demod : public gr::hier_block2 {
     public:
-  smartnet_fsk2_demod(gr::msg_queue::sptr queue);
+  smartnet_fsk2_demod();
   virtual ~smartnet_fsk2_demod();
   void reset();
   void set_msg_callback(std::function<void(gr::message::sptr)> cb);
     typedef std::shared_ptr<smartnet_fsk2_demod> sptr;
 
-static sptr make(gr::msg_queue::sptr queue);
+static sptr make();
 
 
 protected:

@@ -5,16 +5,7 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
-#include <json.hpp>
 
-using json = nlohmann::json;
-
-// Constants
-#define EXPIRY_TIMER 1.0
-#define TGID_EXPIRY_TIME 3.0 
-#define PATCH_EXPIRY_TIME 5.0
-#define ADJ_SITE_EXPIRY_TIME 60.0
-#define ALT_CC_EXPIRY_TIME 60.0
 #define TGID_DEFAULT_PRIO 3
 
 SmartnetParser::SmartnetParser(SmartnetParserConfig config) : config_(std::move(config)) {
@@ -26,7 +17,6 @@ SmartnetParser::SmartnetParser(SmartnetParserConfig config) : config_(std::move(
     this->rx_cc_freq = 0.0;
     this->rx_sys_id = 0;
     this->rx_site_id = 0;
-    this->last_expiry_check = 0.0;
 }
 
 SmartnetParser::~SmartnetParser() {
@@ -127,14 +117,6 @@ std::vector<TrunkMessage> SmartnetParser::parse_message(gr::message::sptr msg) {
     std::vector<TrunkMessage> new_msgs = process_osws(curr_time);
     messages.insert(messages.end(), new_msgs.begin(), new_msgs.end());
 
-    if (curr_time >= last_expiry_check + EXPIRY_TIMER) {
-        expire_talkgroups(curr_time);
-        expire_patches(curr_time);
-        expire_adjacent_sites(curr_time);
-        expire_alternate_cc_freqs(curr_time);
-        last_expiry_check = curr_time;
-    }
-
     if (this->debug_level >= 11) BOOST_LOG_TRIVIAL(info) << "[" << msgq_id << "] SMARTNET PARSE MESSAGE messages.size(" << messages.size() << ")";
     return messages;
 }
@@ -219,11 +201,9 @@ std::vector<TrunkMessage> SmartnetParser::process_osws(time_t curr_time) {
                  
                  this->rx_sys_id = system;
                  if (osw0.grp) {
-                     add_adjacent_site(osw1.ts, site, cc_rx_freq, cc_tx_freq);
                      if (this->debug_level >= 11) BOOST_LOG_TRIVIAL(info) << "[" << msgq_id << "] SMARTNET OBT ADJACENT SITE sys(" << std::hex << system << ") site(" << std::dec << site << ") freq(" << cc_rx_freq << ")";
                  } else {
                      this->rx_site_id = site;
-                     add_alternate_cc_freq(osw1.ts, cc_rx_freq, cc_tx_freq);
                      if (this->debug_level >= 11) BOOST_LOG_TRIVIAL(info) << "[" << msgq_id << "] SMARTNET OBT ALT CC sys(" << std::hex << system << ") site(" << std::dec << site << ") freq(" << cc_rx_freq << ")";
                  }
              } else {
@@ -247,8 +227,7 @@ std::vector<TrunkMessage> SmartnetParser::process_osws(time_t curr_time) {
              bool emergency = (options == 2 || options == 4 || options == 5);
 
              messages.push_back(create_trunk_message(GRANT, vc_rx_freq * 1000000.0, dst_tgid, src_rid, encrypted, emergency));
-             update_voice_frequency(osw1.ts, vc_rx_freq, dst_tgid, src_rid, mode);
-             
+
              if (this->debug_level >= 11) BOOST_LOG_TRIVIAL(info) << "[" << msgq_id << "] SMARTNET OBT GROUP GRANT src(" << std::dec << src_rid << ") tgid(" << dst_tgid << ") freq(" << vc_rx_freq << ")";
         }
         else if (osw2.ch_tx && osw1.ch_rx && !osw1.grp && osw1.addr != 0 && osw2.addr != 0) {
@@ -275,8 +254,7 @@ std::vector<TrunkMessage> SmartnetParser::process_osws(time_t curr_time) {
         bool emergency = (options == 2 || options == 4 || options == 5);
         
         messages.push_back(create_trunk_message(UPDATE, vc_freq * 1000000.0, dst_tgid, 0, encrypted, emergency));
-        update_voice_frequency(osw2.ts, vc_freq, dst_tgid);
-        
+
         if (this->debug_level >= 11) BOOST_LOG_TRIVIAL(info) << "[" << msgq_id << "] SMARTNET VOICE UPDATE tgid(" << std::dec << dst_tgid << ") freq(" << vc_freq << ")";
     }
     // One-OSW control channel broadcast
@@ -320,8 +298,7 @@ std::vector<TrunkMessage> SmartnetParser::process_osws(time_t curr_time) {
             bool emergency = (options == 2 || options == 4 || options == 5);
 
             messages.push_back(create_trunk_message(GRANT, vc_freq * 1000000.0, dst_tgid, src_rid, encrypted, emergency));
-            update_voice_frequency(osw1.ts, vc_freq, dst_tgid, src_rid, 0);
-            
+
             if (this->debug_level >= 11) BOOST_LOG_TRIVIAL(info) << "[" << msgq_id << "] SMARTNET ANALOG GRANT src(" << std::dec << src_rid << ") tgid(" << dst_tgid << ") freq(" << vc_freq << ")";
         }
         // Two-OSW analog private call voice grant/update (sent for duration of the call)
@@ -427,9 +404,6 @@ std::vector<TrunkMessage> SmartnetParser::process_osws(time_t curr_time) {
                     double cc_rx_freq = get_freq(cc_rx_chan);
                     double cc_tx_freq = osw2.f_tx;
                     this->rx_sys_id = osw2.addr;
-                    if (!osw1.grp) {
-                        add_alternate_cc_freq(curr_time, cc_rx_freq, cc_tx_freq);
-                    }
                     if (this->debug_level >= 11) BOOST_LOG_TRIVIAL(info) << "[" << msgq_id << "] SMARTNET ADJACENT/ALTERNATE CC sys(" << std::hex << this->rx_sys_id << ") freq(" << cc_rx_freq << ")";
                 } else if (osw1.grp) {  //extended functions on groups Line 1169
                     // Patch/multiselect cancel
@@ -799,159 +773,6 @@ std::vector<TrunkMessage> SmartnetParser::process_osws(time_t curr_time) {
     return messages;
 }
 
-std::vector<TrunkMessage> SmartnetParser::update_voice_frequency(double ts, double freq, long tgid, int srcaddr, int mode) {
-    std::vector<TrunkMessage> msgs;
-    if (freq == 0.0) return msgs;
-    
-    int frequency = (int)(freq * 1000000.0);
-    update_talkgroups(ts, frequency, tgid, srcaddr, mode);
-    
-    int base_tgid = tgid & 0xfff0;
-    int flags = tgid & 0x000f;
-    
-    if (voice_frequencies.find(frequency) == voice_frequencies.end()) {
-        VoiceFrequency vf;
-        vf.frequency = frequency;
-        vf.counter = 0;
-        voice_frequencies[frequency] = vf;
-    }
-    
-    if (mode != -1) {
-        voice_frequencies[frequency].mode = mode;
-    }
-    
-    voice_frequencies[frequency].tgid = base_tgid;
-    voice_frequencies[frequency].flags = flags;
-    voice_frequencies[frequency].counter++;
-    voice_frequencies[frequency].time = ts;
-    
-    return msgs;
-}
-
-std::vector<TrunkMessage> SmartnetParser::update_talkgroups(double ts, int frequency, long tgid, int srcaddr, int mode) {
-    std::vector<TrunkMessage> msgs;
-    update_talkgroup(ts, frequency, tgid, srcaddr, mode);
-    
-    std::lock_guard<std::mutex> lock(patches_mutex);
-    if (patches.find(tgid) != patches.end()) {
-        for (auto const& [sub_tgid, val] : patches[tgid]) {
-             update_talkgroup(ts, frequency, sub_tgid, srcaddr, mode);
-        }
-    }
-    return msgs;
-}
-
-bool SmartnetParser::update_talkgroup(double ts, int frequency, long tgid, int srcaddr, int mode) {
-    long base_tgid = tgid & 0xfff0;
-    int tgid_stat = tgid & 0x000f;
-    
-    std::lock_guard<std::mutex> lock(talkgroups_mutex);
-    if (talkgroups.find(base_tgid) == talkgroups.end()) {
-        add_default_tgid(base_tgid);
-    } else if (ts < talkgroups[base_tgid].release_time) {
-        return false;
-    }
-    
-    talkgroups[base_tgid].time = ts; 
-    talkgroups[base_tgid].release_time = 0;
-    talkgroups[base_tgid].frequency = frequency;
-    talkgroups[base_tgid].status = tgid_stat;
-    if (srcaddr >= 0) talkgroups[base_tgid].srcaddr = srcaddr;
-    if (mode >= 0) talkgroups[base_tgid].mode = mode;
-    
-    return true;
-}
-
-void SmartnetParser::add_default_tgid(long tgid) {
-    TalkgroupInfo ti;
-    ti.tgid = tgid;
-    ti.priority = TGID_DEFAULT_PRIO;
-    ti.srcaddr = 0;
-    ti.time = 0;
-    ti.release_time = 0;
-    ti.mode = -1;
-    ti.status = 0;
-    ti.frequency = 0;
-    talkgroups[tgid] = ti;
-}
-
-void SmartnetParser::add_patch(double ts, long tgid, long sub_tgid, int mode) {
-    std::lock_guard<std::mutex> lock(patches_mutex);
-    if (patches.find(tgid) == patches.end()) {
-        patches[tgid] = std::map<long, std::pair<double, int>>();
-    }
-    patches[tgid][sub_tgid] = std::make_pair(ts, mode);
-}
-
-void SmartnetParser::delete_patches(long tgid) {
-    std::lock_guard<std::mutex> lock(patches_mutex);
-    patches.erase(tgid);
-}
-
-bool SmartnetParser::expire_talkgroups(double curr_time) {
-    std::lock_guard<std::mutex> lock(talkgroups_mutex);
-    // Expiry logic can be implemented here if we want to clean up map
-    return true;
-}
-
-bool SmartnetParser::expire_patches(double curr_time) {
-    std::lock_guard<std::mutex> lock(patches_mutex);
-    for (auto it = patches.begin(); it != patches.end(); ) {
-        for (auto sub_it = it->second.begin(); sub_it != it->second.end(); ) {
-             if (curr_time > sub_it->second.first + PATCH_EXPIRY_TIME) {
-                 sub_it = it->second.erase(sub_it);
-             } else {
-                 ++sub_it;
-             }
-        }
-        if (it->second.empty()) {
-            it = patches.erase(it);
-        } else {
-            ++it;
-        }
-    }
-    return true;
-}
-
-bool SmartnetParser::expire_adjacent_sites(double curr_time) {
-    for (auto it = adjacent_sites.begin(); it != adjacent_sites.end(); ) {
-        if (curr_time > it->second.time + ADJ_SITE_EXPIRY_TIME) {
-            it = adjacent_sites.erase(it);
-        } else {
-            ++it;
-        }
-    }
-    return true;
-}
-
-bool SmartnetParser::expire_alternate_cc_freqs(double curr_time) {
-    for (auto it = alternate_cc_freqs.begin(); it != alternate_cc_freqs.end(); ) {
-        if (curr_time > it->second.time + ALT_CC_EXPIRY_TIME) {
-            it = alternate_cc_freqs.erase(it);
-        } else {
-            ++it;
-        }
-    }
-    return true;
-}
-
-void SmartnetParser::add_adjacent_site(double ts, int site, double cc_rx_freq, double cc_tx_freq) {
-    AdjacentSite as;
-    as.time = ts;
-    as.cc_rx_freq = cc_rx_freq;
-    as.cc_tx_freq = cc_tx_freq;
-    adjacent_sites[site] = as;
-}
-
-void SmartnetParser::add_alternate_cc_freq(double ts, double cc_rx_freq, double cc_tx_freq) {
-    AlternateCCFreq ac;
-    ac.time = ts;
-    ac.cc_rx_freq = cc_rx_freq;
-    ac.cc_tx_freq = cc_tx_freq;
-    int key = (int)(cc_rx_freq * 1000000.0);
-    alternate_cc_freqs[key] = ac;
-}
-
 std::tuple<std::string, bool, bool, bool, bool> SmartnetParser::get_bandplan_details() {
     std::string bandplan = config_.bandplan;
     
@@ -1068,29 +889,4 @@ double SmartnetParser::get_expected_obt_tx_freq(double rx_freq) {
     if (rx_freq >= 450.0 && rx_freq < 470.0) return rx_freq + 5.0;
     if (rx_freq >= 470.0 && rx_freq < 512.0) return rx_freq + 3.0;
     return 0.0;
-}
-
-std::string SmartnetParser::to_json() {
-    json j;
-    j["type"] = "smartnet";
-    j["system"] = sysnum;
-    
-    std::string top_line = "Smartnet System ID " + std::to_string(rx_sys_id);
-    if (rx_site_id != 0) top_line += " Site " + std::to_string(rx_site_id);
-    top_line += " OSW count " + std::to_string(osw_count);
-    
-    j["top_line"] = top_line;
-    
-    json freqs = json::object();
-    for (const auto& [freq, vf] : voice_frequencies) {
-        json f_data;
-        f_data["tgid"] = vf.tgid;
-        f_data["mode"] = vf.mode;
-        f_data["count"] = vf.counter;
-        f_data["time"] = vf.time;
-        freqs[std::to_string(freq)] = f_data;
-    }
-    j["frequencies"] = freqs;
-    
-    return j.dump();
 }

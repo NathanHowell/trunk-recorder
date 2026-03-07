@@ -1,10 +1,8 @@
 #ifndef SYSTEM_IMPL_H
 #define SYSTEM_IMPL_H
-#include "../unit_tags.h"
 #include <boost/log/trivial.hpp>
 #include <memory>
 #include <stdio.h>
-//#include "../source.h"
 #include "parser.h"
 #include "system.h"
 #include "trunking_decoder.h"
@@ -19,7 +17,6 @@ class System_impl : public System {
   bool status_received;
 
 public:
-  std::unique_ptr<UnitTags> unit_tags;
   std::string short_name;
   SystemType system_type;
   std::string bandplan;
@@ -63,7 +60,6 @@ public:
   float get_tau() const override;
   void set_max_dev(int max_dev) override;
   int get_max_dev() override;
-  gr::msg_queue::sptr get_msg_queue() override;
   SystemType get_system_type() override;
   unsigned long get_sys_id() override;
   unsigned long get_wacn() override;
@@ -77,7 +73,6 @@ public:
   double get_next_control_channel() override;
   double get_current_control_channel() override;
   std::vector<double> get_control_channels() override;
-  gr::msg_queue::sptr msg_queue;
   System_impl(int sys_id);
   void set_bandplan(std::string) override;
   std::string get_bandplan() override;
@@ -98,7 +93,6 @@ public:
   int get_autotune_offset() override;
   void set_autotune_offset(int offset) override;
 
-  bool add_ota_unit_tag(const OTAAlias &ota_alias) override;
   void setup_decoders(gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources) override;
   void set_msg_callback(std::function<void(gr::message::sptr)> cb) override;
   std::vector<std::shared_ptr<trunking_decoder>> get_decoders() override;

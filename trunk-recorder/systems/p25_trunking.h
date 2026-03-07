@@ -60,7 +60,6 @@ typedef std::shared_ptr<p25_trunking> p25_trunking_sptr;
 p25_trunking_sptr make_p25_trunking(double f,
                                     double c,
                                     long s,
-                                    gr::msg_queue::sptr queue,
                                     bool qpsk,
                                     int sys_num);
 
@@ -72,7 +71,6 @@ class p25_trunking : public gr::hier_block2, public trunking_decoder {
   friend p25_trunking_sptr make_p25_trunking(double f,
                                              double c,
                                              long s,
-                                             gr::msg_queue::sptr queue,
                                              bool qpsk,
                                              int sys_num);
 
@@ -80,7 +78,6 @@ protected:
   p25_trunking(double f,
                double c,
                long s,
-               gr::msg_queue::sptr queue,
                bool qpsk,
                int sys_num);
 
@@ -105,7 +102,6 @@ public:
 
   gr::msg_queue::sptr tune_queue;
   gr::msg_queue::sptr traffic_queue;
-  gr::msg_queue::sptr rx_queue;
 
 private:
   void initialize_qpsk();

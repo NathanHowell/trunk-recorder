@@ -4,29 +4,28 @@
 #include "smartnet_fsk2_demod.h"
 #include <boost/log/trivial.hpp>
 
-smartnet_impl::sptr smartnet_impl::make(double freq, double center, long s, gr::msg_queue::sptr queue, int sys_num) {
-  smartnet_impl *smartnet = new smartnet_impl(freq, center, s, queue, sys_num);
+smartnet_impl::sptr smartnet_impl::make(double freq, double center, long s, int sys_num) {
+  smartnet_impl *smartnet = new smartnet_impl(freq, center, s, sys_num);
 
   return gnuradio::get_initial_sptr(smartnet);
 }
 
-smartnet_impl::smartnet_impl(double freq, double center, long s, gr::msg_queue::sptr queue, int sys_num)
+smartnet_impl::smartnet_impl(double freq, double center, long s, int sys_num)
     : gr::hier_block2("smartnet_impl",
                       gr::io_signature::make(1, 1, sizeof(gr_complex)),
                       gr::io_signature::make(0, 0, sizeof(float)))
 {
-  initialize(freq, center, s, queue, sys_num);
+  initialize(freq, center, s, sys_num);
 }
 
 smartnet_impl::~smartnet_impl() {
 
 }
 
-void smartnet_impl::initialize(double freq, double center, long s, gr::msg_queue::sptr queue, int sys_num) {
+void smartnet_impl::initialize(double freq, double center, long s, int sys_num) {
   chan_freq = freq;
   center_freq = center;
   input_rate = s;
-  rx_queue = queue;
   this->sys_num = sys_num;
 
 
@@ -37,7 +36,7 @@ void smartnet_impl::initialize(double freq, double center, long s, gr::msg_queue
   // initialize_prefilter();
   //  initialize_p25();
 
-  fsk2_demod = smartnet_fsk2_demod::make(rx_queue);
+  fsk2_demod = smartnet_fsk2_demod::make();
 
   connect(self(), 0, prefilter, 0);
   connect(prefilter, 0, fsk2_demod, 0);

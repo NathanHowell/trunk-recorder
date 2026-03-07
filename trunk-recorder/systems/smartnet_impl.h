@@ -19,7 +19,6 @@
 #include <gnuradio/block.h>
 
 #include <gnuradio/message.h>
-#include <gnuradio/msg_queue.h>
 #include <gnuradio/blocks/null_sink.h>
 
 #include "../gr_blocks/xlat_channelizer.h"
@@ -37,12 +36,10 @@ class smartnet_impl : public gr::hier_block2, public trunking_decoder {
     static sptr make(double f,
                                         double c,
                                         long s,
-                                        gr::msg_queue::sptr queue,
                                         int sys_num);
   smartnet_impl(double f,
                double c,
                long s,
-               gr::msg_queue::sptr queue,
                int sys_num);
 
 
@@ -64,10 +61,8 @@ class smartnet_impl : public gr::hier_block2, public trunking_decoder {
   void set_autotune_offset(int offset) override { autotune_offset = offset; }
   std::shared_ptr<gr::hier_block2> as_hier_block() override { return std::dynamic_pointer_cast<gr::hier_block2>(shared_from_this()); }
 
-  gr::msg_queue::sptr rx_queue;
-
 private:
-  void initialize(double freq, double center, long s, gr::msg_queue::sptr queue, int sys_num);
+  void initialize(double freq, double center, long s, int sys_num);
 
   double center_freq, chan_freq;
   long input_rate;

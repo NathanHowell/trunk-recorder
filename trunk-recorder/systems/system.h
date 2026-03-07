@@ -3,9 +3,7 @@
 #include <functional>
 #include <memory>
 #include "../global_structs.h"
-#include "../unit_tags_ota.h"
 #include <boost/log/trivial.hpp>
-#include <gnuradio/msg_queue.h>
 #include <gnuradio/top_block.h>
 #include <stdio.h>
 //#include "../source.h"
@@ -59,7 +57,6 @@ public:
   virtual float get_tau() const = 0;
   virtual void set_max_dev(int max_dev) = 0;
   virtual int get_max_dev() = 0;
-  virtual gr::msg_queue::sptr get_msg_queue() = 0;
   virtual SystemType get_system_type() = 0;
   virtual unsigned long get_sys_id() = 0;
   virtual unsigned long get_wacn() = 0;
@@ -91,8 +88,6 @@ public:
   virtual void finetune_control_freq(double f) = 0;
   virtual int get_autotune_offset() = 0;
   virtual void set_autotune_offset(int offset) = 0;
-
-  virtual bool add_ota_unit_tag(const OTAAlias &ota_alias) = 0;
 
   virtual void setup_decoders(gr::top_block_sptr &tb, std::vector<std::shared_ptr<Source>> &sources) = 0;
   virtual void set_msg_callback(std::function<void(gr::message::sptr)> cb) {}
