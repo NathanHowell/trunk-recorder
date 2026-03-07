@@ -44,10 +44,6 @@ Call::Call(TrunkMessage message, const std::shared_ptr<System> &s, Config c) {
 void Call::restart_call() {
 }
 
-long Call::get_call_num() const {
-  return call_num;
-}
-
 void Call::set_sigmf_recorder(const std::shared_ptr<Recorder> &r) {
   sigmf_recorder = r;
 }
@@ -72,10 +68,6 @@ std::shared_ptr<Recorder> Call::get_recorder() const {
   return recorder.lock();
 }
 
-double Call::get_freq() const {
-  return curr_freq;
-}
-
 int Call::get_freq_error() const {
   return freq_error;
 }
@@ -88,22 +80,6 @@ void Call::set_freq(double f) {
   if (f != curr_freq) {
     curr_freq = f;
   }
-}
-
-int Call::get_sys_num() const {
-  return sys->get_sys_num();
-}
-
-std::string Call::get_short_name() const {
-  return sys->get_short_name();
-}
-
-std::string Call::get_temp_dir() const {
-  return config.temp_dir;
-}
-
-long Call::get_talkgroup() const {
-  return talkgroup;
 }
 
 void Call::set_debug_recording(bool m) {
@@ -120,42 +96,6 @@ void Call::set_sigmf_recording(bool m) {
 
 bool Call::get_sigmf_recording() const {
   return sigmf_recording;
-}
-
-void Call::set_tdma_slot(int m) {
-  tdma_slot = m;
-}
-
-int Call::get_tdma_slot() const {
-  return tdma_slot;
-}
-
-void Call::set_phase2_tdma(bool p) {
-  phase2_tdma = p;
-}
-
-bool Call::get_phase2_tdma() const {
-  return phase2_tdma;
-}
-
-const std::string &Call::get_xor_mask() const {
-  return sys->get_xor_mask();
-}
-
-long Call::get_current_source_id() const {
-  return curr_src_id;
-}
-
-void Call::set_current_source_id(long src) {
-  curr_src_id = src;
-}
-
-time_t Call::get_start_time() const {
-  return std::chrono::system_clock::to_time_t(start_time);
-}
-
-double Call::get_squelch_db() const {
-  return sys->get_squelch_db();
 }
 
 void Call::set_rust_call_id(uint64_t id) {

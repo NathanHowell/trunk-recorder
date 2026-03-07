@@ -37,29 +37,11 @@ public:
   bool get_sigmf_recording() const;
 
   // Identity
-  long get_talkgroup() const;
-  long get_call_num() const;
-  double get_freq() const;
   void set_freq(double f);
-  int get_sys_num() const;
-  std::string get_short_name() const;
-  std::string get_temp_dir() const;
-  const std::string &get_xor_mask() const;
   std::shared_ptr<System> get_system() const;
-  long get_current_source_id() const;
-  void set_current_source_id(long src);
-
-  // P25/DMR fields
-  void set_phase2_tdma(bool m);
-  bool get_phase2_tdma() const;
-  void set_tdma_slot(int s);
-  int get_tdma_slot() const;
 
   // Conventional (virtual for Call_conventional override)
   virtual void restart_call();
-  virtual time_t get_start_time() const;
-  virtual bool is_conventional() const { return false; }
-  virtual double get_squelch_db() const;
   int get_freq_error() const;
 
   // Rust call ID for round-tripping through audio callbacks

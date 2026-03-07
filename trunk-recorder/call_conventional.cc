@@ -33,19 +33,7 @@ void Call_conventional::restart_call() {
   }
 }
 
-time_t Call_conventional::get_start_time() const {
-  return std::chrono::system_clock::to_time_t(start_time);
-}
-
 void Call_conventional::set_recorder(const std::shared_ptr<Recorder> &r) {
   recorder = r;
-  BOOST_LOG_TRIVIAL(info) << "[" << sys->get_short_name() << "]\tTG: " << this->get_talkgroup() << "\tFreq: " << format_freq(this->get_freq());
-}
-
-double Call_conventional::get_squelch_db() const {
-  return squelch_db;
-}
-
-bool Call_conventional::get_signal_detection() const {
-  return signal_detection;
+  BOOST_LOG_TRIVIAL(info) << "[" << sys->get_short_name() << "]\tTG: " << talkgroup << "\tFreq: " << format_freq(curr_freq);
 }
