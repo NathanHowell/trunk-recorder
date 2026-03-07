@@ -2,8 +2,7 @@
 #define SYSTEM_H
 #include <functional>
 #include <memory>
-#include "../talkgroups.h"
-#include "../unit_tags.h"
+#include "../global_structs.h"
 #include "../unit_tags_ota.h"
 #include <boost/log/trivial.hpp>
 #include <gnuradio/msg_queue.h>
@@ -64,33 +63,18 @@ public:
   virtual SystemType get_system_type() = 0;
   virtual unsigned long get_sys_id() = 0;
   virtual unsigned long get_wacn() = 0;
-  virtual unsigned long get_nac() = 0;
-  virtual int get_sys_rfss() = 0;
-  virtual int get_sys_site_id() = 0;
   virtual void set_xor_mask(unsigned long sys_id, unsigned long wacn, unsigned long nac) = 0;
-  virtual const std::string& get_xor_mask() = 0;
   virtual bool update_status(TrunkMessage message) = 0;
   virtual bool update_sysid(TrunkMessage message) = 0;
   virtual int get_sys_num() = 0;
   virtual void set_system_type(SystemType) = 0;
   virtual std::shared_ptr<Source> get_source() = 0;
   virtual void set_source(const std::shared_ptr<Source> &) = 0;
-  virtual std::string find_unit_tag(long unitID) = 0;
-  virtual void add_unit_tag(std::string pattern, std::string tag) = 0;
-  virtual void set_unit_tags_ota_file(std::string) = 0;
-  virtual std::string get_unit_tags_ota_file() = 0;
-  virtual void set_unit_tags_mode(std::string mode) = 0;
-  virtual std::string get_unit_tags_mode() = 0;
-  virtual void set_custom_freq_table_file(std::string custom_freq_table_file) = 0;
-  virtual std::string get_custom_freq_table_file() = 0;
-  virtual bool has_custom_freq_table_file() = 0;
   virtual int control_channel_count() = 0;
   virtual void add_control_channel(double channel) = 0;
   virtual double get_next_control_channel() = 0;
   virtual double get_current_control_channel() = 0;
   virtual std::vector<double> get_control_channels() = 0;
-  virtual void add_talkgroup(std::shared_ptr<Talkgroup> tg) = 0;
-  virtual std::vector<std::shared_ptr<Talkgroup>> get_talkgroups() = 0;
   virtual void set_bandplan(std::string) = 0;
   virtual std::string get_bandplan() = 0;
   virtual void set_bandfreq(int) = 0;

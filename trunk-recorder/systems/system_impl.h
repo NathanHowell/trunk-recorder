@@ -1,6 +1,5 @@
 #ifndef SYSTEM_IMPL_H
 #define SYSTEM_IMPL_H
-#include "../talkgroups.h"
 #include "../unit_tags.h"
 #include <boost/log/trivial.hpp>
 #include <memory>
@@ -10,37 +9,18 @@
 #include "system.h"
 #include "trunking_decoder.h"
 
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-//#pragma GCC diagnostic ignored "-Wint-in-bool-context"
-//#pragma GCC diagnostic ignored "-Wunused-local-typedefs"
-#endif
-
-#include <lfsr/lfsr.h>
-
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
-
-
 class Source;
 
 class System_impl : public System {
   int sys_num;
   unsigned long sys_id;
   unsigned long wacn;
-  unsigned long nac;
-  int sys_rfss;
-  int sys_site_id;
+  bool sysid_received;
+  bool status_received;
 
 public:
-  std::unique_ptr<Talkgroups> talkgroups;
   std::unique_ptr<UnitTags> unit_tags;
-  std::unique_ptr<p25p2_lfsr> lfsr;
   std::shared_ptr<Source> source;
-  std::string unit_tags_ota_file;
-  std::string unit_tags_mode;
-  std::string custom_freq_table_file;
   std::string short_name;
   SystemType system_type;
   std::string bandplan;
@@ -54,7 +34,6 @@ public:
   float tau;
   double analog_levels;
 
-  std::string xor_mask;
   std::vector<double> control_channels;
   unsigned int current_control_channel;
 
@@ -89,33 +68,18 @@ public:
   SystemType get_system_type() override;
   unsigned long get_sys_id() override;
   unsigned long get_wacn() override;
-  unsigned long get_nac() override;
-  int get_sys_rfss() override;
-  int get_sys_site_id() override;
   void set_xor_mask(unsigned long sys_id, unsigned long wacn, unsigned long nac) override;
-  const std::string& get_xor_mask() override;
   bool update_status(TrunkMessage message) override;
   bool update_sysid(TrunkMessage message) override;
   int get_sys_num() override;
   void set_system_type(SystemType) override;
   std::shared_ptr<Source> get_source() override;
   void set_source(const std::shared_ptr<Source> &) override;
-  std::string find_unit_tag(long unitID) override;
-  void add_unit_tag(std::string pattern, std::string tag) override;
-  void set_unit_tags_ota_file(std::string) override;
-  std::string get_unit_tags_ota_file() override;
-  void set_unit_tags_mode(std::string mode) override;
-  std::string get_unit_tags_mode() override;
-  void set_custom_freq_table_file(std::string custom_freq_table_file) override;
-  std::string get_custom_freq_table_file() override;
-  bool has_custom_freq_table_file() override;
   int control_channel_count() override;
   void add_control_channel(double channel) override;
   double get_next_control_channel() override;
   double get_current_control_channel() override;
   std::vector<double> get_control_channels() override;
-  void add_talkgroup(std::shared_ptr<Talkgroup> tg) override;
-  std::vector<std::shared_ptr<Talkgroup>> get_talkgroups() override;
   gr::msg_queue::sptr msg_queue;
   System_impl(int sys_id);
   void set_bandplan(std::string) override;

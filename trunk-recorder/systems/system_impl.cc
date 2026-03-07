@@ -23,13 +23,9 @@ System_impl::System_impl(int sys_num) {
   this->sys_num = sys_num;
   sys_id = 0;
   wacn = 0;
-  nac = 0;
-  sys_rfss = 0;
-  sys_site_id = 0;
+  sysid_received = false;
+  status_received = false;
   current_control_channel = 0;
-  // Setup the talkgroups from the CSV file
-  talkgroups = std::make_unique<Talkgroups>();
-  // Setup the unit tags from the CSV file
   unit_tags = std::make_unique<UnitTags>();
   d_mdc_enabled = false;
   d_fsync_enabled = false;
@@ -39,43 +35,29 @@ System_impl::System_impl(int sys_num) {
 }
 
 void System_impl::set_xor_mask(unsigned long sys_id, unsigned long wacn, unsigned long nac) {
-  if (sys_id && wacn && nac) {
+  if (sys_id && wacn) {
     this->sys_id = sys_id;
     this->wacn = wacn;
-    this->nac = nac;
-    BOOST_LOG_TRIVIAL(info) << "Setting XOR Mask: System_impl ID " << std::dec << sys_id << " WACN: " << wacn << " NAC: " << nac << std::dec;
-    if (sys_id && wacn && nac) {
-      lfsr = std::make_unique<p25p2_lfsr>(nac, sys_id, wacn);
-      xor_mask = lfsr->getXorChars();
-
-      BOOST_LOG_TRIVIAL(info) << "XOR Mask len: " << xor_mask.size();
-      for (unsigned i = 0; i < xor_mask.size(); i++) {
-        std::cout << (short)xor_mask[i] << ", ";
-      }
-    }
+    BOOST_LOG_TRIVIAL(info) << "System ID " << std::dec << sys_id << " WACN: " << wacn << " NAC: " << nac << std::dec;
   }
 }
+
 bool System_impl::update_status(TrunkMessage message) {
-  if (!sys_id || !wacn || !nac) {
+  if (!status_received) {
+    status_received = true;
     sys_id = message.sys_id;
     wacn = message.wacn;
-    nac = message.nac;
     BOOST_LOG_TRIVIAL(info) << "[" << short_name << "]\tDecoding System ID "
                             << std::hex << std::uppercase << message.sys_id << " WACN: "
                             << std::hex << std::uppercase << message.wacn << " NAC: " << std::hex << std::uppercase << message.nac;
-    if (sys_id && wacn && nac) {
-      lfsr = std::make_unique<p25p2_lfsr>(nac, sys_id, wacn);
-      xor_mask = lfsr->getXorChars();
-    }
     return true;
   }
   return false;
 }
 
 bool System_impl::update_sysid(TrunkMessage message) {
-  if (!sys_rfss || !sys_site_id) {
-    sys_rfss = message.sys_rfss;
-    sys_site_id = message.sys_site_id;
+  if (!sysid_received) {
+    sysid_received = true;
     BOOST_LOG_TRIVIAL(info) << "[" << short_name << "]\tDecoding System Site"
                             << " RFSS: " << std::setw(3) << std::setfill('0') << message.sys_rfss
                             << " SITE ID: " << std::setw(3) << std::setfill('0') << message.sys_site_id
@@ -89,10 +71,6 @@ bool System_impl::update_sysid(TrunkMessage message) {
   return msg_queue;
  }
 
-const std::string& System_impl::get_xor_mask() {
-  return xor_mask;
-}
-
 int System_impl::get_sys_num() {
   return this->sys_num;
 }
@@ -101,22 +79,9 @@ unsigned long System_impl::get_sys_id() {
   return this->sys_id;
 }
 
-unsigned long System_impl::get_nac() {
-  return this->nac;
-}
-
 unsigned long System_impl::get_wacn() {
   return this->wacn;
 }
-
-int System_impl::get_sys_rfss(){
-  return this->sys_rfss;
-}
-
-int System_impl::get_sys_site_id(){
-  return this->sys_site_id;
-}
-
 
 void System_impl::set_tau(float t){
   tau = t;
@@ -170,49 +135,6 @@ void System_impl::set_system_type(SystemType sys_type) {
   this->system_type = sys_type;
 }
 
-
-void System_impl::set_unit_tags_ota_file(std::string unit_tags_ota_file) {
-  this->unit_tags_ota_file = unit_tags_ota_file;
-  this->unit_tags->load_unit_tags_ota(unit_tags_ota_file);
-}
-
-std::string System_impl::get_unit_tags_ota_file() {
-  return this->unit_tags_ota_file;
-}
-
-void System_impl::set_unit_tags_mode(std::string mode) {
-  this->unit_tags_mode = mode;
-  if (mode == "ota" || mode == "OTA") {
-    this->unit_tags->set_mode(TAG_OTA_FIRST);
-  } else if (mode == "user_only") {
-    this->unit_tags->set_mode(TAG_USER_ONLY);
-  } else if (mode == "none") {
-    this->unit_tags->set_mode(TAG_NONE);
-  } else {
-    this->unit_tags->set_mode(TAG_USER_FIRST);
-  }
-}
-
-std::string System_impl::get_unit_tags_mode() {
-  return this->unit_tags_mode;
-}
-
-void System_impl::set_custom_freq_table_file(std::string custom_freq_table_file) {
-  this->custom_freq_table_file = custom_freq_table_file;
-}
-
-std::string System_impl::get_custom_freq_table_file(){
-  return this->custom_freq_table_file;
-}
-
-bool System_impl::has_custom_freq_table_file() {
-    if (this->custom_freq_table_file.length() > 0) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
 std::shared_ptr<Source> System_impl::get_source() {
   return this->source;
 }
@@ -220,25 +142,6 @@ std::shared_ptr<Source> System_impl::get_source() {
 void System_impl::set_source(const std::shared_ptr<Source> &s) {
   this->source = s;
 }
-
-std::string System_impl::find_unit_tag(long unitID) {
-  return unit_tags->find_unit_tag(unitID);
-}
-
-void System_impl::add_unit_tag(std::string pattern, std::string tag) {
-  unit_tags->add(std::move(pattern), std::move(tag));
-}
-
-
-void System_impl::add_talkgroup(std::shared_ptr<Talkgroup> tg) {
-  talkgroups->add_talkgroup(std::move(tg));
-}
-
-std::vector<std::shared_ptr<Talkgroup>> System_impl::get_talkgroups() {
-  return talkgroups->get_talkgroups();
-}
-
-
 
 int System_impl::control_channel_count() {
   return control_channels.size();

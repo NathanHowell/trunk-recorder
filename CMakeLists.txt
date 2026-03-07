@@ -242,14 +242,9 @@ list(APPEND trunk_recorder_sources
   trunk-recorder/sources/iq_file_source.cc
   trunk-recorder/csv_helper.cc
   trunk-recorder/monitor_systems.cc
-  trunk-recorder/talkgroup.cc
-  trunk-recorder/talkgroups.cc
-  trunk-recorder/unit_tag.cc
   trunk-recorder/unit_tags.cc
   trunk-recorder/unit_tags_ota.cc
   trunk-recorder/autotune.cc
-
-  lib/lfsr/lfsr.cxx
   #lib/gr-latency/latency_probe.cc
   #lib/gr-latency/latency_tagger.cc
   #lib/gr-latency-manager/lib/latency_manager_impl.cc
@@ -282,7 +277,6 @@ list(APPEND trunk_recorder_sources
   list(APPEND 3p_headers
     #lib/csv-parser/csv.hpp 
   )
-set_source_files_properties(lib/lfsr/lfsr.cxx COMPILE_FLAGS "-w")
 
 
 
