@@ -110,6 +110,10 @@ RecorderState sigmf_recorder_impl::get_state() {
   return state;
 }
 
+void sigmf_recorder_impl::set_squelch_callback(std::function<void(bool, double)> cb) {
+  prefilter->set_squelch_callback(std::move(cb));
+}
+
 void sigmf_recorder_impl::stop() {
   if (state == REC_ACTIVE) {
     BOOST_LOG_TRIVIAL(info) << "\u001b[32mStopping SigMF Recorder Num [" << rec_num << "]\u001b[0m TG: " << talkgroup << " Freq: " << freq;

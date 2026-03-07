@@ -31,6 +31,7 @@ public:
   virtual bool is_enabled() { return false; };
   virtual bool is_active() = 0;
   virtual RecorderState get_state() = 0;
+  virtual void set_squelch_callback(std::function<void(bool, double)> cb) = 0;
 };
 
 #endif

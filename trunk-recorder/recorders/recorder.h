@@ -62,7 +62,7 @@ public:
   virtual void clear(){};
 
   virtual void set_system(const std::shared_ptr<System> &){};
-  virtual void set_squelch_callback(std::function<void(bool, double)> cb) {}
+  virtual void set_squelch_callback(std::function<void(bool, double)> cb) = 0;
   virtual void process_message_queues(void){};
   virtual double get_output_sample_rate() { return 0; }
   virtual int get_output_channels() { return 1; }

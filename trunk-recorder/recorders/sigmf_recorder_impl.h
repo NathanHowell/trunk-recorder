@@ -73,6 +73,7 @@ public:
   bool is_enabled();
   bool is_active();
   RecorderState get_state();
+  void set_squelch_callback(std::function<void(bool, double)> cb) override;
 
 
 private:
