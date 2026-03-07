@@ -61,8 +61,6 @@ protected:
 
 public:
   ~analog_recorder();
-  void tune_offset(double f) override;
-  void tune_freq(double f) override;
   bool start(const RecorderConfig &config) override;
   void stop() override;
   int get_freq_error() const override;
@@ -86,6 +84,8 @@ public:
   float get_tau() const;
 
 private:
+  void tune_offset(double f);
+  void tune_freq(double f);
   double center_freq, chan_freq;
   long talkgroup;
   long input_rate;

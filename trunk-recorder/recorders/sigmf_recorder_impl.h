@@ -64,8 +64,6 @@ public:
   sigmf_recorder_impl(const std::shared_ptr<Source> &src, Recorder_Type type);
   bool start(const RecorderConfig &config) override;
   void stop() override;
-  void tune_offset(double f) override;
-  void tune_freq(double f) override;
   int get_freq_error() const override;
   int get_num() const;
   double get_pwr() const override;
@@ -80,6 +78,8 @@ public:
 
 
 private:
+  void tune_offset(double f);
+  void tune_freq(double f);
   double center, freq;
   int silence_frames;
   long talkgroup;

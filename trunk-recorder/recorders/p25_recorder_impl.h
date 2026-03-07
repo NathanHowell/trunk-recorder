@@ -73,8 +73,6 @@ public:
   void initialize_qpsk();
   void initialize_fsk4();
   void initialize_p25();
-  void tune_offset(double f) override;
-  void tune_freq(double f) override;
   bool start(const RecorderConfig &config) override;
   void stop() override;
   int get_num() const;
@@ -114,6 +112,8 @@ protected:
   xlat_channelizer::sptr prefilter;
 
 private:
+  void tune_offset(double f);
+  void tune_freq(double f);
   void set_tdma_slot(int slot);
   void clear();
   int silence_frames;

@@ -65,8 +65,6 @@ public:
   debug_recorder_impl(const std::shared_ptr<Source> &src, std::string address, int port);
 
   // Recorder pure virtual overrides
-  void tune_offset(double f) override;
-  void tune_freq(double f) override;
   bool start(const RecorderConfig &config) override;
   void stop() override;
   int get_freq_error() const override;
@@ -89,6 +87,8 @@ public:
   void generate_arb_taps() override;
 
 private:
+  void tune_offset(double f);
+  void tune_freq(double f);
   double chan_freq;
   double center_freq;
   long talkgroup;

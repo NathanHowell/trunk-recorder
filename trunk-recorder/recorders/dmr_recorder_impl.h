@@ -71,8 +71,6 @@ protected:
 
 public:
   dmr_recorder_impl(const std::shared_ptr<Source> &src, Recorder_Type type);
-  void tune_offset(double f) override;
-  void tune_freq(double f) override;
   bool start(const RecorderConfig &config) override;
   void stop() override;
   int get_freq_error() const override;
@@ -111,6 +109,8 @@ protected:
   gr::op25_repeater::costas_loop_cc::sptr costas;
 
 private:
+  void tune_offset(double f);
+  void tune_freq(double f);
   int silence_frames;
   int tdma_slot;
   bool d_phase2_tdma;

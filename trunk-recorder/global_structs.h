@@ -40,15 +40,6 @@ struct Call_Source {
   std::string tag;
 };
 
-struct Call_Freq {
-  double freq;
-  long time;
-  double position;
-  double total_len;
-  double error_count;
-  double spike_count;
-};
-
 struct Call_Error {
   double position;
   double total_len;

@@ -32,12 +32,7 @@ public:
   void set_selector_port(unsigned int port) {selector_port = port;}
   Recorder(Recorder_Type  type);
   int get_num() const { return rec_num; };
-  Recorder_Type get_type() const { return type; };
 
-  bool is_conventional() const { return conventional; };
-
-  virtual void tune_offset(double f) = 0;
-  virtual void tune_freq(double f) = 0;
   virtual bool start(const RecorderConfig &config) = 0;
   virtual void stop() = 0;
   virtual int get_freq_error() const = 0;
