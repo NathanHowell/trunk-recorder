@@ -61,33 +61,38 @@ protected:
 
 public:
   ~analog_recorder();
-  void tune_freq(double f);
+  void tune_offset(double f) override;
+  void tune_freq(double f) override;
   bool start(const RecorderConfig &config) override;
-  void stop();
-  double get_freq();
-  int get_freq_error();
-  void set_source(long src);
-  std::shared_ptr<Source> get_source();
-  long get_talkgroup();
-  double get_current_length();
-  long get_wav_hz();
-  void set_enabled(bool enabled);
-  bool is_enabled();
-  bool is_active();
-  bool is_analog();
-  bool is_idle();
-  bool is_squelched();
-  double get_pwr();
+  void stop() override;
+  void set_tdma_slot(int slot) override;
+  double get_freq() const override;
+  int get_freq_error() const override;
+  double get_pwr() const override;
+  std::vector<Transmission> get_transmission_list() override;
+  void set_source(long src) override;
+  long get_wav_hz() const override;
+  long get_talkgroup() const override;
+  RecorderState get_state() const override;
+  void set_enabled(bool enabled) override;
+  bool is_enabled() const override;
+  bool is_active() const override;
+  bool is_analog() const override;
+  bool is_idle() const override;
+  bool is_squelched() const override;
+  double get_current_length() const override;
+  std::chrono::duration<double> since_last_write() const override;
+  void clear() override;
+  void set_system(const std::shared_ptr<System> &) override;
   void set_squelch_callback(std::function<void(bool, double)> cb) override;
-  std::vector<Transmission> get_transmission_list();
-  RecorderState get_state();
+  void process_message_queues() override;
+
+  std::shared_ptr<Source> get_source();
   int get_num();
   static bool logging;
-  void process_message_queues(void);
   void decoder_callback_handler(long unitId, const char *signaling_type, gr::blocks::SignalType signal);
   void plugin_callback_handler(int16_t *samples, int sampleCount);
   double get_output_sample_rate();
-  std::chrono::duration<double> since_last_write();
   void set_tau(float tau);
   float get_tau() const;
 

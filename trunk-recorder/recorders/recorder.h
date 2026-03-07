@@ -29,43 +29,39 @@ public:
   bool conventional;
   unsigned int selector_port;
 
-  int get_selector_port() { return selector_port;}
+  int get_selector_port() const { return selector_port;}
   void set_selector_port(unsigned int port) {selector_port = port;}
   Recorder(Recorder_Type  type);
-  int get_num() { return rec_num; };
-  Recorder_Type get_type() { return type; };
-  virtual double get_pwr() { return 0; };
+  int get_num() const { return rec_num; };
+  Recorder_Type get_type() const { return type; };
 
-  bool is_conventional() { return conventional; };
+  bool is_conventional() const { return conventional; };
 
-  virtual void tune_offset(double f){};
-  virtual void tune_freq(double f){};
-  virtual bool start(const RecorderConfig &config) { return false; };
-  virtual void stop(){};
-  virtual void set_tdma_slot(int slot){};
-  virtual double get_freq() { return 0; };
-  virtual int get_freq_error() { return 0; };
-  virtual std::shared_ptr<Source> get_source() { return nullptr; };
-  virtual std::vector<Transmission> get_transmission_list() { return {}; };
-  virtual void set_source(long src){};
-  virtual long get_wav_hz() { return 8000; };
-  virtual long get_talkgroup() { return 0; };
-  virtual RecorderState get_state() { return REC_INACTIVE; };
-  virtual void set_enabled(bool enabled) {};
-  virtual bool is_enabled() { return false; };
-  virtual bool is_active() { return false; };
-  virtual bool is_analog() { return false; };
-  virtual bool is_idle() { return true; };
-  virtual bool is_squelched() { return true; };
-  virtual double get_current_length() { return 0; };
-  virtual std::chrono::duration<double> since_last_write() = 0;
-  virtual void clear(){};
-
-  virtual void set_system(const std::shared_ptr<System> &){};
+  virtual void tune_offset(double f) = 0;
+  virtual void tune_freq(double f) = 0;
+  virtual bool start(const RecorderConfig &config) = 0;
+  virtual void stop() = 0;
+  virtual void set_tdma_slot(int slot) = 0;
+  virtual double get_freq() const = 0;
+  virtual int get_freq_error() const = 0;
+  virtual double get_pwr() const = 0;
+  virtual std::vector<Transmission> get_transmission_list() = 0;
+  virtual void set_source(long src) = 0;
+  virtual long get_wav_hz() const = 0;
+  virtual long get_talkgroup() const = 0;
+  virtual RecorderState get_state() const = 0;
+  virtual void set_enabled(bool enabled) = 0;
+  virtual bool is_enabled() const = 0;
+  virtual bool is_active() const = 0;
+  virtual bool is_analog() const = 0;
+  virtual bool is_idle() const = 0;
+  virtual bool is_squelched() const = 0;
+  virtual double get_current_length() const = 0;
+  virtual std::chrono::duration<double> since_last_write() const = 0;
+  virtual void clear() = 0;
+  virtual void set_system(const std::shared_ptr<System> &) = 0;
   virtual void set_squelch_callback(std::function<void(bool, double)> cb) = 0;
-  virtual void process_message_queues(void){};
-  virtual double get_output_sample_rate() { return 0; }
-  virtual int get_output_channels() { return 1; }
+  virtual void process_message_queues() = 0;
 
   uint64_t get_rust_call_id() const { return rust_call_id; }
 

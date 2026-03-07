@@ -190,13 +190,18 @@ analog_recorder::analog_recorder(const std::shared_ptr<Source> &src, const std::
 
 analog_recorder::~analog_recorder() {}
 
-long analog_recorder::get_wav_hz() { return wav_sample_rate; };
+void analog_recorder::tune_offset(double f) { prefilter->tune_offset(f); }
+void analog_recorder::set_tdma_slot(int) {}
+void analog_recorder::clear() {}
+void analog_recorder::set_system(const std::shared_ptr<System> &) {}
 
-RecorderState analog_recorder::get_state() {
+long analog_recorder::get_wav_hz() const { return wav_sample_rate; };
+
+RecorderState analog_recorder::get_state() const {
   return wav_sink->get_state();
 }
 
-std::chrono::duration<double> analog_recorder::since_last_write() {
+std::chrono::duration<double> analog_recorder::since_last_write() const {
   return std::chrono::steady_clock::now() - wav_sink->get_stop_time();
 }
 
@@ -228,11 +233,11 @@ void analog_recorder::process_message_queues() {
   decoder_sink->process_message_queues();
 }
 
-bool analog_recorder::is_analog() {
+bool analog_recorder::is_analog() const {
   return true;
 }
 
-bool analog_recorder::is_active() {
+bool analog_recorder::is_active() const {
   if (state == REC_ACTIVE) {
     return true;
   } else {
@@ -240,7 +245,7 @@ bool analog_recorder::is_active() {
   }
 }
 
-bool analog_recorder::is_enabled() {
+bool analog_recorder::is_enabled() const {
   return source->is_selector_port_enabled(selector_port);
 }
 
@@ -248,11 +253,11 @@ void analog_recorder::set_enabled(bool enabled) {
   source->set_selector_port_enabled(selector_port, enabled);
 }
 
-bool analog_recorder::is_squelched() {
+bool analog_recorder::is_squelched() const {
   return prefilter->is_squelched();
 }
 
-double analog_recorder::get_pwr() {
+double analog_recorder::get_pwr() const {
   return prefilter->get_pwr();
 }
 
@@ -260,22 +265,22 @@ void analog_recorder::set_squelch_callback(std::function<void(bool, double)> cb)
   prefilter->set_squelch_callback(std::move(cb));
 }
 
-bool analog_recorder::is_idle() {
+bool analog_recorder::is_idle() const {
   if (state == REC_ACTIVE) {
     return prefilter->is_squelched();
   }
   return true;
 }
 
-long analog_recorder::get_talkgroup() {
+long analog_recorder::get_talkgroup() const {
   return talkgroup;
 }
 
-double analog_recorder::get_freq() {
+double analog_recorder::get_freq() const {
   return chan_freq;
 }
 
-int analog_recorder::get_freq_error() { // get frequency error from FLL and convert to Hz
+int analog_recorder::get_freq_error() const { // get frequency error from FLL and convert to Hz
   return prefilter->get_freq_error();
 }
 
@@ -287,7 +292,7 @@ std::shared_ptr<Source> analog_recorder::get_source() {
   return source;
 }
 
-double analog_recorder::get_current_length() {
+double analog_recorder::get_current_length() const {
   return wav_sink->total_length_in_seconds();
 }
 

@@ -64,21 +64,39 @@ class debug_recorder_impl : public debug_recorder {
 public:
   debug_recorder_impl(const std::shared_ptr<Source> &src, std::string address, int port);
 
-  void tune_freq(double f);
-  void tune_offset(double f);
+  // Recorder pure virtual overrides
+  void tune_offset(double f) override;
+  void tune_freq(double f) override;
   bool start(const RecorderConfig &config) override;
-  void stop();
-  double get_freq();
-  int get_num();
-  double get_current_length();
-  std::chrono::duration<double> since_last_write();
-  bool is_active();
-  RecorderState get_state();
-  std::shared_ptr<Source> get_source();
-  void initialize_prefilter();
-  DecimSettings get_decim(long speed);
-  void generate_arb_taps();
-  // void forecast(int noutput_items, gr_vector_int &ninput_items_required);
+  void stop() override;
+  void set_tdma_slot(int slot) override;
+  double get_freq() const override;
+  int get_freq_error() const override;
+  double get_pwr() const override;
+  std::vector<Transmission> get_transmission_list() override;
+  void set_source(long src) override;
+  long get_wav_hz() const override;
+  long get_talkgroup() const override;
+  RecorderState get_state() const override;
+  void set_enabled(bool enabled) override;
+  bool is_enabled() const override;
+  bool is_active() const override;
+  bool is_analog() const override;
+  bool is_idle() const override;
+  bool is_squelched() const override;
+  double get_current_length() const override;
+  std::chrono::duration<double> since_last_write() const override;
+  void clear() override;
+  void set_system(const std::shared_ptr<System> &) override;
+  void set_squelch_callback(std::function<void(bool, double)> cb) override;
+  void process_message_queues() override;
+
+  // debug_recorder pure virtual overrides
+  int get_num() const;
+  std::shared_ptr<Source> get_source() override;
+  void initialize_prefilter() override;
+  DecimSettings get_decim(long speed) override;
+  void generate_arb_taps() override;
 
 private:
   double chan_freq;

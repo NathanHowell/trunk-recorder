@@ -119,30 +119,39 @@ void dmr_recorder_impl::set_tdma(bool phase2) {
   }
 }
 
+void dmr_recorder_impl::tune_offset(double f) { prefilter->tune_offset(f); }
+void dmr_recorder_impl::clear() {}
+void dmr_recorder_impl::set_source(long) {}
+void dmr_recorder_impl::set_system(const std::shared_ptr<System> &) {}
+void dmr_recorder_impl::process_message_queues() {}
+bool dmr_recorder_impl::is_analog() const { return false; }
+long dmr_recorder_impl::get_wav_hz() const { return 8000; }
+long dmr_recorder_impl::get_talkgroup() const { return 0; }
+
 std::shared_ptr<Source> dmr_recorder_impl::get_source() {
   return source;
 }
 
-int dmr_recorder_impl::get_num() {
+int dmr_recorder_impl::get_num() const {
   return rec_num;
 }
 
-std::chrono::duration<double> dmr_recorder_impl::since_last_write() {
+std::chrono::duration<double> dmr_recorder_impl::since_last_write() const {
   return std::chrono::steady_clock::now() - wav_sink_slot0->get_stop_time();
 }
 
-RecorderState dmr_recorder_impl::get_state() {
+RecorderState dmr_recorder_impl::get_state() const {
   return wav_sink_slot0->get_state();
 }
 
-bool dmr_recorder_impl::is_active() {
+bool dmr_recorder_impl::is_active() const {
   if (state == REC_ACTIVE) {
     return true;
   } else {
     return false;
   }
 }
-bool dmr_recorder_impl::is_enabled() {
+bool dmr_recorder_impl::is_enabled() const {
   return source->is_selector_port_enabled(selector_port);
 }
 
@@ -150,14 +159,14 @@ void dmr_recorder_impl::set_enabled(bool enabled) {
   source->set_selector_port_enabled(selector_port, enabled);
 }
 
-bool dmr_recorder_impl::is_squelched() {
+bool dmr_recorder_impl::is_squelched() const {
   if (state == REC_ACTIVE) {
     return prefilter->is_squelched();
   }
   return true;
 }
 
-double dmr_recorder_impl::get_pwr() {
+double dmr_recorder_impl::get_pwr() const {
   return prefilter->get_pwr();
 }
 
@@ -165,7 +174,7 @@ void dmr_recorder_impl::set_squelch_callback(std::function<void(bool, double)> c
   prefilter->set_squelch_callback(std::move(cb));
 }
 
-bool dmr_recorder_impl::is_idle() {
+bool dmr_recorder_impl::is_idle() const {
   /*
     if ((wav_sink_slot0->get_state() == REC_IDLE) || (wav_sink_slot0->get_state() == REC_STOPPED)) {
       return true;
@@ -178,15 +187,15 @@ bool dmr_recorder_impl::is_idle() {
   return true;
 }
 
-double dmr_recorder_impl::get_freq() {
+double dmr_recorder_impl::get_freq() const {
   return chan_freq;
 }
 
-int dmr_recorder_impl::get_freq_error() { // get frequency error from FLL and convert to Hz
+int dmr_recorder_impl::get_freq_error() const { // get frequency error from FLL and convert to Hz
   return prefilter->get_freq_error();
 }
 
-double dmr_recorder_impl::get_current_length() {
+double dmr_recorder_impl::get_current_length() const {
   return wav_sink_slot0->total_length_in_seconds();
 }
 

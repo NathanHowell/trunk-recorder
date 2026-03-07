@@ -138,7 +138,12 @@ void p25_recorder_impl::autotune() {
   }*/
 }
 
-int p25_recorder_impl::get_freq_error() { // get frequency error from FLL and convert to Hz
+void p25_recorder_impl::tune_offset(double f) { prefilter->tune_offset(f); }
+bool p25_recorder_impl::is_analog() const { return false; }
+long p25_recorder_impl::get_wav_hz() const { return 8000; }
+long p25_recorder_impl::get_talkgroup() const { return 0; }
+
+int p25_recorder_impl::get_freq_error() const { // get frequency error from FLL and convert to Hz
   return prefilter->get_freq_error();
 }
 
@@ -146,11 +151,11 @@ std::shared_ptr<Source> p25_recorder_impl::get_source() {
   return source;
 }
 
-int p25_recorder_impl::get_num() {
+int p25_recorder_impl::get_num() const {
   return rec_num;
 }
 
-std::chrono::duration<double> p25_recorder_impl::since_last_write() {
+std::chrono::duration<double> p25_recorder_impl::since_last_write() const {
   if (qpsk_mod) {
     return qpsk_p25_decode->since_last_write();
   } else {
@@ -166,7 +171,7 @@ void p25_recorder_impl::process_message_queues() {
   }
 }
 
-RecorderState p25_recorder_impl::get_state() {
+RecorderState p25_recorder_impl::get_state() const {
   if (qpsk_mod) {
     return qpsk_p25_decode->get_state();
   } else {
@@ -174,7 +179,7 @@ RecorderState p25_recorder_impl::get_state() {
   }
 }
 
-bool p25_recorder_impl::is_enabled() {
+bool p25_recorder_impl::is_enabled() const {
   return source->is_selector_port_enabled(selector_port);
 }
 
@@ -182,7 +187,7 @@ void p25_recorder_impl::set_enabled(bool enabled) {
   source->set_selector_port_enabled(selector_port, enabled);
 }
 
-bool p25_recorder_impl::is_active() {
+bool p25_recorder_impl::is_active() const {
   if (state == REC_ACTIVE) {
     return true;
   } else {
@@ -190,14 +195,14 @@ bool p25_recorder_impl::is_active() {
   }
 }
 
-bool p25_recorder_impl::is_squelched() {
+bool p25_recorder_impl::is_squelched() const {
   if (state == REC_ACTIVE) {
     return prefilter->is_squelched();
   }
   return true;
 }
 
-double p25_recorder_impl::get_pwr() {
+double p25_recorder_impl::get_pwr() const {
   return prefilter->get_pwr();
 }
 
@@ -205,7 +210,7 @@ void p25_recorder_impl::set_squelch_callback(std::function<void(bool, double)> c
   prefilter->set_squelch_callback(std::move(cb));
 }
 
-bool p25_recorder_impl::is_idle() {
+bool p25_recorder_impl::is_idle() const {
   if (qpsk_mod) {
     if ((qpsk_p25_decode->get_state() == REC_IDLE) || (qpsk_p25_decode->get_state() == REC_STOPPED)) {
       return true;
@@ -218,11 +223,11 @@ bool p25_recorder_impl::is_idle() {
   return false;
 }
 
-double p25_recorder_impl::get_freq() {
+double p25_recorder_impl::get_freq() const {
   return chan_freq;
 }
 
-double p25_recorder_impl::get_current_length() {
+double p25_recorder_impl::get_current_length() const {
   if (qpsk_mod) {
     return qpsk_p25_decode->get_current_length();
   } else {

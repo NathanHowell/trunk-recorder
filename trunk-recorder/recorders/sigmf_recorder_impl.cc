@@ -62,11 +62,26 @@ sigmf_recorder_impl::sigmf_recorder_impl(const std::shared_ptr<Source> &src, Rec
   connect(squelch, 0, raw_sink, 0);
 }
 
-int sigmf_recorder_impl::get_num() {
+void sigmf_recorder_impl::tune_offset(double f) { prefilter->tune_offset(f); }
+void sigmf_recorder_impl::tune_freq(double) {}
+void sigmf_recorder_impl::set_tdma_slot(int) {}
+void sigmf_recorder_impl::set_source(long) {}
+void sigmf_recorder_impl::set_system(const std::shared_ptr<System> &) {}
+void sigmf_recorder_impl::process_message_queues() {}
+void sigmf_recorder_impl::clear() {}
+double sigmf_recorder_impl::get_pwr() const { return prefilter->get_pwr(); }
+std::vector<Transmission> sigmf_recorder_impl::get_transmission_list() { return {}; }
+long sigmf_recorder_impl::get_wav_hz() const { return 8000; }
+long sigmf_recorder_impl::get_talkgroup() const { return 0; }
+bool sigmf_recorder_impl::is_analog() const { return false; }
+bool sigmf_recorder_impl::is_idle() const { return state != REC_ACTIVE; }
+bool sigmf_recorder_impl::is_squelched() const { return prefilter->is_squelched(); }
+
+int sigmf_recorder_impl::get_num() const {
   return rec_num;
 }
 
-bool sigmf_recorder_impl::is_enabled() {
+bool sigmf_recorder_impl::is_enabled() const {
   return source->is_selector_port_enabled(selector_port);
 }
 
@@ -74,7 +89,7 @@ void sigmf_recorder_impl::set_enabled(bool enabled) {
   source->set_selector_port_enabled(selector_port, enabled);
 }
 
-bool sigmf_recorder_impl::is_active() {
+bool sigmf_recorder_impl::is_active() const {
   if (state == REC_ACTIVE) {
     return true;
   } else {
@@ -82,19 +97,19 @@ bool sigmf_recorder_impl::is_active() {
   }
 }
 
-double sigmf_recorder_impl::get_freq() {
+double sigmf_recorder_impl::get_freq() const {
   return freq;
 }
 
-int sigmf_recorder_impl::get_freq_error() { // get frequency error from FLL and convert to Hz
+int sigmf_recorder_impl::get_freq_error() const { // get frequency error from FLL and convert to Hz
   return prefilter->get_freq_error();
 }
 
-double sigmf_recorder_impl::get_current_length() {
+double sigmf_recorder_impl::get_current_length() const {
   return 0;
 }
 
-std::chrono::duration<double> sigmf_recorder_impl::since_last_write() {
+std::chrono::duration<double> sigmf_recorder_impl::since_last_write() const {
   return std::chrono::duration<double>::zero(); // sigmf recorders write continuously and never time out
 }
 
@@ -106,7 +121,7 @@ void sigmf_recorder_impl::tune_offset(double f) {
   freq_xlat->set_center_freq(-f);
 }*/
 
-RecorderState sigmf_recorder_impl::get_state() {
+RecorderState sigmf_recorder_impl::get_state() const {
   return state;
 }
 

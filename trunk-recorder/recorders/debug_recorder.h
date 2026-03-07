@@ -37,15 +37,7 @@ public:
   debug_recorder(){};
   virtual ~debug_recorder(){};
 
-  virtual void tune_freq(double f) = 0;
-  virtual void tune_offset(double f) = 0;
-  virtual bool start(const RecorderConfig &config) = 0;
-  virtual void stop() = 0;
-  virtual double get_freq() = 0;
-  virtual int get_num() = 0;
-  virtual double get_current_length() = 0;
-  virtual bool is_active() = 0;
-  virtual RecorderState get_state() = 0;
+  // debug-specific methods not in Recorder base
   virtual std::shared_ptr<Source> get_source() = 0;
   virtual void initialize_prefilter() = 0;
   virtual DecimSettings get_decim(long speed) = 0;

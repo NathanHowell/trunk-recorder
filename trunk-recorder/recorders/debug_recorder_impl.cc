@@ -165,15 +165,32 @@ debug_recorder_impl::debug_recorder_impl(const std::shared_ptr<Source> &src, std
   connect(arb_resampler, 0, udp_sink, 0);
 }
 
+void debug_recorder_impl::set_tdma_slot(int) {}
+void debug_recorder_impl::set_source(long) {}
+void debug_recorder_impl::set_system(const std::shared_ptr<System> &) {}
+void debug_recorder_impl::set_squelch_callback(std::function<void(bool, double)>) {}
+void debug_recorder_impl::process_message_queues() {}
+void debug_recorder_impl::clear() {}
+void debug_recorder_impl::set_enabled(bool) {}
+int debug_recorder_impl::get_freq_error() const { return 0; }
+double debug_recorder_impl::get_pwr() const { return 0; }
+std::vector<Transmission> debug_recorder_impl::get_transmission_list() { return {}; }
+long debug_recorder_impl::get_wav_hz() const { return 8000; }
+long debug_recorder_impl::get_talkgroup() const { return 0; }
+bool debug_recorder_impl::is_enabled() const { return false; }
+bool debug_recorder_impl::is_analog() const { return false; }
+bool debug_recorder_impl::is_idle() const { return state != REC_ACTIVE; }
+bool debug_recorder_impl::is_squelched() const { return true; }
+
 std::shared_ptr<Source> debug_recorder_impl::get_source() {
   return source;
 }
 
-int debug_recorder_impl::get_num() {
+int debug_recorder_impl::get_num() const {
   return rec_num;
 }
 
-bool debug_recorder_impl::is_active() {
+bool debug_recorder_impl::is_active() const {
   if (state == REC_ACTIVE) {
     return true;
   } else {
@@ -181,15 +198,15 @@ bool debug_recorder_impl::is_active() {
   }
 }
 
-double debug_recorder_impl::get_freq() {
+double debug_recorder_impl::get_freq() const {
   return chan_freq;
 }
 
-double debug_recorder_impl::get_current_length() {
+double debug_recorder_impl::get_current_length() const {
   return 0; // wav_sink->length_in_seconds();
 }
 
-std::chrono::duration<double> debug_recorder_impl::since_last_write() {
+std::chrono::duration<double> debug_recorder_impl::since_last_write() const {
   return std::chrono::duration<double>::zero(); // debug recorders stream continuously and never time out
 }
 
@@ -223,7 +240,7 @@ void debug_recorder_impl::tune_offset(double f) {
   }
 }
 
-RecorderState debug_recorder_impl::get_state() {
+RecorderState debug_recorder_impl::get_state() const {
   return state;
 }
 
