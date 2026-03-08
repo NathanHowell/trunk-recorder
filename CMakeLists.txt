@@ -216,7 +216,7 @@ SET(CMAKE_CXX_STANDARD 17)
 # The D_GLIBCXX_ASSERTIONS flag will cause a crash when an error is detected, making it easier to catch bugs
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -Wno-narrowing -fvisibility=hidden -fPIC -D_GLIBCXX_ASSERTIONS")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -Wno-narrowing -fvisibility=hidden -fPIC")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=znver2 -pthread -Wno-narrowing -fvisibility=hidden -fPIC")
 
 
 list(APPEND trunk_recorder_sources
