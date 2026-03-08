@@ -197,3 +197,10 @@ void xlat_channelizer::set_analog_squelch(bool analog_squelch) {
 void xlat_channelizer::set_samples_per_symbol(int samples_per_symbol) {
   fll_band_edge->set_samples_per_symbol(samples_per_symbol);
 }
+
+std::vector<gr::block_sptr> xlat_channelizer::get_metric_blocks() const {
+  std::vector<gr::block_sptr> blocks;
+  if (arb_resampler) blocks.push_back(arb_resampler);
+  if (fll_band_edge) blocks.push_back(fll_band_edge);
+  return blocks;
+}

@@ -49,6 +49,7 @@ public:
   int get_freq_error();
   bool is_squelched();
   double get_pwr();
+  std::vector<gr::block_sptr> get_metric_blocks() const;
   void set_squelch_callback(std::function<void(bool, double)> cb) {
     squelch->set_squelch_callback(std::move(cb));
   }

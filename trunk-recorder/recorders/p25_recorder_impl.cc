@@ -293,4 +293,14 @@ bool p25_recorder_impl::start(const RecorderConfig &config) {
   return true;
 }
 
+std::vector<gr::block_sptr> p25_recorder_impl::get_metric_blocks() const {
+  std::vector<gr::block_sptr> blocks;
+  if (prefilter) {
+    auto inner = prefilter->get_metric_blocks();
+    blocks.insert(blocks.end(), inner.begin(), inner.end());
+  }
+  if (modulation_selector) blocks.push_back(modulation_selector);
+  return blocks;
+}
+
 int Recorder::rec_counter = 0;

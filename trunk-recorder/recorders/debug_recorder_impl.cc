@@ -254,3 +254,9 @@ bool debug_recorder_impl::start(const RecorderConfig &config) {
   }
   return true;
 }
+
+std::vector<gr::block_sptr> debug_recorder_impl::get_metric_blocks() const {
+  std::vector<gr::block_sptr> blocks;
+  if (arb_resampler) blocks.push_back(arb_resampler);
+  return blocks;
+}

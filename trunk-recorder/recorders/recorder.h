@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+#include <gnuradio/runtime_types.h>
+
 #include "../global_structs.h"
 #include "../recorder_config.h"
 #include "../state.h"
@@ -45,6 +47,9 @@ public:
   virtual void set_system(const std::shared_ptr<System> &) = 0;
   virtual void set_squelch_callback(std::function<void(bool, double)> cb) = 0;
   virtual void flush_audio() = 0;
+
+  /// Return key internal gr::block instances for performance-counter collection.
+  virtual std::vector<gr::block_sptr> get_metric_blocks() const = 0;
 
   uint64_t get_rust_call_id() const { return rust_call_id; }
 

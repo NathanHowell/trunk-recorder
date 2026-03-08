@@ -188,3 +188,12 @@ bool sigmf_recorder_impl::start(const RecorderConfig &config) {
   }
   return true;
 }
+
+std::vector<gr::block_sptr> sigmf_recorder_impl::get_metric_blocks() const {
+  std::vector<gr::block_sptr> blocks;
+  if (prefilter) {
+    auto inner = prefilter->get_metric_blocks();
+    blocks.insert(blocks.end(), inner.begin(), inner.end());
+  }
+  return blocks;
+}

@@ -233,3 +233,15 @@ bool dmr_recorder_impl::start(const RecorderConfig &config) {
   }
   return true;
 }
+
+std::vector<gr::block_sptr> dmr_recorder_impl::get_metric_blocks() const {
+  std::vector<gr::block_sptr> blocks;
+  if (prefilter) {
+    auto inner = prefilter->get_metric_blocks();
+    blocks.insert(blocks.end(), inner.begin(), inner.end());
+  }
+  if (clock) blocks.push_back(clock);
+  if (costas) blocks.push_back(costas);
+  if (fsk4_demod) blocks.push_back(fsk4_demod);
+  return blocks;
+}

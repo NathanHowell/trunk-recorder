@@ -306,6 +306,16 @@ bool analog_recorder::start(const RecorderConfig &config) {
   return true;
 }
 
+std::vector<gr::block_sptr> analog_recorder::get_metric_blocks() const {
+  std::vector<gr::block_sptr> blocks;
+  if (prefilter) {
+    auto inner = prefilter->get_metric_blocks();
+    blocks.insert(blocks.end(), inner.begin(), inner.end());
+  }
+  if (demod) blocks.push_back(demod);
+  return blocks;
+}
+
 double analog_recorder::get_output_sample_rate() {
   return wav_sample_rate;
 }
