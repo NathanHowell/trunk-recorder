@@ -47,6 +47,7 @@ public:
   virtual void set_system(const std::shared_ptr<System> &) = 0;
   virtual void set_squelch_callback(std::function<void(bool, double)> cb) = 0;
   virtual void flush_audio() = 0;
+  virtual void set_squelch_db(double /*db*/) {};
 
   /// Return key internal gr::block instances for performance-counter collection.
   virtual std::vector<gr::block_sptr> get_metric_blocks() const = 0;

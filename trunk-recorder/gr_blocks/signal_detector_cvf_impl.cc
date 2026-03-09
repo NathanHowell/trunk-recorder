@@ -374,6 +374,10 @@ int signal_detector_cvf_impl::work(int noutput_items,
         d_pxx_out[i] = d_avg_filter[i].filter(d_pxx[i]);
       }
 
+      if (d_power_cb) {
+        d_power_cb(d_pxx_out, d_fft_len, d_samp_rate);
+      }
+
       if (d_auto_threshold) {
         build_threshold();
       }

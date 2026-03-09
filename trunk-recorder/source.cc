@@ -436,6 +436,12 @@ void Source::set_detection_callback(std::function<void(std::vector<Detected_Sign
   }
 }
 
+void Source::set_power_callback(std::function<void(const float*, unsigned, double)> cb) {
+  if (signal_detector) {
+    signal_detector->set_power_callback(std::move(cb));
+  }
+}
+
 void Source::set_signal_detector_threshold(float threshold) {
 BOOST_LOG_TRIVIAL(info) << " - Setting Signal Detector Threshold to: " << threshold;
   signal_detector->set_threshold(threshold);

@@ -118,8 +118,13 @@ public:
     d_detection_cb = std::move(cb);
   }
 
+  void set_power_callback(std::function<void(const float*, unsigned, double)> cb) override {
+    d_power_cb = std::move(cb);
+  }
+
 private:
   std::function<void(std::vector<Detected_Signal>)> d_detection_cb;
+  std::function<void(const float*, unsigned, double)> d_power_cb;
 };
 
 //} // namespace inspector

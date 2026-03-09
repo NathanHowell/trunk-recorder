@@ -73,6 +73,7 @@ public:
   std::chrono::duration<double> since_last_write() const override;
   void set_system(const std::shared_ptr<System> &) override;
   void set_squelch_callback(std::function<void(bool, double)> cb) override;
+  void set_squelch_db(double db) override;
   std::vector<gr::block_sptr> get_metric_blocks() const override;
 
   std::shared_ptr<Source> get_source();

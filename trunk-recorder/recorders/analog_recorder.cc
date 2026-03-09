@@ -241,6 +241,11 @@ void analog_recorder::set_squelch_callback(std::function<void(bool, double)> cb)
   prefilter->set_squelch_callback(std::move(cb));
 }
 
+void analog_recorder::set_squelch_db(double db) {
+  squelch_db = db;
+  prefilter->set_squelch_db(db);
+}
+
 int analog_recorder::get_freq_error() const { // get frequency error from FLL and convert to Hz
   return prefilter->get_freq_error();
 }

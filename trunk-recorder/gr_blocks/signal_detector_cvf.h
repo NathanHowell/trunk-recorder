@@ -118,6 +118,10 @@ public:
     virtual void set_auto_threshold(bool d_auto_threshold) = 0;
     virtual void set_average(float d_average) = 0;
     virtual void set_detection_callback(std::function<void(std::vector<Detected_Signal>)> cb) = 0;
+
+    /// Callback invoked every work cycle (~100 ms) with the IIR-filtered PSD.
+    /// Parameters: (pxx_out, fft_len, samp_rate).
+    virtual void set_power_callback(std::function<void(const float*, unsigned, double)> cb) = 0;
 };
 
 //} // namespace inspector
